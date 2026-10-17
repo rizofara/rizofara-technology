@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+backend/venv/
+backend/env/
+ENV/
+env/
+venv/
+*.db
+*.sqlite3
+backend/app.db
+
+# Uploaded Client Files
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Environment Variables
+.env
+backend/.env
+!backend/.env.example
+
+# Node / Frontend
+frontend/node_modules/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Vite / Build outputs
+frontend/dist/
+frontend/.vite/
+
+# IDE & OS
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
