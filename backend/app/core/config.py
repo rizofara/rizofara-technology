@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "EduTech & Software House Platform"
+    PROJECT_NAME: str = "Rizofara Technology"
     API_V1_STR: str = "/api/v1"
     
     # Database

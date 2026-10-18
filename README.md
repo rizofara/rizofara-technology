@@ -1,4 +1,4 @@
-# TechSolution Studio — Platform Layanan IT, Web Development & Asistensi Skripsi 🚀
+# Rizofara Technology — Digital Roots for a Brighter Tomorrow 🚀
 
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/Frontend-React%2018-61DAFB?style=flat-square&logo=react)](https://react.dev)
@@ -39,7 +39,7 @@ Website platform bisnis profesional untuk layanan asistensi akademik (tugas kuli
 ## 📁 Struktur Direktori Proyek
 
 ```
-TechSolution/
+RizofaraTechnology/
 ├── backend/
 │   ├── app/
 │   │   ├── api/v1/
@@ -136,7 +136,7 @@ python run.py
 
 | Variabel | Deskripsi | Default / Contoh |
 | :--- | :--- | :--- |
-| `PROJECT_NAME` | Nama brand platform | `"TechSolution Platform"` |
+| `PROJECT_NAME` | Nama brand platform | `"Rizofara Technology"` |
 | `DATABASE_URL` | URL koneksi database | `"sqlite:///./app.db"` |
 | `WHATSAPP_ADMIN_NUMBER` | Nomor WA admin bisnis | `"6285692390483"` |
 | `TELEGRAM_BOT_TOKEN` | Token Bot Telegram (opsional) | `""` |
@@ -154,4 +154,4 @@ python run.py
 ---
 
 ## 📄 Lisensi
-Hak Cipta © 2026 **TechSolution Studio**. Seluruh hak cipta dilindungi undang-undang.
+Hak Cipta © 2026 **Rizofara Technology**. Seluruh hak cipta dilindungi undang-undang.

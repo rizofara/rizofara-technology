@@ -10,7 +10,7 @@ def open_browser():
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("🚀 MENJALANKAN TECHSOLUTION STUDIO (SATU PINTU)")
+    print("🚀 MENJALANKAN RIZOFARA TECHNOLOGY (SATU PINTU)")
     print("👉 Website & Aplikasi: http://127.0.0.1:8000")
     print("👉 Swagger API Docs  : http://127.0.0.1:8000/docs")
     print("=" * 60)

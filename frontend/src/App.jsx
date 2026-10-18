@@ -192,7 +192,7 @@ export default function App() {
 
   const openWhatsAppDirect = (topic = 'Konsultasi Layanan') => {
     const text = encodeURIComponent(
-      `Halo Tim TechSolution,\nSaya tertarik konsultasi terkait: ${topic}.\nMohon informasi ketersediaan jadwal dan estimasinya ya kak. Terima kasih!`
+      `Halo Tim Rizofara Technology,\nSaya tertarik konsultasi terkait: ${topic}.\nMohon informasi ketersediaan jadwal dan estimasinya ya kak. Terima kasih!`
     );
     window.open(`https://wa.me/6285692390483?text=${text}`, '_blank');
   };
@@ -204,15 +204,17 @@ export default function App() {
       {/* Navigation Header */}
       <header className="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('home')}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
-              <Code2 className="w-6 h-6 text-white" />
-            </div>
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setActiveTab('home')}>
+            <img
+              src="/logo-icon.png"
+              alt="Rizofara Technology Logo"
+              className="w-10 h-10 object-contain rounded-xl shadow-md transition-transform duration-200 group-hover:scale-105"
+            />
             <div>
-              <span className="font-extrabold text-xl tracking-tight text-white flex items-center gap-1">
-                TechSolution <span className="text-xs px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/30">Studio</span>
+              <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white flex items-center gap-1.5">
+                Rizofara <span className="text-teal-400">Technology</span>
               </span>
-              <p className="text-[10px] text-slate-400">Software House & Asistensi IT</p>
+              <p className="text-[10px] text-slate-400 font-medium tracking-wide">Digital Roots for a Brighter Tomorrow</p>
             </div>
           </div>
 
@@ -1151,13 +1153,15 @@ export default function App() {
       {/* Footer */}
       <footer className="mt-auto border-t border-slate-800 bg-slate-950 py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <Code2 className="w-4 h-4 text-teal-400" />
-            <span className="font-bold text-slate-300">TechSolution Studio</span>
-            <span>— Solusi Skripsi, Web & AI Chatbot Terpercaya</span>
+          <div className="flex items-center gap-3">
+            <img src="/logo-icon.png" alt="Rizofara Technology Logo" className="w-6 h-6 object-contain rounded" />
+            <div>
+              <span className="font-bold text-slate-300">Rizofara Technology</span>
+              <span className="text-slate-400"> — Digital Roots for a Brighter Tomorrow</span>
+            </div>
           </div>
           <div>
-            <span>© {new Date().getFullYear()} TechSolution Studio. All rights reserved. Solusi Digital & Asistensi IT.</span>
+            <span>© {new Date().getFullYear()} Rizofara Technology. All rights reserved. Solusi Digital & Asistensi IT.</span>
           </div>
         </div>
       </footer>
