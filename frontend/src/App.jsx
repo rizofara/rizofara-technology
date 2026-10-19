@@ -26,7 +26,16 @@ import {
   Star,
   Quote,
   Lock,
-  X
+  X,
+  Menu,
+  BookOpen,
+  Award,
+  Zap,
+  Target,
+  HeartHandshake,
+  TrendingUp,
+  Layers,
+  ChevronDown,
 } from 'lucide-react';
 import axios from 'axios';
 import AdminPortal from './components/AdminPortal';
@@ -47,12 +56,24 @@ const getCleanTechTag = (rawCode, fallbackName = '') => {
     .slice(0, 3);
 };
 
+// Logo Resmi Rizofara Technology (Sesuai Desain Awal)
+export function RizofaraBrandLogo({ className = 'w-9 h-9' }) {
+  return (
+    <img
+      src="/logo-icon.png"
+      alt="Rizofara Technology Logo"
+      className={`${className} object-contain rounded-xl transition-transform duration-200 hover:scale-105`}
+    />
+  );
+}
+
 export default function App() {
-  // Navigation State (Otomatis buka 'admin' jika URL diawali /admin)
+  // Navigation State
   const [activeTab, setActiveTab] = useState(() =>
     window.location.pathname.startsWith('/admin') ? 'admin' : 'home'
   );
-
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openFaqId, setOpenFaqId] = useState(null);
 
   // Dynamic Pricing Config State (Modul M3 & M4)
   const [pricingConfig, setPricingConfig] = useState({
@@ -95,7 +116,7 @@ export default function App() {
         icon: 'Globe',
         color: 'emerald',
         category: 'bisnis',
-        base_price_min: 1200000,
+        base_price_min: 500000,
         base_price_max: 3800000,
         standard_days: 14,
         min_days: 5,
@@ -117,7 +138,7 @@ export default function App() {
         icon: 'Bot',
         color: 'amber',
         category: 'bisnis',
-        base_price_min: 900000,
+        base_price_min: 750000,
         base_price_max: 2800000,
         standard_days: 10,
         min_days: 5,
@@ -139,7 +160,7 @@ export default function App() {
         icon: 'Code2',
         color: 'teal',
         category: 'akademik',
-        base_price_min: 100000,
+        base_price_min: 50000,
         base_price_max: 350000,
         standard_days: 3,
         min_days: 1,
@@ -186,7 +207,7 @@ export default function App() {
   });
 
   // Calculator State
-  const [calcService, setCalcService] = useState('skripsi');
+  const [calcService, setCalcService] = useState('website');
   const [calcComplexity, setCalcComplexity] = useState('intermediate');
   const [calcPlatform, setCalcPlatform] = useState('web');
   const [calcDays, setCalcDays] = useState(14);
@@ -224,170 +245,222 @@ export default function App() {
   const [revisionSubmitting, setRevisionSubmitting] = useState(false);
   const [revisionSuccess, setRevisionSuccess] = useState(false);
 
-  // Showcase State (Modul M9 Testimoni & M10 Portofolio)
+  // Showcase State (Portofolio & Testimoni)
   const [showcaseData, setShowcaseData] = useState({
     portfolio_items: [
       {
         id: 1,
-        title: 'Deteksi Penyakit Daun Tanaman dengan Algoritma CNN (ResNet-50) & FastAPI',
-        slug: 'deteksi-penyakit-daun-cnn',
-        category: 'Skripsi AI & Machine Learning',
-        badge_color: 'teal',
-        summary:
-          'Aplikasi upload gambar berbasis web untuk mendeteksi hama daun secara real-time dengan akurasi 94.2%.',
-        tech_tags: ['Python', 'PyTorch', 'FastAPI', 'React'],
-        highlight_metric: 'Akurasi 94.2%',
+        title: 'Company Profile UMKM Retail',
+        slug: 'company-profile-umkm',
+        category: 'Website',
+        badge_color: 'emerald',
+        summary: 'Website profil toko interaktif dengan CMS dashboard, katalog produk, dan integrasi WhatsApp.',
+        tech_tags: ['React', 'Tailwind', 'FastAPI'],
+        highlight_metric: 'Responsif & Cepat',
       },
       {
         id: 2,
-        title: 'WhatsApp Customer Service AI Terintegrasi Google Gemini & Katalog Produk',
-        slug: 'whatsapp-cs-ai-gemini',
-        category: 'Chatbot & AI LLM',
-        badge_color: 'indigo',
-        summary:
-          'Bot asisten WhatsApp pintar yang melayani pertanyaan stok barang, rekomendasi produk, dan rekap pesanan otomatis.',
+        title: 'Chatbot Customer Service AI',
+        slug: 'chatbot-customer-service-ai',
+        category: 'Chatbot AI',
+        badge_color: 'teal',
+        summary: 'Integrasi WhatsApp Gateway pintar dengan AI Gemini untuk rekomendasi produk dan pencatatan pesanan otomatis.',
         tech_tags: ['Node.js', 'Gemini API', 'PostgreSQL'],
         highlight_metric: 'Respon Otomatis 24/7',
       },
       {
         id: 3,
-        title: 'Sistem Informasi Inventaris & Kasir (POS) Toko Retail Berbasis Cloud',
-        slug: 'sistem-informasi-pos-retail',
-        category: 'Web & Sistem Informasi',
-        badge_color: 'emerald',
-        summary:
-          'Web aplikasi pencatatan transaksi kasir, print struk thermal, laporan laba rugi bulanan, dan audit stok opname.',
+        title: 'Manajemen Data & POS Cloud',
+        slug: 'manajemen-data-pos-cloud',
+        category: 'Sistem Informasi',
+        badge_color: 'sky',
+        summary: 'Dashboard kasir multi-cabang, laporan laba rugi bulanan, cetak struk thermal, dan rekap inventaris.',
         tech_tags: ['Laravel 11', 'Tailwind', 'MySQL'],
-        highlight_metric: 'Multi-Role & Print Struk',
+        highlight_metric: 'Multi-Role & POS',
+      },
+      {
+        id: 4,
+        title: 'Landing Page Produk SaaS',
+        slug: 'landing-page-produk-saas',
+        category: 'Website',
+        badge_color: 'indigo',
+        summary: 'Landing page modern dengan form lead generation, animasi halus, dan skor SEO Google 98/100.',
+        tech_tags: ['Next.js', 'Tailwind', 'Vercel'],
+        highlight_metric: 'SEO Score 98/100',
       },
     ],
     testimonials: [
       {
         id: 1,
-        client_name: 'Rizky Ananda',
-        client_role: 'Mahasiswa Teknik Informatika',
-        project_label: 'Skripsi AI Klasifikasi Citra CNN',
+        client_name: 'Ahmad Rizky',
+        client_role: 'Mahasiswa, Universitas XYZ',
+        project_label: 'Skripsi AI Deteksi CNN',
         tag: 'Lulus Sidang Nilai A',
         comment:
-          'Awalnya pusing banget dospem minta akurasi dinaikkan di atas 90%. Dibantu perbaiki arsitektur model dan dikasih video panduan alur logika program sampai paham detailnya. Pas sidang penguji terkesan!',
+          'Hasilnya sangat memuaskan, pengerjaan cepat dan komunikatif. Website dan model AI sesuai dengan keinginan dospem!',
         rating: 5,
-        avatar_initials: 'RA',
-        avatar_color: 'from-teal-500 to-emerald-600',
+        avatar_initials: 'AR',
+        avatar_color: 'from-[#07C995] to-[#17C455]',
         source: 'admin',
       },
       {
         id: 2,
-        client_name: 'Dimas Saputra',
-        client_role: 'Owner Toko Retail & Fashion',
-        project_label: 'Chatbot WhatsApp AI + Katalog',
+        client_name: 'Siti Nurhaliza',
+        client_role: 'Pemilik UMKM Kuliner',
+        project_label: 'Website Company Profile + WhatsApp',
         tag: 'Bisnis UMKM',
         comment:
-          'Respon pelanggan jadi otomatis 24 jam nonstop. Admin toko nggak perlu bales manual satu-satu lagi untuk tanya stok dan rekapan invoice. Sangat mempermudah operasional bisnis saya.',
+          'Tim sangat profesional dan responsif. Revisi dikerjakan dengan cepat sesuai permintaan. Sangat recommended!',
         rating: 5,
-        avatar_initials: 'DS',
-        avatar_color: 'from-indigo-500 to-purple-600',
+        avatar_initials: 'SN',
+        avatar_color: 'from-[#00C4D7] to-[#0093E3]',
         source: 'admin',
       },
       {
         id: 3,
-        client_name: 'Mega Febriyanti',
-        client_role: 'Mahasiswi Sistem Informasi',
-        project_label: 'Skripsi SPK Metode TOPSIS & Web',
-        tag: 'Garansi Revisi Cepat',
+        client_name: 'Dimas Pratama',
+        client_role: 'Praktisi & Professional',
+        project_label: 'Chatbot AI Customer Care',
+        tag: 'Otomasi CS 24 Jam',
         comment:
-          'Waktu revisi bab 4 dan 5 mepet banget H-3 pendaftaran sidang. Tim gercep bantu perbaiki rumus pembobotan dan tambah fitur export Excel. Komunikasinya ramah dan fast response!',
+          'Penjelasan alur kerja jelas, estimasi harga transparan, dan hasilnya sesuai ekspektasi. Sangat direkomendasikan!',
         rating: 5,
-        avatar_initials: 'MF',
-        avatar_color: 'from-amber-500 to-orange-600',
-        source: 'admin',
-      },
-      {
-        id: 4,
-        client_name: 'Aldi Pratama',
-        client_role: 'Mahasiswa Ilmu Komputer',
-        project_label: 'Tugas Besar Pemrograman Python',
-        tag: 'Koding Bersih & Rapi',
-        comment:
-          "Setiap baris kode dikasih komentar penjelasan, jadi pas dosen tanya 'fungsi baris ini buat apa', aku bisa jawab dengan lancar tanpa ragu. Nilai praktikum dapet 95!",
-        rating: 5,
-        avatar_initials: 'AP',
-        avatar_color: 'from-cyan-500 to-blue-600',
+        avatar_initials: 'DP',
+        avatar_color: 'from-[#0093E3] to-[#005CDF]',
         source: 'admin',
       },
     ],
     rating_summary: {
-      average_rating: 5.0,
-      total_reviews: 4,
-      verified_count: 0,
+      average_rating: 4.9,
+      total_reviews: 120,
+      verified_count: 85,
     },
   });
   const [portfolioCategory, setPortfolioCategory] = useState('Semua');
   const [clientTestiModal, setClientTestiModal] = useState(null);
   const [clientTestiStatus, setClientTestiStatus] = useState({ loading: false, error: '', success: '' });
 
-  // CMS State (Modul M2.A Site Settings & M11 FAQ + Tech Stack)
+  // CMS State
   const [cmsData, setCmsData] = useState({
     settings: {
       brand_name: 'Rizofara Technology',
-      tagline: 'Digital Roots for a Brighter Tomorrow',
+      tagline: 'Digital roots endless possibilities',
       whatsapp_number: '6285692390483',
-      hero_badge:
-        'Asistensi Kode Terstruktur • Dokumentasi Lengkap • Wireframe & Panduan Teknis',
-      hero_title: 'Pengembangan Sistem Skripsi IT,',
-      hero_highlight: 'Aplikasi Web & Chatbot AI',
+      hero_badge: 'Solusi Digital untuk Mahasiswa & Bisnis',
+      hero_title: 'Solusi Skripsi IT, Pembuatan',
+      hero_highlight: 'Website & Chatbot AI',
       hero_subtitle:
-        'Dirancang dan dikerjakan oleh tim software engineer. Setiap proyek dilengkapi source code yang terstruktur, dokumentasi arsitektur, serta sesi penjelasan alur program.',
+        'Dikerjakan oleh tim berpengalaman dengan hasil berkualitas, tepat waktu, dan bergaransi.',
       payment_bank_info:
         'BCA / Mandiri / Gopay / Dana / QRIS (Hubungi Admin untuk Nomor Rekening Resmi)',
+      company_values: null,
     },
     faqs: [
       {
         id: 1,
-        question: 'Bagaimana ketentuan revisi jika ada catatan dari dosen pembimbing atau penguji?',
+        question: 'Bagaimana cara memesan layanan?',
         answer:
-          'Kami memberikan garansi revisi tanpa biaya tambahan selama poin perbaikan masih berada dalam ruang lingkup (scope) fitur dan spesifikasi awal yang disepakati.',
-        category: 'revisi',
+          'Pilih jenis layanan di menu Katalog atau hitung estimasi di Kalkulator, lalu klik tombol Ajukan Order atau langsung hubungi tim kami via WhatsApp untuk konsultasi awal.',
+        category: 'pemesanan',
       },
       {
         id: 2,
-        question: 'Apakah disertakan panduan instalasi dan penjelasan alur kode?',
+        question: 'Apakah data saya aman?',
         answer:
-          'Setiap penyerahan proyek mencakup panduan instalasi di perangkat Anda, dokumentasi README, serta penjelasan struktur database dan logika program untuk persiapan sidang.',
-        category: 'umum',
+          'Sangat aman. Kami menerapkan jaminan kerahasiaan penuh (NDA) terhadap identitas klien, data penelitian, judul skripsi, maupun dokumen bisnis Anda.',
+        category: 'keamanan',
       },
       {
         id: 3,
-        question: 'Bagaimana tahapan pembayaran yang berlaku?',
+        question: 'Berapa lama waktu pengerjaan?',
         answer:
-          'Pembayaran diawali dengan uang muka (DP) sebesar 30% hingga 40% setelah spesifikasi disepakati. Pelunasan dilakukan setelah sistem didemokan dan berjalan sesuai kesepakatan.',
-        category: 'pembayaran',
+          'Durasi pengerjaan fleksibel mulai dari 3 hari (paket kilat) hingga 21 hari kerja sesuai kompleksitas sistem dan kesepakatan jadwal Anda.',
+        category: 'waktu',
       },
       {
         id: 4,
-        question: 'Bagaimana kebijakan privasi data dan identitas klien?',
+        question: 'Metode pembayaran apa saja?',
         answer:
-          'Identitas klien, instansi atau kampus, serta dokumen penelitian bersifat rahasia dan tidak dipublikasikan ke halaman portofolio tanpa persetujuan klien.',
-        category: 'privasi',
+          'Pembayaran dapat dilakukan melalui Transfer Bank (BCA, Mandiri), E-Wallet (Dana, Gopay, OVO), dan QRIS dengan skema DP aman 30%-40% di awal.',
+        category: 'pembayaran',
+      },
+      {
+        id: 5,
+        question: 'Apakah bisa revisi setelah selesai?',
+        answer:
+          'Ya, kami memberikan Garansi Revisi Tanpa Biaya Tambahan untuk perbaikan catatan dosen pembimbing atau penyesuaian fitur dalam scope awal yang disepakati.',
+        category: 'garansi',
+      },
+      {
+        id: 6,
+        question: 'Apakah bisa konsultasi terlebih dahulu?',
+        answer:
+          'Tentu bisa! Sesi konsultasi awal, diskusi judul, pemilihan metode algoritma, atau perencanaan arsitektur web bersifat gratis 100%.',
+        category: 'konsultasi',
       },
     ],
     tech_stacks: [
-      { id: 1, name: 'Python', emoji: 'PY', color: 'text-teal-400', is_highlighted: false },
-      { id: 2, name: 'Java', emoji: 'JV', color: 'text-slate-200', is_highlighted: false },
-      { id: 3, name: 'C++', emoji: 'CPP', color: 'text-slate-200', is_highlighted: false },
-      { id: 4, name: 'PHP', emoji: 'PHP', color: 'text-slate-200', is_highlighted: false },
-      { id: 5, name: 'SQL', emoji: 'SQL', color: 'text-teal-400', is_highlighted: false },
-      { id: 6, name: 'Laravel', emoji: 'LRV', color: 'text-slate-200', is_highlighted: false },
-      { id: 7, name: 'Next.js', emoji: 'NXT', color: 'text-slate-200', is_highlighted: false },
-      { id: 8, name: 'Django', emoji: 'DJ', color: 'text-teal-400', is_highlighted: false },
-      {
-        id: 9,
-        name: 'Balsamiq Wireframe',
-        emoji: 'UI',
-        color: 'text-teal-300',
-        is_highlighted: true,
-      },
+      { id: 1, name: 'Python', emoji: 'PY', color: 'text-teal-600', is_highlighted: false },
+      { id: 2, name: 'React', emoji: 'RCT', color: 'text-sky-600', is_highlighted: true },
+      { id: 3, name: 'Node.js', emoji: 'NODE', color: 'text-emerald-600', is_highlighted: false },
+      { id: 4, name: 'Laravel', emoji: 'LRV', color: 'text-rose-600', is_highlighted: false },
+      { id: 5, name: 'Flutter', emoji: 'FLT', color: 'text-cyan-600', is_highlighted: false },
+      { id: 6, name: 'FastAPI', emoji: 'FAST', color: 'text-teal-600', is_highlighted: false },
+      { id: 7, name: 'Balsamiq', emoji: 'UI', color: 'text-indigo-600', is_highlighted: true },
     ],
   });
+
+  // Ekstraksi 7 Nilai Perusahaan
+  const getCompanyValues = () => {
+    if (Array.isArray(cmsData.settings?.company_values)) {
+      return cmsData.settings.company_values;
+    }
+    if (typeof cmsData.settings?.company_values === 'string') {
+      try {
+        const parsed = JSON.parse(cmsData.settings.company_values);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {
+        // Fallback
+      }
+    }
+    return [
+      {
+        id: 1,
+        name: 'Growth Mindset',
+        desc: 'Terus belajar, berkembang menghadapi kemajuan teknologi terbaru, dan selalu terbuka pada solusi kreatif.',
+      },
+      {
+        id: 2,
+        name: 'Inovasi',
+        desc: 'Mengembangkan arsitektur perangkat lunak dan implementasi AI yang relevan, mutakhir, dan berdampak nyata.',
+      },
+      {
+        id: 3,
+        name: 'Wajib bgt pantang menyerah',
+        desc: 'Tangguh menuntaskan setiap tantangan koding, perbaikan bug rumit, hingga bimbingan sidang selesai beres.',
+      },
+      {
+        id: 4,
+        name: 'Integritas',
+        desc: 'Kejujuran penuh dalam kesepakatan scope, kerahasiaan data terjamin aman, dan orisinalitas kode terjaga.',
+      },
+      {
+        id: 5,
+        name: 'Collaborative',
+        desc: 'Komunikasi solutif, mendengar masukan klien dan dosen penguji, serta bermitra erat selama pengerjaan.',
+      },
+      {
+        id: 6,
+        name: 'Good services',
+        desc: 'Pelayanan prima, ramah, responsif, bergaransi revisi, serta pendampingan pemahaman logika sistem secara tuntas.',
+      },
+      {
+        id: 7,
+        name: 'Transparan',
+        desc: 'Alur kerja terbuka per Bab, estimasi biaya jelas tanpa biaya tersembunyi, dan progres dapat dipantau real-time.',
+      },
+    ];
+  };
 
   const fetchPublicCms = async () => {
     try {
@@ -400,7 +473,7 @@ export default function App() {
         }));
       }
     } catch (err) {
-      // Gunakan fallback cmsData jika backend belum menyala
+      // Gunakan fallback
     }
   };
 
@@ -411,7 +484,7 @@ export default function App() {
         setShowcaseData(res.data);
       }
     } catch (err) {
-      // Gunakan fallback showcaseData jika backend belum menyala
+      // Gunakan fallback
     }
   };
 
@@ -428,7 +501,7 @@ export default function App() {
         }
       }
     } catch (err) {
-      // Gunakan fallback config default jika backend belum menyala
+      // Gunakan fallback
     }
   };
 
@@ -438,7 +511,19 @@ export default function App() {
     fetchPublicCms();
   }, []);
 
-  // Auto calculate when params change
+  // Sinkronisasi Title dan Meta Description Dinamis
+  useEffect(() => {
+    const brand = cmsData.settings?.brand_name || 'Rizofara Technology';
+    const tagline = cmsData.settings?.tagline || 'Digital roots endless possibilities';
+    document.title = `${brand} - ${tagline}`;
+
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc && cmsData.settings?.hero_subtitle) {
+      metaDesc.setAttribute('content', cmsData.settings.hero_subtitle);
+    }
+  }, [cmsData.settings]);
+
+  // Kalkulasi estimasi otomatis saat parameter berubah
   useEffect(() => {
     fetchEstimate();
   }, [calcService, calcComplexity, calcPlatform, calcDays, selectedAddons, pricingConfig]);
@@ -466,7 +551,7 @@ export default function App() {
       });
       setEstimateResult(response.data);
     } catch (err) {
-      // Fallback calculation menggunakan pricingConfig di memori (100% identik dengan pricing_engine.py)
+      // Fallback lokal jika backend belum merespons
       const svc =
         pricingConfig.services.find((s) => s.slug === calcService) || pricingConfig.services[0];
       const compObj =
@@ -548,7 +633,6 @@ export default function App() {
   };
 
   const openOrderModalFromCalc = () => {
-    // Sinkronkan pilihan kalkulator ke form order (Perbaikan B-01)
     setOrderForm((prev) => ({
       ...prev,
       service_type: calcService,
@@ -572,11 +656,11 @@ export default function App() {
         `${API_BASE}/orders/track/${encodeURIComponent(trackQuery.trim())}`,
         { params }
       );
-      setTrackResults(res.data);
+      setTrackResults(Array.isArray(res.data) ? res.data : [res.data]);
     } catch (err) {
       const msg =
         err.response?.data?.detail ||
-        'Order tidak ditemukan. Pastikan Kode Order lengkap (contoh: RZ-2610-XXXX) dan 4 digit terakhir Nomor WhatsApp sudah benar.';
+        'Order tidak ditemukan. Pastikan Kode Order lengkap (contoh: RZ-2610-SKR1) dan 4 digit terakhir Nomor WhatsApp sudah benar.';
       setTrackError(msg);
     } finally {
       setTrackLoading(false);
@@ -600,12 +684,11 @@ export default function App() {
       const res = await axios.post(`${API_BASE}/orders/`, payload);
       const createdOrder = res.data;
 
-      // Upload file if exists
       if (orderFile) {
         const formData = new FormData();
         formData.append('file', orderFile);
         await axios.post(`${API_BASE}/orders/${createdOrder.id}/upload-file`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+          headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
 
@@ -613,19 +696,21 @@ export default function App() {
       setOrderFile(null);
     } catch (err) {
       const detail = err.response?.data?.detail;
-      alert(detail || 'Gagal membuat order. Mohon pastikan backend berjalan atau hubungi kami langsung via WhatsApp.');
+      alert(
+        detail ||
+          'Gagal membuat order. Mohon pastikan backend berjalan atau hubungi kami langsung via WhatsApp.'
+      );
     } finally {
       setOrderSubmitting(false);
     }
   };
-
 
   const handleRevisionSubmit = async (e) => {
     e.preventDefault();
     setRevisionSubmitting(true);
     try {
       await axios.post(`${API_BASE}/orders/${revisionCode}/revision`, {
-        notes: revisionNotes
+        notes: revisionNotes,
       });
       setRevisionSuccess(true);
       setTimeout(() => {
@@ -669,7 +754,9 @@ export default function App() {
     } catch (err) {
       setClientTestiStatus({
         loading: false,
-        error: err.response?.data?.detail || 'Gagal mengirim ulasan. Pastikan Kode Order & 4 digit WA benar.',
+        error:
+          err.response?.data?.detail ||
+          'Gagal mengirim ulasan. Pastikan Kode Order & 4 digit WA benar.',
         success: '',
       });
     }
@@ -701,242 +788,611 @@ export default function App() {
     );
   }
 
+  const companyValues = getCompanyValues();
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-
-
-      {/* Navigation Header */}
-      <header className="sticky top-0 z-40 bg-slate-950/95 backdrop-blur border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('home')}>
-            <img
-              src="/favicon.png"
-              alt="Rizofara Technology Favicon"
-              className="w-9 h-9 object-contain rounded-lg border border-slate-800 bg-slate-900 p-0.5"
-            />
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-[#07C995] selection:text-white">
+      {/* ========================================================= */}
+      {/* 1. STICKY NAVBAR PUTIH BERSIH */}
+      {/* ========================================================= */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-3">
+          {/* Logo & Brand Name */}
+          <div
+            className="flex items-center gap-3 cursor-pointer shrink-0"
+            onClick={() => {
+              setActiveTab('home');
+              setMobileMenuOpen(false);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
+            <RizofaraBrandLogo className="w-9 h-9 shrink-0 drop-shadow-xs" />
             <div>
-              <span className="font-extrabold text-base sm:text-lg tracking-tight text-white block leading-none">
+              <span className="font-extrabold text-base tracking-tight text-slate-900 block leading-tight">
                 {cmsData.settings?.brand_name || 'Rizofara Technology'}
               </span>
-              <p className="text-[11px] text-slate-400 font-medium mt-1">
-                {cmsData.settings?.tagline || 'Digital Roots for a Brighter Tomorrow'}
+              <p className="text-[11px] text-slate-500 font-medium">
+                {cmsData.settings?.tagline || 'Digital roots endless possibilities'}
               </p>
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
-            <button
-              onClick={() => setActiveTab('home')}
-              className={`hover:text-teal-400 transition ${activeTab === 'home' ? 'text-teal-400 font-semibold' : ''}`}
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-1 text-[13px] font-semibold text-slate-600">
+            <a
+              href="#home"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
             >
               Beranda
-            </button>
-            <a href="#services" className="hover:text-teal-400 transition">
+            </a>
+            <a
+              href="#services"
+              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+            >
               Layanan
             </a>
-            <a href="#calculator" className="hover:text-teal-400 transition flex items-center gap-1.5">
-              <Calculator className="w-4 h-4 text-teal-400" />
-              Kalkulator Biaya
+            <a
+              href="#about"
+              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition font-bold text-slate-800"
+            >
+              About
             </a>
-            <a href="#tracking" className="hover:text-teal-400 transition flex items-center gap-1.5">
-              <Search className="w-4 h-4 text-teal-400" />
-              Cek Status Order
+            <a
+              href="#workflow"
+              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+            >
+              Alur Kerja
             </a>
-            <a href="#portfolio" className="hover:text-teal-400 transition">
+            <a
+              href="#calculator"
+              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+            >
+              Kalkulator
+            </a>
+            <a
+              href="#tracking"
+              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+            >
+              Cek Order
+            </a>
+            <a
+              href="#portfolio"
+              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+            >
               Portofolio
             </a>
-            <a href="#testimonials" className="hover:text-teal-400 transition">
+            <a
+              href="#testimonials"
+              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+            >
               Testimoni
             </a>
-            <a href="#faq" className="hover:text-teal-400 transition">
+            <a
+              href="#faq"
+              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+            >
               FAQ
             </a>
           </nav>
 
+          {/* Right Action Buttons */}
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => {
                 window.history.pushState({}, '', '/admin');
                 setActiveTab('admin');
+                setMobileMenuOpen(false);
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-teal-400 text-xs font-semibold border border-slate-800 transition"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition"
               title="Portal Login Admin"
             >
-              <Lock className="w-3.5 h-3.5 text-teal-400" />
-              <span className="hidden lg:inline">Admin</span>
-            </button>
-            <button
-              onClick={() => setIsOrderModalOpen(true)}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-slate-700 transition"
-            >
-              <FileText className="w-3.5 h-3.5 text-teal-400" />
-              Buat Order
+              <Lock className="w-3.5 h-3.5 text-slate-600" />
+              <span className="hidden xl:inline">Admin</span>
             </button>
             <button
               onClick={() => openWhatsAppDirect('Konsultasi Skripsi/Web')}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold transition"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#07C995] to-[#17C455] hover:opacity-95 text-white text-xs sm:text-sm font-bold shadow-sm shadow-emerald-500/20 transition cursor-pointer"
             >
-              <MessageSquare className="w-4 h-4" />
-              WhatsApp Kami
+              <MessageSquare className="w-4 h-4 shrink-0" />
+              <span>Konsultasi Sekarang</span>
+            </button>
+            {/* Mobile Hamburger Button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 transition"
+              aria-label="Menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5 text-slate-900" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden bg-white border-t border-slate-100 px-4 pt-3 pb-5 space-y-3 shadow-xl">
+            <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
+              {[
+                { href: '#home', label: 'Beranda' },
+                { href: '#services', label: 'Layanan Kami' },
+                { href: '#about', label: 'About (7 Nilai)' },
+                { href: '#workflow', label: 'Alur Kerja' },
+                { href: '#calculator', label: 'Kalkulator Biaya' },
+                { href: '#tracking', label: 'Cek Status Order' },
+                { href: '#portfolio', label: 'Portofolio' },
+                { href: '#testimonials', label: 'Testimoni' },
+                { href: '#faq', label: 'FAQ' },
+              ].map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 text-slate-800 flex items-center justify-between transition"
+                >
+                  <span>{item.label}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                </a>
+              ))}
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setIsOrderModalOpen(true);
+                }}
+                className="py-2.5 px-3 rounded-xl bg-[#0093E3] hover:bg-[#005CDF] text-white font-bold text-xs flex items-center justify-center gap-1.5"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Buat Order
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  window.history.pushState({}, '', '/admin');
+                  setActiveTab('admin');
+                }}
+                className="py-2.5 px-3 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5"
+              >
+                <Lock className="w-3.5 h-3.5 text-slate-600" />
+                Portal Admin
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Hero Section (Dinamis dari CMS Settings) */}
-      <section className="pt-14 pb-16 lg:pt-20 lg:pb-24 border-b border-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-teal-400 text-xs font-medium mb-6">
-            <ShieldCheck className="w-4 h-4 text-teal-400" />
-            <span>
-              {cmsData.settings?.hero_badge ||
-                'Asistensi Kode Terstruktur • Dokumentasi Lengkap • Wireframe & Panduan Teknis'}
-            </span>
+      {/* ========================================================= */}
+      {/* 2. HERO SECTION PERSIS MOCKUP (Light Mode Putih) */}
+      {/* ========================================================= */}
+      <section id="home" className="relative pt-10 pb-16 lg:pt-16 lg:pb-24 overflow-hidden bg-white">
+        {/* Soft Ambient Background Elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100/30 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="absolute top-1/2 left-0 w-80 h-80 bg-sky-100/30 rounded-full blur-3xl pointer-events-none -ml-20" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Content Column */}
+            <div className="lg:col-span-7 text-left space-y-6">
+              {/* Badges Bar */}
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-700 text-xs font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-[#17C455]" />
+                  <span>Solusi Digital untuk Mahasiswa & Bisnis</span>
+                </div>
+                <div className="text-xs font-medium text-slate-500 italic hidden sm:inline-block">
+                  Dari ide hingga digital roots
+                </div>
+              </div>
+
+              {/* Main Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">
+                Solusi Skripsi IT,<br />
+                Pembuatan <span style={{ color: '#0093E3' }}>Website</span> &<br />
+                <span style={{ color: '#07C995' }}>Chatbot AI</span>
+              </h1>
+
+              {/* Subtitle */}
+              <p className="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed">
+                {cmsData.settings?.hero_subtitle ||
+                  'Dikerjakan oleh tim berpengalaman dengan hasil berkualitas, tepat waktu, dan bergaransi.'}
+              </p>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2">
+                <a
+                  href="#services"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#0093E3] hover:bg-[#005CDF] text-white font-bold text-sm shadow-md shadow-sky-500/20 transition cursor-pointer"
+                >
+                  <span>Lihat Layanan</span>
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+                <a
+                  href="#calculator"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm border border-slate-200 shadow-xs transition cursor-pointer"
+                >
+                  <Calculator className="w-4 h-4 text-slate-600" />
+                  <span>Hitung Estimasi Biaya</span>
+                </a>
+              </div>
+
+              {/* 4 Counter Metrics */}
+              <div className="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#17C455] flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-lg text-slate-900">250+</div>
+                    <div className="text-xs text-slate-500">Proyek Selesai</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0093E3] flex items-center justify-center shrink-0">
+                    <Users className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-lg text-slate-900">100+</div>
+                    <div className="text-xs text-slate-500">Klien Puas</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                    <Star className="w-5 h-5 fill-amber-400" />
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-lg text-slate-900">4.9/5</div>
+                    <div className="text-xs text-slate-500">Rating Klien</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-cyan-50 text-[#00C4D7] flex items-center justify-center shrink-0">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-lg text-slate-900">24/7</div>
+                    <div className="text-xs text-slate-500">Konsultasi</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Laptop Mockup Column with Floating Badges */}
+            <div className="lg:col-span-5 relative flex justify-center items-center">
+              {/* Floating Badge 1: Website Modern */}
+              <div className="absolute -top-3 left-4 sm:left-8 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-4 py-2.5 shadow-lg flex items-center gap-2.5 animate-bounce-slow">
+                <div className="w-8 h-8 rounded-xl bg-sky-50 text-[#0093E3] flex items-center justify-center">
+                  <Laptop className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-800">Website Modern</span>
+              </div>
+
+              {/* Floating Badge 2: Chatbot AI */}
+              <div className="absolute top-1/3 -left-4 sm:-left-6 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-4 py-2.5 shadow-lg flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#07C995] flex items-center justify-center">
+                  <Bot className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-800">Chatbot AI</span>
+              </div>
+
+              {/* Floating Badge 3: Tugas & Skripsi */}
+              <div className="absolute -bottom-3 left-6 sm:left-12 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-4 py-2.5 shadow-lg flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <GraduationCap className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-800">Tugas & Skripsi</span>
+              </div>
+
+              {/* Laptop Screen Frame Container */}
+              <div className="w-full max-w-md bg-slate-900 rounded-3xl p-3 shadow-2xl border-4 border-slate-800 relative">
+                {/* Screen Camera & Bezel */}
+                <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-800 mb-2">
+                  <div className="flex gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500/80 inline-block" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80 inline-block" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-green-500/80 inline-block" />
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-mono">rizofara.tech/app</span>
+                  <div className="w-3" />
+                </div>
+
+                {/* Inner Screen Preview */}
+                <div className="bg-white rounded-xl overflow-hidden p-4 space-y-3 shadow-inner">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <RizofaraBrandLogo className="w-6 h-6" />
+                      <span className="text-xs font-bold text-slate-900">Rizofara System</span>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">
+                      Live V2.0
+                    </span>
+                  </div>
+
+                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 text-left space-y-1.5">
+                    <div className="text-[11px] font-bold text-slate-800">Progres Aktif Skripsi IT:</div>
+                    <div className="text-xs font-semibold text-[#0093E3]">
+                      Bab 4: Integrasi Model CNN (Akurasi 94.6%)
+                    </div>
+                    <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden mt-2">
+                      <div className="h-full bg-gradient-to-r from-[#07C995] to-[#0093E3] w-3/4 rounded-full" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[10px]">
+                    <div className="p-2 rounded bg-sky-50 text-sky-800 border border-sky-100 font-medium">
+                      ✓ Full Source Code
+                    </div>
+                    <div className="p-2 rounded bg-emerald-50 text-emerald-800 border border-emerald-100 font-medium">
+                      ✓ Garansi Revisi
+                    </div>
+                  </div>
+                </div>
+
+                {/* Laptop Base Stand */}
+                <div className="w-32 h-1 bg-slate-700 mx-auto mt-2 rounded-full" />
+              </div>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
-            {cmsData.settings?.hero_title || 'Pengembangan Sistem Skripsi IT,'}{' '}
-            <span className="text-teal-400">
-              {cmsData.settings?.hero_highlight || 'Aplikasi Web & Chatbot AI'}
-            </span>
-          </h1>
-
-          <p className="mt-5 text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            {cmsData.settings?.hero_subtitle ||
-              'Dirancang dan dikerjakan oleh tim software engineer. Setiap proyek dilengkapi source code yang terstruktur, dokumentasi arsitektur, serta sesi penjelasan alur program.'}
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+      {/* ========================================================= */}
+      {/* 3. LAYANAN KAMI (PILIH SESUAI KEBUTUHAN ANDA) */}
+      {/* ========================================================= */}
+      <section id="services" className="py-20 bg-slate-50/70 border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12">
+            <div>
+              <span className="text-xs font-bold text-[#0093E3] uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60">
+                LAYANAN KAMI
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">
+                Pilih layanan sesuai kebutuhan Anda
+              </h2>
+            </div>
             <a
               href="#calculator"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm transition"
+              className="text-sm font-bold text-[#0093E3] hover:text-[#005CDF] inline-flex items-center gap-1 transition"
             >
-              <Calculator className="w-4 h-4" />
-              Hitung Estimasi Biaya
-              <ArrowRight className="w-4 h-4" />
-            </a>
-            <a
-              href="#tracking"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 font-semibold text-sm border border-slate-800 hover:border-slate-700 transition"
-            >
-              <Search className="w-4 h-4 text-teal-400" />
-              Lacak Progres Order
+              Lihat Semua Layanan <ArrowRight className="w-4 h-4" />
             </a>
           </div>
 
-          {/* Trust Value Cards */}
-          <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-left">
-              <GraduationCap className="w-5 h-5 text-teal-400 mb-2.5" />
-              <h4 className="font-bold text-sm text-white">Source Code Terstruktur</h4>
-              <p className="text-xs text-slate-400 mt-1">Hak milik penuh dengan komentar penjelasan pada modul utama.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Card 1: Pembuatan Website */}
+            <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-sky-200 transition flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-sky-50 text-[#0093E3] flex items-center justify-center mb-5">
+                  <Laptop className="w-6 h-6" />
+                </div>
+                <h3 className="font-extrabold text-lg text-slate-900 mb-2">Pembuatan Website</h3>
+                <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                  Website company profile, web app, landing page, dan sistem informasi.
+                </p>
+              </div>
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                <div>
+                  <span className="text-[11px] text-slate-400 block">Mulai dari</span>
+                  <span className="text-base font-extrabold text-slate-900">Rp 500.000</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setCalcService('website');
+                    document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="w-9 h-9 rounded-full bg-[#0093E3] hover:bg-[#005CDF] text-white flex items-center justify-center transition cursor-pointer"
+                  title="Hitung Estimasi Website"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-left">
-              <ShieldCheck className="w-5 h-5 text-teal-400 mb-2.5" />
-              <h4 className="font-bold text-sm text-white">Garansi Revisi Scope</h4>
-              <p className="text-xs text-slate-400 mt-1">Perbaikan tanpa biaya tambahan sesuai spesifikasi awal yang disepakati.</p>
+
+            {/* Card 2: Tugas Kuliah */}
+            <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-teal-200 transition flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-teal-50 text-[#07C995] flex items-center justify-center mb-5">
+                  <FileText className="w-6 h-6" />
+                </div>
+                <h3 className="font-extrabold text-lg text-slate-900 mb-2">Tugas Kuliah</h3>
+                <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                  Makalah, presentasi, dan proyek koding jurusan pemrograman/IT.
+                </p>
+              </div>
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                <div>
+                  <span className="text-[11px] text-slate-400 block">Mulai dari</span>
+                  <span className="text-base font-extrabold text-slate-900">Rp 50.000</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setCalcService('tugas');
+                    document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="w-9 h-9 rounded-full bg-[#0093E3] hover:bg-[#005CDF] text-white flex items-center justify-center transition cursor-pointer"
+                  title="Hitung Estimasi Tugas Kuliah"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-left">
-              <Clock className="w-5 h-5 text-teal-400 mb-2.5" />
-              <h4 className="font-bold text-sm text-white">Jadwal Terukur</h4>
-              <p className="text-xs text-slate-400 mt-1">Tersedia opsi pengerjaan reguler maupun prioritas sesuai tenggat waktu.</p>
+
+            {/* Card 3: Skripsi */}
+            <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-amber-200 transition flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center mb-5">
+                  <GraduationCap className="w-6 h-6" />
+                </div>
+                <h3 className="font-extrabold text-lg text-slate-900 mb-2">Skripsi</h3>
+                <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                  Bantuan analisis data, penulisan laporan per bab, dan dokumentasi sistem.
+                </p>
+              </div>
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                <div>
+                  <span className="text-[11px] text-slate-400 block">Mulai dari</span>
+                  <span className="text-base font-extrabold text-slate-900">Rp 200.000</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setCalcService('skripsi');
+                    document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="w-9 h-9 rounded-full bg-[#0093E3] hover:bg-[#005CDF] text-white flex items-center justify-center transition cursor-pointer"
+                  title="Hitung Estimasi Skripsi"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 text-left">
-              <Video className="w-5 h-5 text-teal-400 mb-2.5" />
-              <h4 className="font-bold text-sm text-white">Dokumentasi & Panduan</h4>
-              <p className="text-xs text-slate-400 mt-1">Dilengkapi panduan instalasi lokal dan penjelasan alur kerja sistem.</p>
+
+            {/* Card 4: Chatbot AI */}
+            <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-emerald-200 transition flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#17C455] flex items-center justify-center mb-5">
+                  <Bot className="w-6 h-6" />
+                </div>
+                <h3 className="font-extrabold text-lg text-slate-900 mb-2">Chatbot AI</h3>
+                <p className="text-xs text-slate-500 leading-relaxed mb-6">
+                  Integrasi AI untuk bisnis dan edukasi, WhatsApp Gateway & RAG LLM.
+                </p>
+              </div>
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                <div>
+                  <span className="text-[11px] text-slate-400 block">Mulai dari</span>
+                  <span className="text-base font-extrabold text-slate-900">Rp 750.000</span>
+                </div>
+                <button
+                  onClick={() => {
+                    setCalcService('chatbot');
+                    document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="w-9 h-9 rounded-full bg-[#0093E3] hover:bg-[#005CDF] text-white flex items-center justify-center transition cursor-pointer"
+                  title="Hitung Estimasi Chatbot AI"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Tech Stacks & Tools Showcase (Tanpa Emoji) */}
-      <section className="py-7 bg-slate-900/50 border-b border-slate-800">
+      {/* ========================================================= */}
+      {/* 4. MENGAPA MEMILIH KAMI? */}
+      {/* ========================================================= */}
+      <section className="py-16 bg-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-4">
-            Teknologi, Bahasa Pemrograman & Perangkat Desain
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-2.5 text-xs font-semibold">
-            {(cmsData.tech_stacks || []).map((t, idx) => (
-              <span
-                key={t.id || idx}
-                className={`px-3 py-1.5 rounded-lg bg-slate-950 border ${
-                  t.is_highlighted ? 'border-teal-500/40 text-teal-300' : 'border-slate-800 text-slate-200'
-                } flex items-center gap-2`}
-              >
-                <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-teal-400">
-                  {getCleanTechTag(t.emoji, t.name)}
-                </span>
-                <span>{t.name}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Services Section */}
-      <section id="services" className="py-20 bg-slate-950 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-xs font-bold text-teal-400 uppercase tracking-widest">Katalog Layanan</span>
-            <h2 className="text-3xl font-extrabold text-white mt-2">
-              Ruang Lingkup Pengembangan Sistem
-            </h2>
-            <p className="text-slate-400 text-sm mt-3">
-              Layanan teknis untuk kebutuhan penelitian akademik, tugas pemrograman, hingga pengembangan aplikasi web dan otomasi bisnis.
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-10">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                Mengapa Memilih Kami?
+              </h2>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500">
+              Kami berkomitmen memberikan hasil terbaik dengan proses yang transparan.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pricingConfig.services.map((svc) => {
-              const iconMap = {
-                GraduationCap,
-                Globe,
-                Bot,
-                Code2,
-                Terminal,
-                Laptop,
-              };
-              const IconComp = iconMap[svc.icon] || Code2;
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0093E3] flex items-center justify-center shrink-0">
+                <Award className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-sm text-slate-900">Hasil Berkualitas</h4>
+                <p className="text-xs text-slate-500 mt-1">Dikerjakan oleh tim berpengalaman.</p>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-sm text-slate-900">Tepat Waktu</h4>
+                <p className="text-xs text-slate-500 mt-1">Timeline jelas dan sesuai kesepakatan.</p>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#17C455] flex items-center justify-center shrink-0">
+                <Calculator className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-sm text-slate-900">Harga Transparan</h4>
+                <p className="text-xs text-slate-500 mt-1">Estimasi jelas dengan kalkulator harga.</p>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="font-bold text-sm text-slate-900">Garansi Revisi</h4>
+                <p className="text-xs text-slate-500 mt-1">Revisi hingga sesuai kebutuhan.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================= */}
+      {/* 5. TENTANG KAMI & 7 NILAI PERUSAHAAN (#about) */}
+      {/* ========================================================= */}
+      <section id="about" className="py-20 bg-slate-50/80 border-t border-slate-100 scroll-mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <span className="text-xs font-bold text-[#07C995] uppercase tracking-wider bg-emerald-50 px-3.5 py-1 rounded-full border border-emerald-200/60">
+              TENTANG KAMI & BUDAYA KERJA
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3">
+              7 Nilai Utama Perusahaan
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-base mt-2 font-medium">
+              Tagline: <strong className="text-slate-900 italic">“Digital roots endless possibilities”</strong>
+            </p>
+            <p className="text-slate-500 text-xs sm:text-sm mt-1 max-w-xl mx-auto">
+              Fondasi integritas, etos pantang menyerah, dan dedikasi teknologi yang mendasari setiap baris kode yang kami kembangkan untuk mahasiswa dan mitra bisnis.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {companyValues.map((val, idx) => {
+              const icons = [TrendingUp, Zap, Target, ShieldCheck, HeartHandshake, Award, CheckCircle2];
+              const IconComp = icons[idx % icons.length];
               return (
                 <div
-                  key={svc.slug}
-                  className="rounded-2xl bg-slate-900 border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition"
+                  key={val.id || idx}
+                  className="bg-white rounded-2xl border border-slate-100 p-6 shadow-xs hover:shadow-md hover:border-[#0093E3]/40 transition group flex flex-col justify-between"
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-5">
-                      <div className="w-11 h-11 rounded-xl bg-slate-950 border border-slate-800 text-teal-400 flex items-center justify-center">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-slate-50 group-hover:bg-sky-50 text-[#0093E3] flex items-center justify-center transition">
                         <IconComp className="w-5 h-5" />
                       </div>
-                      <span className="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-950 text-teal-300 border border-slate-800">
-                        Mulai Rp {(svc.base_price_min || 0).toLocaleString('id-ID')}
+                      <span className="font-mono text-xs font-extrabold text-slate-300 group-hover:text-[#07C995] transition">
+                        0{val.id || idx + 1}
                       </span>
                     </div>
-                    <h3 className="font-bold text-base text-white mb-2">{svc.name}</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                      {svc.description}
+                    <h3 className="font-extrabold text-base text-slate-900 mb-2 group-hover:text-[#0093E3] transition">
+                      {val.name || val.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {val.desc || 'Komitmen dedikasi penuh untuk memberikan hasil terbaik dan beretika.'}
                     </p>
-                    <ul className="text-xs text-slate-300 space-y-2 mb-6">
-                      {(svc.features || []).map((feat, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-teal-400 shrink-0 mt-0.5" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
                   </div>
-                  <button
-                    onClick={() => {
-                      setCalcService(svc.slug);
-                      setCalcDays(svc.standard_days || 14);
-                      document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className="w-full py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-teal-400 flex items-center justify-center gap-1 transition"
-                  >
-                    Hitung Estimasi {svc.short_label}
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="mt-4 pt-3 border-t border-slate-50 flex items-center gap-1.5 text-[11px] font-semibold text-[#07C995]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#17C455]" />
+                    <span>Budaya Resmi Rizofara</span>
+                  </div>
                 </div>
               );
             })}
@@ -944,64 +1400,132 @@ export default function App() {
         </div>
       </section>
 
-      {/* Interactive Pricing Calculator Section */}
-      <section id="calculator" className="py-20 bg-slate-950">
+      {/* ========================================================= */}
+      {/* 6. ALUR KERJA (DARI KONSULTASI HINGGA PROJECT SELESAI) */}
+      {/* ========================================================= */}
+      <section id="workflow" className="py-20 bg-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-bold text-teal-400 uppercase tracking-widest">Simulasi Biaya</span>
-            <h2 className="text-3xl font-extrabold text-white mt-2">
-              Kalkulator Estimasi Proyek
-            </h2>
-            <p className="text-slate-400 text-sm mt-3">
-              Sesuaikan jenis layanan, platform, tingkat kompleksitas, dan target waktu pengerjaan untuk melihat rincian estimasi biaya.
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-14">
+            <div>
+              <span className="text-xs font-bold text-[#07C995] uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60">
+                ALUR KERJA
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">
+                Dari Konsultasi hingga Project Selesai
+              </h2>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 max-w-xs">
+              Proses mudah, transparan, dan terarah untuk hasil terbaik.
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Input Controls */}
-            <div className="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6">
-              {/* 1. Service Selection */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+            {[
+              {
+                step: '1',
+                title: 'Konsultasi',
+                desc: 'Diskusi kebutuhan, penentuan scope fitur, dan estimasi biaya.',
+                icon: MessageSquare,
+                color: 'text-sky-500',
+                bg: 'bg-sky-50',
+              },
+              {
+                step: '2',
+                title: 'Pengerjaan',
+                desc: 'Tim mulai selalu mengerjakan kode per Bab sesuai timeline.',
+                icon: Layers,
+                color: 'text-indigo-500',
+                bg: 'bg-indigo-50',
+              },
+              {
+                step: '3',
+                title: 'Review',
+                desc: 'Periksa progres secara real-time via menu Cek Status.',
+                icon: Search,
+                color: 'text-teal-500',
+                bg: 'bg-teal-50',
+              },
+              {
+                step: '4',
+                title: 'Selesai',
+                desc: 'Terima hasil akhir dengan garansi revisi dan panduan sistem.',
+                icon: CheckCircle2,
+                color: 'text-emerald-500',
+                bg: 'bg-emerald-50',
+              },
+            ].map((st, i) => (
+              <div
+                key={st.step}
+                className="bg-slate-50/70 rounded-2xl border border-slate-100 p-6 flex flex-col justify-between hover:bg-white hover:shadow-md hover:border-slate-200 transition"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="w-8 h-8 rounded-full bg-slate-900 text-white font-extrabold text-xs flex items-center justify-center">
+                      {st.step}
+                    </span>
+                    <div className={`w-9 h-9 rounded-xl ${st.bg} ${st.color} flex items-center justify-center`}>
+                      <st.icon className="w-4 h-4" />
+                    </div>
+                  </div>
+                  <h3 className="font-extrabold text-base text-slate-900 mb-2">{st.title}</h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">{st.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================= */}
+      {/* 7. KALKULATOR ESTIMASI BIAYA PROYEK */}
+      {/* ========================================================= */}
+      <section id="calculator" className="py-20 bg-slate-50/60 border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-xs font-bold text-[#0093E3] uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60">
+              KALKULATOR ESTIMASI
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">
+              Hitung Estimasi Biaya Proyek
+            </h2>
+            <p className="text-slate-500 text-sm mt-2">
+              Sesuaikan kebutuhan Anda dan dapatkan estimasi harga secara instan.
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Input Controls Card */}
+            <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+              {/* 1. Pilih Jenis Layanan */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
                   1. Pilih Jenis Layanan
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {pricingConfig.services.map((s) => {
-                    const iconMap = {
-                      GraduationCap,
-                      Globe,
-                      Bot,
-                      Code2,
-                      Terminal,
-                      Laptop,
-                    };
-                    const Icon = iconMap[s.icon] || Code2;
-                    return (
-                      <button
-                        key={s.slug}
-                        type="button"
-                        onClick={() => {
-                          setCalcService(s.slug);
-                          setCalcDays(s.standard_days || 14);
-                        }}
-                        className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition ${
-                          calcService === s.slug
-                            ? 'bg-teal-500/10 border-teal-500 text-teal-300 shadow-md shadow-teal-500/10'
-                            : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span className="truncate max-w-full">{s.short_label}</span>
-                      </button>
-                    );
-                  })}
+                  {pricingConfig.services.map((s) => (
+                    <button
+                      key={s.slug}
+                      type="button"
+                      onClick={() => {
+                        setCalcService(s.slug);
+                        setCalcDays(s.standard_days || 14);
+                      }}
+                      className={`py-2.5 px-3 text-center rounded-xl border text-xs font-bold transition cursor-pointer ${
+                        calcService === s.slug
+                          ? 'bg-[#0093E3] border-[#0093E3] text-white shadow-xs'
+                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      {s.short_label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* 2. Platform / Tech */}
+              {/* 2. Platform / Kategori */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                  2. Platform / Fokus Teknologi
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
+                  2. Platform Sistem
                 </label>
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                   {(pricingConfig.platform_factors || [])
@@ -1016,10 +1540,10 @@ export default function App() {
                         key={p.code}
                         type="button"
                         onClick={() => setCalcPlatform(p.code)}
-                        className={`py-2 px-1 text-center rounded-lg border text-xs font-medium transition ${
+                        className={`py-2 px-2 text-center rounded-xl border text-xs font-medium transition cursor-pointer ${
                           calcPlatform === p.code
-                            ? 'bg-indigo-500/10 border-indigo-500 text-indigo-300'
-                            : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                            ? 'bg-slate-900 border-slate-900 text-white'
+                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
                         {p.label}
@@ -1028,9 +1552,9 @@ export default function App() {
                 </div>
               </div>
 
-              {/* 3. Complexity */}
+              {/* 3. Tingkat Kompleksitas */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
                   3. Tingkat Kompleksitas
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -1046,10 +1570,10 @@ export default function App() {
                         key={c.code}
                         type="button"
                         onClick={() => setCalcComplexity(c.code)}
-                        className={`py-2 px-2 text-center rounded-lg border text-xs font-medium transition ${
+                        className={`py-2 px-2 text-center rounded-xl border text-xs font-medium transition cursor-pointer ${
                           calcComplexity === c.code
-                            ? 'bg-teal-500/10 border-teal-500 text-teal-300'
-                            : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                            ? 'bg-[#07C995] border-[#07C995] text-white'
+                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
                         {c.label}
@@ -1058,37 +1582,12 @@ export default function App() {
                 </div>
               </div>
 
-              {/* 4. Deadline Slider */}
+              {/* 4. Fitur Tambahan (Add-ons) */}
               <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    4. Target Waktu Deadline
-                  </label>
-                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">
-                    {calcDays} Hari Pengerjaan ({estimateResult?.urgency_tier || 'Standar'})
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min={currentServiceObj?.min_days || 1}
-                  max={currentServiceObj?.max_days || 60}
-                  value={calcDays}
-                  onChange={(e) => setCalcDays(e.target.value)}
-                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
-                />
-                <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                  <span>Min {currentServiceObj?.min_days || 1} Hari (Kilat)</span>
-                  <span>Standar {currentServiceObj?.standard_days || 14} Hari</span>
-                  <span>Max {currentServiceObj?.max_days || 60} Hari (Santai)</span>
-                </div>
-              </div>
-
-              {/* 5. Dynamic Add-ons Checkboxes */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                  5. Fasilitas Tambahan (Add-ons)
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
+                  4. Fitur Tambahan (Opsional)
                 </label>
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {(pricingConfig.addons || [])
                     .filter(
                       (addon) =>
@@ -1099,162 +1598,165 @@ export default function App() {
                     .map((addon) => (
                       <label
                         key={addon.code}
-                        className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 cursor-pointer hover:border-slate-700"
+                        className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100/70 transition"
                       >
                         <div className="flex items-center gap-3">
                           <input
                             type="checkbox"
                             checked={selectedAddons.includes(addon.code)}
                             onChange={() => toggleAddonCode(addon.code)}
-                            className="w-4 h-4 rounded text-teal-500 bg-slate-900 border-slate-700 focus:ring-0"
+                            className="w-4 h-4 rounded text-[#0093E3] border-slate-300 focus:ring-0"
                           />
                           <div>
-                            <span className="text-xs font-semibold text-slate-200">
+                            <span className="text-xs font-semibold text-slate-800">
                               {addon.label}
                             </span>
                             {addon.description && (
-                              <p className="text-[10px] text-slate-400">{addon.description}</p>
+                              <p className="text-[11px] text-slate-500">{addon.description}</p>
                             )}
                           </div>
                         </div>
-                        <span className="text-[10px] font-bold text-teal-400 shrink-0">
+                        <span className="text-[11px] font-bold text-[#0093E3] shrink-0 font-mono">
                           {addon.price_type === 'percent'
                             ? `+${addon.price_min}%`
-                            : `+Rp ${(addon.price_min / 1000).toFixed(0)}rb`}
+                            : `+Rp ${(addon.price_min).toLocaleString('id-ID')}`}
                         </span>
                       </label>
                     ))}
                 </div>
               </div>
+
+              {/* 5. Estimasi Waktu Pengerjaan */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    5. Estimasi Waktu Pengerjaan
+                  </label>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200">
+                    {calcDays} Hari Pengerjaan ({estimateResult?.urgency_tier || 'Standar'})
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={currentServiceObj?.min_days || 1}
+                  max={currentServiceObj?.max_days || 60}
+                  value={calcDays}
+                  onChange={(e) => setCalcDays(e.target.value)}
+                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0093E3]"
+                />
+                <div className="flex justify-between text-[11px] text-slate-400 mt-1 font-medium">
+                  <span>Min {currentServiceObj?.min_days || 1} Hari</span>
+                  <span>Standar {currentServiceObj?.standard_days || 14} Hari</span>
+                  <span>Max {currentServiceObj?.max_days || 60} Hari</span>
+                </div>
+              </div>
             </div>
 
-            {/* Estimate Summary Result */}
-            <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8">
-              <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
-                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                  Ringkasan Estimasi Biaya
+            {/* Estimation Summary Box */}
+            <div className="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Rincian Estimasi
                 </span>
-                <span className="px-2.5 py-0.5 bg-teal-500/10 text-teal-400 border border-teal-500/30 text-[10px] font-bold uppercase rounded">
-                  Simulasi Otomatis
+                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-sky-50 text-[#0093E3]">
+                  Simulasi Akurat
                 </span>
               </div>
 
-              <div className="text-xs text-slate-400 font-medium">Rentang Estimasi Investasi:</div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-mono">
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between text-slate-600">
+                  <span>Jenis Layanan:</span>
+                  <span className="font-semibold text-slate-900">{currentServiceObj?.name}</span>
+                </div>
+                <div className="flex justify-between text-slate-600">
+                  <span>Platform / Stack:</span>
+                  <span className="font-semibold text-slate-900 uppercase">{calcPlatform}</span>
+                </div>
+                <div className="flex justify-between text-slate-600">
+                  <span>Target Waktu:</span>
+                  <span className="font-semibold text-slate-900">{calcDays} Hari</span>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100">
+                <div className="text-xs text-slate-500">Total Estimasi Investasi:</div>
+                <div className="mt-1 text-2xl sm:text-3xl font-extrabold text-[#0093E3] tracking-tight">
                   Rp {estimateResult ? (estimateResult.estimated_min_price).toLocaleString('id-ID') : '...'}
-                </span>
-                <span className="text-xs text-slate-400 font-mono">
-                  – Rp {estimateResult ? (estimateResult.estimated_max_price).toLocaleString('id-ID') : '...'}
-                </span>
+                </div>
+                <div className="text-xs text-slate-400 font-mono mt-0.5">
+                  Rentang s.d. Rp {estimateResult ? (estimateResult.estimated_max_price).toLocaleString('id-ID') : '...'}
+                </div>
               </div>
 
-              <div className="mt-4 p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-600 space-y-1">
                 <div className="flex justify-between items-center">
-                  <span>Uang Muka (DP 40%):</span>
-                  <span className="font-bold text-teal-400 font-mono">
+                  <span>Rekomendasi DP (40%):</span>
+                  <span className="font-extrabold text-[#07C995] font-mono">
                     Rp {estimateResult ? (estimateResult.recommended_dp).toLocaleString('id-ID') : '...'}
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-400 mt-1">
-                  Pelunasan dilakukan setelah sistem didemokan dan sesuai ruang lingkup.
-                </div>
+                <p className="text-[11px] text-slate-400">
+                  Harga dapat berubah sesuai kebutuhan spesifik. Konsultasikan untuk hasil yang lebih akurat.
+                </p>
               </div>
 
-              {/* Rincian Perhitungan (Breakdown) */}
-              {estimateResult?.breakdown && estimateResult.breakdown.length > 0 && (
-                <div className="mt-4 p-3.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] space-y-1.5">
-                  <div className="font-bold text-slate-300 uppercase tracking-wider text-[10px] mb-1">
-                    Komponen Perhitungan:
-                  </div>
-                  {estimateResult.breakdown.map((item, i) => (
-                    <div key={i} className="flex justify-between text-slate-400">
-                      <span>{item.label}</span>
-                      <span className="font-mono text-slate-200">
-                        {item.multiplier
-                          ? `×${item.multiplier.toFixed(2)}`
-                          : item.amount_min
-                          ? `+Rp ${(item.amount_min / 1000).toLocaleString('id-ID')}rb`
-                          : ''}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Benefits included */}
-              <div className="mt-6 border-t border-slate-800 pt-5">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">
-                  Cakupan Deliverables:
-                </h4>
-                <ul className="space-y-2 text-xs text-slate-300">
-                  {estimateResult?.benefits.map((b, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="mt-8 space-y-2.5">
+              <div className="space-y-2.5 pt-2">
                 <button
+                  type="button"
                   onClick={openOrderModalFromCalc}
-                  className="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs transition flex items-center justify-center gap-2"
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#07C995] to-[#17C455] hover:opacity-95 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition cursor-pointer"
                 >
-                  <Send className="w-4 h-4" />
-                  Ajukan Spesifikasi Order
+                  <span>Ajukan Order Sekarang</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
                 <button
+                  type="button"
                   onClick={() =>
                     openWhatsAppDirect(
-                      `Estimasi ${calcService.toUpperCase()} (${calcPlatform}) - Budget ~Rp ${
-                        estimateResult ? (estimateResult.estimated_min_price).toLocaleString('id-ID') : ''
-                      }`
+                      `Kalkulator ${currentServiceObj?.name} (Estimasi Rp ${estimateResult?.estimated_min_price?.toLocaleString('id-ID')})`
                     )
                   }
-                  className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
                 >
-                  <MessageSquare className="w-4 h-4 text-teal-400" />
-                  Diskusikan Spesifikasi via WhatsApp
+                  <MessageSquare className="w-4 h-4 text-emerald-600" />
+                  <span>Konsultasi via WhatsApp</span>
                 </button>
               </div>
-
-              <p className="text-[11px] text-slate-500 text-center mt-4">
-                {estimateResult?.notes}
-              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Live Order Tracker Section */}
-      <section id="tracking" className="py-20 bg-slate-900/60 border-t border-slate-800">
+      {/* ========================================================= */}
+      {/* 8. CEK STATUS & PROGRES BAB PENGERJAAN (#tracking) */}
+      {/* ========================================================= */}
+      <section id="tracking" className="py-20 bg-white border-t border-slate-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 text-xs font-semibold mb-3">
-              <Search className="w-3.5 h-3.5" />
-              <span>Transparansi & Privasi Aman</span>
-            </div>
-            <h2 className="text-3xl font-extrabold text-white">
-              Cek Status & Progres Pengerjaan
+          <div className="text-center mb-8">
+            <span className="text-xs font-bold text-[#0093E3] uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60">
+              CEK PROGRES
+            </span>
+            <h2 className="text-3xl font-extrabold text-slate-900 mt-2">
+              Cek Status & Progres Bab Pengerjaan
             </h2>
-            <p className="text-slate-400 text-sm mt-2">
-              Masukkan <b>Kode Order</b> (contoh: <code>RZ-2610-K7Q2</code>) beserta <b>4 digit terakhir Nomor WhatsApp</b> Anda untuk verifikasi keamanan.
+            <p className="text-slate-500 text-xs sm:text-sm mt-2 max-w-xl mx-auto">
+              Masukkan kode order untuk melihat detail progres, catatan revisi, dan estimasi waktu selesai.
             </p>
           </div>
 
-          {/* Search Bar */}
-          <form onSubmit={handleTrackOrder} className="flex flex-col sm:flex-row gap-2 max-w-2xl mx-auto mb-8">
+          {/* Search Form */}
+          <form
+            onSubmit={handleTrackOrder}
+            className="flex flex-col sm:flex-row gap-2 max-w-2xl mx-auto mb-4"
+          >
             <div className="relative flex-1">
-              <Search className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={trackQuery}
                 onChange={(e) => setTrackQuery(e.target.value)}
-                placeholder="Kode Order (misal: RZ-2610-XXXX)..."
-                className="w-full pl-11 pr-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+                placeholder="Contoh: RZ-2610-SKR1"
+                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0093E3] transition shadow-xs"
               />
             </div>
             <input
@@ -1262,21 +1764,57 @@ export default function App() {
               maxLength={4}
               value={trackWaLast4}
               onChange={(e) => setTrackWaLast4(e.target.value.replace(/\D/g, ''))}
-              placeholder="4 Digit Akhir WA"
-              className="w-full sm:w-40 px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition text-center font-mono"
+              placeholder="4 Digit WA"
+              className="w-full sm:w-32 px-3 py-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0093E3] transition text-center font-mono shadow-xs"
             />
             <button
               type="submit"
               disabled={trackLoading}
-              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/25 transition shrink-0 flex items-center justify-center gap-1.5"
+              className="px-6 py-3 bg-[#0093E3] hover:bg-[#005CDF] disabled:opacity-50 text-white font-bold text-xs sm:text-sm rounded-xl shadow-sm transition shrink-0 flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              {trackLoading ? 'Mencari...' : 'Lacak'}
+              {trackLoading ? 'Mencari...' : 'Lacak Progres'}
             </button>
           </form>
 
+          {/* Quick sample pills with correct 4-digit WA from database */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-8 text-[11px] text-slate-500">
+            <span>Contoh kode:</span>
+            {[
+              { code: 'RZ-2610-SKR1', wa: '7890', label: 'Skripsi CNN (Bab 4)' },
+              { code: 'RZ-2610-WEB2', wa: '3344', label: 'Web POS (Tahap 3)' },
+              { code: 'RZ-2610-SPK3', wa: '7766', label: 'Skripsi TOPSIS (Selesai)' },
+            ].map((sample) => (
+              <button
+                key={sample.code}
+                type="button"
+                onClick={async () => {
+                  setTrackQuery(sample.code);
+                  setTrackWaLast4(sample.wa);
+                  setTrackLoading(true);
+                  setTrackError('');
+                  try {
+                    const res = await axios.get(`${API_BASE}/orders/track/${sample.code}`, {
+                      params: { wa_last4: sample.wa },
+                    });
+                    setTrackResults([res.data]);
+                  } catch (err) {
+                    setTrackError(
+                      err.response?.data?.detail || 'Gagal memuat contoh order.'
+                    );
+                  } finally {
+                    setTrackLoading(false);
+                  }
+                }}
+                className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-[#0093E3] font-mono font-semibold transition cursor-pointer"
+              >
+                {sample.code}
+              </button>
+            ))}
+          </div>
+
           {/* Error Message */}
           {trackError && (
-            <div className="p-4 rounded-xl bg-red-950/40 border border-red-500/30 text-red-300 text-xs flex items-center gap-2 mb-6">
+            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2 mb-6">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{trackError}</span>
             </div>
@@ -1286,241 +1824,152 @@ export default function App() {
           {trackResults && trackResults.length > 0 && (
             <div className="space-y-6">
               {trackResults.map((order, idx) => (
-                <div key={idx} className="bg-slate-950 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-slate-800">
+                <div
+                  key={idx}
+                  className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-md"
+                >
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-slate-100">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm font-bold text-teal-400 bg-teal-950/50 px-2.5 py-1 rounded-lg border border-teal-500/30">
+                        <span className="font-mono text-sm font-extrabold text-[#0093E3] bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200">
                           {order.order_code}
                         </span>
-                        <span className="text-xs uppercase px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300">
+                        <span className="text-xs uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold">
                           {order.service_type}
                         </span>
                       </div>
-                      <h3 className="font-bold text-lg text-white mt-2">{order.title}</h3>
-                      <p className="text-xs text-slate-400">Pemesan: {order.client_name} • Deadline: {order.deadline}</p>
+                      <h3 className="font-extrabold text-lg text-slate-900 mt-2">{order.title}</h3>
+                      <p className="text-xs text-slate-500">
+                        Pemesan: <strong className="text-slate-800">{order.client_name}</strong> • Deadline:{' '}
+                        {order.deadline}
+                      </p>
                     </div>
 
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                       <span className="text-xs text-slate-400">Status Saat Ini:</span>
-                      <div className="text-sm font-extrabold text-teal-300 uppercase mt-0.5">
+                      <div className="text-sm font-extrabold text-[#07C995] uppercase mt-0.5">
                         {order.status.replaceAll('_', ' ')}
                       </div>
                     </div>
                   </div>
 
-                  {/* Ringkasan Tagihan & Pembayaran (Modul M7) */}
+                  {/* Highlight Box: Sedang Mengerjakan Bab Berapa */}
+                  <div className="mt-5 p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex items-start gap-3">
+                    <BookOpen className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <div className="text-[11px] uppercase font-extrabold tracking-wider text-emerald-800">
+                        Sedang Mengerjakan Bab / Tahapan Berapa Saat Ini:
+                      </div>
+                      <div className="text-sm font-bold text-emerald-950 mt-1 leading-relaxed">
+                        {order.current_stage ||
+                          'Proyek sedang dalam tahap pengerjaan aktif oleh tim teknis.'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Financial Summary */}
                   <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                      <div className="text-[11px] text-slate-400">Total Tagihan Efektif</div>
-                      <div className="text-sm font-extrabold text-white mt-0.5">
+                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <div className="text-[11px] text-slate-500">Total Tagihan Efektif</div>
+                      <div className="text-sm font-extrabold text-slate-900 mt-0.5">
                         Rp {(order.effective_bill || order.final_price || order.price_estimate || 0).toLocaleString('id-ID')}
                       </div>
                     </div>
-                    <div className="p-3 rounded-xl bg-teal-950/20 border border-teal-500/20">
-                      <div className="text-[11px] text-teal-300">Sudah Terbayar</div>
-                      <div className="text-sm font-extrabold text-teal-400 mt-0.5">
+                    <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-100">
+                      <div className="text-[11px] text-emerald-700">Sudah Terbayar</div>
+                      <div className="text-sm font-extrabold text-emerald-800 mt-0.5">
                         Rp {(order.total_paid || order.dp_amount || 0).toLocaleString('id-ID')}
                       </div>
                     </div>
-                    <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-500/20 flex items-center justify-between">
+                    <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-100 flex items-center justify-between">
                       <div>
-                        <div className="text-[11px] text-amber-300">Sisa Pelunasan</div>
-                        <div className="text-sm font-extrabold text-amber-400 mt-0.5">
+                        <div className="text-[11px] text-amber-700">Sisa Pelunasan</div>
+                        <div className="text-sm font-extrabold text-amber-900 mt-0.5">
                           Rp {(order.remaining_balance ?? 0).toLocaleString('id-ID')}
                         </div>
                       </div>
-                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full border ${
-                        order.payment_status === 'paid_in_full'
-                          ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
-                          : order.payment_status === 'dp_paid'
-                          ? 'bg-teal-950/60 border-teal-500/40 text-teal-300'
-                          : 'bg-slate-800 border-slate-700 text-slate-400'
-                      }`}>
-                        {order.payment_status === 'paid_in_full' ? 'LUNAS' : order.payment_status === 'dp_paid' ? 'DP MASUK' : 'BELUM DP'}
+                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-white border border-amber-200 text-amber-800">
+                        {order.payment_status?.toUpperCase() || 'STATUS'}
                       </span>
                     </div>
                   </div>
 
-                  {/* Visual Progress Bar */}
+                  {/* Progress Bar */}
                   <div className="mt-6">
                     <div className="flex justify-between text-xs font-semibold mb-2">
-                      <span className="text-slate-300">Progres Keseluruhan:</span>
-                      <span className="text-teal-400 font-mono">{order.progress_percent}%</span>
+                      <span className="text-slate-700">Progres Keseluruhan:</span>
+                      <span className="text-[#0093E3] font-mono font-bold">
+                        {order.progress_percent}%
+                      </span>
                     </div>
-                    <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
+                    <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
                       <div
-                        className="bg-gradient-to-r from-teal-500 to-indigo-500 h-full rounded-full transition-all duration-500"
+                        className="bg-gradient-to-r from-[#07C995] to-[#0093E3] h-full rounded-full transition-all duration-500"
                         style={{ width: `${order.progress_percent}%` }}
                       />
                     </div>
                   </div>
 
-                  {/* Dynamic Milestones Checklist (Modul M6) */}
-                  {order.milestones && order.milestones.length > 0 ? (
+                  {/* Milestones Checklist */}
+                  {order.milestones && order.milestones.length > 0 && (
                     <div className="mt-6">
-                      <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">
-                        Tahapan Pengerjaan (Milestones)
+                      <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
+                        Tahapan Pengerjaan Bab:
                       </h4>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        {[...order.milestones]
-                          .sort((a, b) => a.sort_order - b.sort_order)
-                          .map((m) => (
-                            <div
-                              key={m.id}
-                              className={`p-3 rounded-xl border flex items-start gap-2.5 ${
-                                m.is_completed
-                                  ? 'bg-teal-950/20 border-teal-500/30 text-teal-200'
-                                  : 'bg-slate-900/70 border-slate-800 text-slate-400'
+                        {order.milestones.map((m, i) => (
+                          <div
+                            key={i}
+                            className={`p-3 rounded-xl border flex items-center gap-2.5 text-xs ${
+                              m.is_completed
+                                ? 'bg-emerald-50/60 border-emerald-200 text-emerald-900'
+                                : 'bg-slate-50 border-slate-100 text-slate-600'
+                            }`}
+                          >
+                            <CheckCircle2
+                              className={`w-4 h-4 shrink-0 ${
+                                m.is_completed ? 'text-[#17C455]' : 'text-slate-300'
                               }`}
-                            >
-                              <CheckCircle2
-                                className={`w-4 h-4 shrink-0 mt-0.5 ${
-                                  m.is_completed ? 'text-teal-400' : 'text-slate-600'
-                                }`}
-                              />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className="text-xs font-bold truncate">{m.title}</span>
-                                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-950/60 border border-slate-800">
-                                    {m.weight_percent}%
-                                  </span>
-                                </div>
-                                {m.notes && (
-                                  <p className="text-[11px] text-slate-400 mt-1">{m.notes}</p>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="mt-8 grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
-                      <div className={`p-2 rounded-lg border ${order.progress_percent >= 15 ? 'bg-teal-950/30 border-teal-500/30 text-teal-300' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
-                        1. Konsultasi & DP
-                      </div>
-                      <div className={`p-2 rounded-lg border ${order.progress_percent >= 35 ? 'bg-teal-950/30 border-teal-500/30 text-teal-300' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
-                        2. Analisis & Desain
-                      </div>
-                      <div className={`p-2 rounded-lg border ${order.progress_percent >= 70 ? 'bg-teal-950/30 border-teal-500/30 text-teal-300' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
-                        3. Koding Sistem
-                      </div>
-                      <div className={`p-2 rounded-lg border ${order.progress_percent >= 90 ? 'bg-teal-950/30 border-teal-500/30 text-teal-300' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
-                        4. Demo & Review
-                      </div>
-                      <div className={`p-2 rounded-lg border ${order.progress_percent >= 100 ? 'bg-teal-950/30 border-teal-500/30 text-teal-300' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
-                        5. Selesai & Bimbingan
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Riwayat Timeline Progres (Modul M6) */}
-                  {order.timeline_logs && order.timeline_logs.filter((l) => l.is_public).length > 0 && (
-                    <div className="mt-6 pt-5 border-t border-slate-800/80">
-                      <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">
-                        Log Aktivitas & Riwayat Progres
-                      </h4>
-                      <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                        {[...order.timeline_logs]
-                          .filter((l) => l.is_public)
-                          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-                          .map((log) => (
-                            <div key={log.id} className="p-2.5 rounded-lg bg-slate-900/70 border border-slate-800/90 flex items-start justify-between gap-3 text-xs">
-                              <div>
-                                <span className="font-semibold text-slate-200">{log.title}</span>
-                                {log.description && (
-                                  <p className="text-[11px] text-slate-400 mt-0.5">{log.description}</p>
-                                )}
-                              </div>
-                              <span className="text-[10px] text-slate-500 shrink-0 font-mono">
-                                {log.created_at ? new Date(log.created_at).toLocaleDateString('id-ID') : ''}
-                              </span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Riwayat Revisi & Balasan Developer (Modul M8) */}
-                  {order.revisions && order.revisions.length > 0 && (
-                    <div className="mt-6 pt-5 border-t border-slate-800/80">
-                      <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider mb-3">
-                        Daftar Catatan Revisi ({order.revisions.length})
-                      </h4>
-                      <div className="space-y-2.5">
-                        {order.revisions.map((rev) => (
-                          <div key={rev.id} className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1.5">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="font-semibold text-white">{rev.description}</span>
-                              <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
-                                rev.status === 'completed'
-                                  ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
-                                  : rev.status === 'rejected_out_of_scope'
-                                  ? 'bg-red-950/60 text-red-300 border border-red-500/30'
-                                  : 'bg-amber-950/60 text-amber-300 border border-amber-500/30'
-                              }`}>
-                                {rev.status}
-                              </span>
-                            </div>
-                            {rev.is_out_of_scope && rev.extra_cost > 0 && (
-                              <div className="text-[11px] text-amber-300">
-                                Diluar Scope Awal • Biaya Tambahan: <b>Rp {rev.extra_cost.toLocaleString('id-ID')}</b>
-                              </div>
-                            )}
-                            {rev.admin_response && (
-                              <div className="p-2 rounded-lg bg-indigo-950/30 border border-indigo-500/30 text-[11px] text-indigo-200">
-                                <b>Balasan Developer:</b> {rev.admin_response}
-                              </div>
-                            )}
+                            />
+                            <span className="font-medium">{m.title}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {/* Demo Link if available */}
-                  {order.demo_url && (
-                    <div className="mt-6 p-4 rounded-xl bg-indigo-950/30 border border-indigo-500/30 flex items-center justify-between">
-                      <div>
-                        <span className="text-xs font-bold text-indigo-300">Link Demo Aplikasi Sudah Tersedia:</span>
-                        <p className="text-xs text-slate-400">Silakan uji coba dan pastikan sesuai kebutuhan Anda.</p>
-                      </div>
-                      <a
-                        href={order.demo_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition"
-                      >
-                        Buka Demo
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
-                  )}
-
-                  {/* Revision & Testimonial Form Toggle */}
-                  <div className="mt-6 pt-6 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3">
-                    <span className="text-xs text-slate-400">
-                      {order.status === 'completed'
-                        ? 'Pesanan Anda telah selesai! Bagikan pengalaman Anda atau ajukan catatan tambahan:'
-                        : 'Ada catatan perbaikan dari dosen pembimbing?'}
-                    </span>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {order.status === 'completed' && (
-                        <button
-                          onClick={() => openClientTestimonialModal(order)}
-                          className="px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-extrabold transition flex items-center gap-1.5 shadow-lg shadow-teal-500/20"
-                        >
-                          <Star className="w-3.5 h-3.5 fill-slate-950" />
-                          Beri Ulasan & Testimoni
-                        </button>
-                      )}
+                  {/* Action Buttons */}
+                  <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setRevisionCode(order.order_code)}
+                      className="px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Ajukan Catatan Revisi
+                    </button>
+                    {order.status === 'completed' && (
                       <button
-                        onClick={() => setRevisionCode(order.order_code)}
-                        className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-semibold border border-amber-500/30 transition"
+                        type="button"
+                        onClick={() => openClientTestimonialModal(order)}
+                        className="px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-[#0093E3] font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
                       >
-                        Ajukan Catatan Revisi
+                        <Star className="w-3.5 h-3.5 fill-sky-400" />
+                        Beri Ulasan Terverifikasi
                       </button>
-                    </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openWhatsAppDirect(
+                          `Update Progres Order ${order.order_code} (${order.title})`
+                        )
+                      }
+                      className="px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer ml-auto"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      Chat Tim Teknis
+                    </button>
                   </div>
                 </div>
               ))}
@@ -1529,327 +1978,343 @@ export default function App() {
         </div>
       </section>
 
-      {/* Portfolio Showcase Section */}
-      <section id="portfolio" className="py-20">
+      {/* ========================================================= */}
+      {/* 9. PORTOFOLIO & STUDI KASUS (#portfolio) */}
+      {/* ========================================================= */}
+      <section id="portfolio" className="py-20 bg-slate-50/70 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="text-xs font-bold text-teal-400 uppercase tracking-widest">
-              Portofolio & Studi Kasus
-            </span>
-            <h2 className="text-3xl font-extrabold text-white mt-2">
-              Arsip Implementasi Sistem
-            </h2>
-            <p className="text-slate-400 text-sm mt-3">
-              Dokumentasi beberapa sistem penelitian akademik, aplikasi web, dan otomasi yang telah dikembangkan.
-            </p>
-          </div>
-
-          {/* Filter Kategori Portofolio */}
-          <div className="flex flex-wrap justify-center gap-2 mb-10">
-            {['Semua', ...new Set((showcaseData.portfolio_items || []).map((p) => p.category))].map(
-              (cat) => (
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-10">
+            <div>
+              <span className="text-xs font-bold text-[#0093E3] uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60">
+                PORTOFOLIO & STUDI KASUS
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">
+                Hasil Implementasi Sistem
+              </h2>
+              <p className="text-slate-500 text-xs sm:text-sm mt-1">
+                Dokumentasi beberapa sistem yang telah kami kembangkan.
+              </p>
+            </div>
+            {/* Filter Pills */}
+            <div className="flex flex-wrap gap-2 text-xs font-semibold">
+              {['Semua', 'Website', 'Sistem Informasi', 'Chatbot AI'].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setPortfolioCategory(cat)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
+                  className={`px-3 py-1.5 rounded-xl border transition cursor-pointer ${
                     portfolioCategory === cat
-                      ? 'bg-teal-500 text-slate-950'
-                      : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+                      ? 'bg-slate-900 border-slate-900 text-white'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
                   }`}
                 >
                   {cat}
                 </button>
-              )
-            )}
+              ))}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {(showcaseData.portfolio_items || [])
-              .filter((p) => portfolioCategory === 'Semua' || p.category === portfolioCategory)
-              .map((item) => {
-                return (
-                  <div
-                    key={item.id || item.slug}
-                    className="rounded-2xl bg-slate-900 border border-slate-800 p-6 flex flex-col justify-between hover:border-slate-700 transition"
-                  >
+              .filter(
+                (item) =>
+                  portfolioCategory === 'Semua' ||
+                  item.category?.toLowerCase().includes(portfolioCategory.toLowerCase())
+              )
+              .map((item, idx) => (
+                <div
+                  key={item.id || idx}
+                  className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 transition flex flex-col justify-between"
+                >
+                  {/* Mock Screenshot Banner */}
+                  <div className="h-36 bg-gradient-to-br from-slate-100 via-sky-50 to-emerald-50 p-4 flex flex-col justify-between border-b border-slate-100">
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white/90 text-slate-700 w-max shadow-xs">
+                      {item.category}
+                    </span>
+                    <div className="font-mono text-xs font-extrabold text-[#0093E3]">
+                      {item.highlight_metric || 'Teruji & Valid'}
+                    </div>
+                  </div>
+
+                  <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] uppercase font-bold px-2.5 py-0.5 rounded border bg-teal-500/10 text-teal-400 border-teal-500/30">
-                          {item.category}
-                        </span>
-                        {item.highlight_metric && (
-                          <span className="text-[10px] font-mono font-bold text-slate-300 bg-slate-950 border border-slate-800 px-2 py-0.5 rounded">
-                            {item.highlight_metric}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-bold text-base text-white mt-3 mb-2">{item.title}</h3>
-                      <p className="text-xs text-slate-400 leading-relaxed">{item.summary}</p>
+                      <h3 className="font-extrabold text-sm text-slate-900 mb-2 leading-snug">
+                        {item.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                        {item.summary}
+                      </p>
                     </div>
 
-                    <div className="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between gap-2 flex-wrap">
-                      <div className="flex flex-wrap gap-1.5">
-                        {(item.tech_tags || []).map((tag, i) => (
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <div className="flex flex-wrap gap-1">
+                        {(item.tech_tags || []).slice(0, 3).map((tag, tIdx) => (
                           <span
-                            key={i}
-                            className="text-[10px] font-mono text-slate-400 bg-slate-950 px-2 py-1 rounded border border-slate-800"
+                            key={tIdx}
+                            className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-mono"
                           >
                             {tag}
                           </span>
                         ))}
                       </div>
-                      {item.demo_url && (
-                        <a
-                          href={item.demo_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-[11px] font-bold text-teal-400 hover:underline inline-flex items-center gap-1"
-                        >
-                          Demo <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
+                      <ArrowRight className="w-4 h-4 text-slate-400" />
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 bg-slate-900/50 border-t border-slate-800 relative">
+      {/* ========================================================= */}
+      {/* 10. TESTIMONI KLIEN (#testimonials) */}
+      {/* ========================================================= */}
+      <section id="testimonials" className="py-20 bg-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-xs font-bold text-teal-400 uppercase tracking-widest">
-              Ulasan Klien
-            </span>
-            <h2 className="text-3xl font-extrabold text-white mt-2">
-              Catatan dari Klien & Mahasiswa
-            </h2>
-            <p className="text-slate-400 text-sm mt-3">
-              Umpan balik dari klien bisnis dan mahasiswa yang telah menyelesaikan proyek bersama tim kami.
-            </p>
-            {showcaseData.rating_summary && (
-              <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 font-bold">
-                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span>
-                  Rata-rata {showcaseData.rating_summary.average_rating} / 5.0 ({showcaseData.rating_summary.total_reviews} Ulasan)
-                </span>
-              </div>
-            )}
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12">
+            <div>
+              <span className="text-xs font-bold text-[#07C995] uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60">
+                TESTIMONI KLIEN
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">
+                Apa kata mereka tentang kami?
+              </h2>
+            </div>
+            <button
+              onClick={() => openClientTestimonialModal()}
+              className="text-xs font-bold text-[#0093E3] hover:text-[#005CDF] inline-flex items-center gap-1 transition cursor-pointer"
+            >
+              + Beri Ulasan Klien Terverifikasi
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {(showcaseData.testimonials || []).map((t, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {(showcaseData.testimonials || []).map((testi, idx) => (
               <div
-                key={t.id || idx}
-                className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-slate-700 transition"
+                key={testi.id || idx}
+                className="bg-slate-50/70 rounded-2xl border border-slate-100 p-6 flex flex-col justify-between hover:bg-white hover:shadow-md hover:border-slate-200 transition"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-4 gap-2">
-                    <div className="flex text-amber-400 gap-0.5">
-                      {[...Array(t.rating || 5)].map((_, i) => (
-                        <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
-                      ))}
-                    </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-950 text-teal-400 border border-slate-800 truncate">
-                      {t.tag || 'Klien Terverifikasi'}
-                    </span>
+                  <div className="flex items-center gap-1 text-amber-400 mb-3">
+                    {[...Array(testi.rating || 5)].map((_, sIdx) => (
+                      <Star key={sIdx} className="w-4 h-4 fill-amber-400" />
+                    ))}
                   </div>
-
-                  <p className="text-xs text-slate-300 leading-relaxed mb-6">
-                    "{t.comment}"
+                  <p className="text-xs text-slate-600 leading-relaxed mb-6 italic">
+                    "{testi.comment}"
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-800 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-slate-950 border border-slate-800 text-teal-400 font-mono font-bold text-xs flex items-center justify-center shrink-0">
-                    {t.avatar_initials || 'KL'}
+                <div className="flex items-center gap-3 pt-4 border-t border-slate-200/60">
+                  <div
+                    className={`w-9 h-9 rounded-full bg-gradient-to-tr ${
+                      testi.avatar_color || 'from-[#07C995] to-[#0093E3]'
+                    } text-white font-bold text-xs flex items-center justify-center shrink-0`}
+                  >
+                    {testi.avatar_initials || 'KL'}
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <h4 className="font-bold text-xs text-white truncate">{t.client_name}</h4>
-                      {(t.source === 'client' || t.order_code) && (
-                        <ShieldCheck
-                          className="w-3.5 h-3.5 text-teal-400 shrink-0"
-                          title="Klien Terverifikasi Kode Order"
-                        />
-                      )}
-                    </div>
-                    <p className="text-[10px] text-slate-400 truncate">{t.client_role}</p>
-                    {t.project_label && (
-                      <span className="text-[10px] text-slate-500 font-mono block truncate">
-                        {t.project_label}
-                      </span>
-                    )}
+                  <div>
+                    <h4 className="font-bold text-xs text-slate-900">{testi.client_name}</h4>
+                    <p className="text-[11px] text-slate-500">{testi.client_role}</p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-
-          {/* Testimonial CTA Banner */}
-          <div className="mt-12 bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-            <div>
-              <h3 className="font-bold text-base text-white">Proyek Anda Telah Selesai?</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Kirimkan ulasan menggunakan Kode Order dan 4 digit terakhir nomor WhatsApp untuk mendapatkan penanda Klien Terverifikasi.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center justify-center gap-2 shrink-0">
-              <button
-                onClick={() => openClientTestimonialModal()}
-                className="px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold transition flex items-center gap-1.5"
-              >
-                <Star className="w-3.5 h-3.5 fill-slate-950" />
-                Tulis Ulasan Klien
-              </button>
-              <button
-                onClick={() => openWhatsAppDirect('Kirim Ulasan & Feedback')}
-                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition"
-              >
-                Hubungi WhatsApp
-              </button>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section id="faq" className="py-20 bg-slate-950 border-t border-slate-800">
+      {/* ========================================================= */}
+      {/* 11. FAQ ACCORDION (#faq) */}
+      {/* ========================================================= */}
+      <section id="faq" className="py-20 bg-slate-50/60 border-t border-slate-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <span className="text-xs font-bold text-teal-400 uppercase tracking-widest">
-              Informasi Layanan
+            <span className="text-xs font-bold text-[#0093E3] uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60">
+              FAQ
             </span>
-            <h2 className="text-3xl font-extrabold text-white mt-2">Pertanyaan Umum (FAQ)</h2>
-            <p className="text-slate-400 text-sm mt-2">Ketentuan teknis, alur pembayaran, dan garansi revisi pengerjaan proyek.</p>
+            <h2 className="text-3xl font-extrabold text-slate-900 mt-2">Pertanyaan Umum</h2>
+            <p className="text-slate-500 text-xs sm:text-sm mt-2">
+              Jawaban untuk pertanyaan yang paling sering ditanyakan seputar pengerjaan.
+            </p>
           </div>
 
-          <div className="space-y-4">
-            {(cmsData.faqs || []).map((faq, idx) => (
-              <div key={faq.id || idx} className="p-5 rounded-xl bg-slate-900 border border-slate-800">
-                <div className="flex items-center justify-between gap-2">
-                  <h4 className="font-bold text-sm text-white">{faq.question}</h4>
-                  {faq.category && (
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-slate-950 text-teal-400 border border-slate-800">
-                      {faq.category}
-                    </span>
-                  )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {(cmsData.faqs || []).map((faq, idx) => {
+              const isExpanded = openFaqId === (faq.id || idx);
+              return (
+                <div
+                  key={faq.id || idx}
+                  onClick={() => setOpenFaqId(isExpanded ? null : (faq.id || idx))}
+                  className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs cursor-pointer hover:border-[#0093E3]/40 transition"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <h4 className="font-bold text-xs sm:text-sm text-slate-900 leading-snug">
+                      {faq.question}
+                    </h4>
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-400 transition-transform ${
+                        isExpanded ? 'rotate-180 text-[#0093E3]' : ''
+                      }`}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 mt-2.5 leading-relaxed">{faq.answer}</p>
                 </div>
-                <p className="text-xs text-slate-400 mt-2 leading-relaxed">{faq.answer}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="mt-auto border-t border-slate-800 bg-slate-950 py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      {/* ========================================================= */}
+      {/* 12. FOOTER RESMI (LIGHT MODE) */}
+      {/* ========================================================= */}
+      <footer className="mt-auto border-t border-slate-100 bg-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-slate-500">
           <div className="flex items-center gap-3">
-            <img
-              src="/favicon.png"
-              alt="Rizofara Technology Favicon"
-              className="w-7 h-7 object-contain rounded-md border border-slate-800 bg-slate-900 p-0.5"
-            />
+            <RizofaraBrandLogo className="w-8 h-8 shrink-0" />
             <div>
-              <span className="font-bold text-slate-300">
+              <span className="font-extrabold text-sm text-slate-900 block">
                 {cmsData.settings?.brand_name || 'Rizofara Technology'}
               </span>
-              <span className="text-slate-400"> — {cmsData.settings?.tagline || 'Digital Roots for a Brighter Tomorrow'}</span>
+              <span className="text-slate-500 text-[11px]">
+                {cmsData.settings?.tagline || 'Digital roots endless possibilities'}
+              </span>
             </div>
           </div>
+
+          {/* Footer Nav Links */}
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-slate-600">
+            <a href="#home" className="hover:text-[#0093E3] transition">
+              Beranda
+            </a>
+            <a href="#services" className="hover:text-[#0093E3] transition">
+              Layanan
+            </a>
+            <a href="#about" className="hover:text-[#0093E3] transition">
+              About
+            </a>
+            <a href="#portfolio" className="hover:text-[#0093E3] transition">
+              Portofolio
+            </a>
+            <a href="#testimonials" className="hover:text-[#0093E3] transition">
+              Testimoni
+            </a>
+            <a href="#faq" className="hover:text-[#0093E3] transition">
+              FAQ
+            </a>
+          </div>
+
           <div>
-            <span>© {new Date().getFullYear()} {cmsData.settings?.brand_name || 'Rizofara Technology'}. All rights reserved.</span>
+            <span>
+              © {new Date().getFullYear()} {cmsData.settings?.brand_name || 'Rizofara Technology'}. All
+              rights reserved.
+            </span>
           </div>
         </div>
       </footer>
 
-      {/* MODAL ORDER FORM */}
+      {/* ========================================================= */}
+      {/* MODAL 1: FORM PENGAJUAN ORDER */}
+      {/* ========================================================= */}
       {isOrderModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl my-8">
-            <button
-              onClick={() => {
-                setIsOrderModalOpen(false);
-                setOrderSuccessData(null);
-              }}
-              className="absolute top-4 right-4 p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition"
-              aria-label="Tutup"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            {orderSuccessData ? (
-              <div className="text-center py-6">
-                <div className="w-14 h-14 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="w-7 h-7" />
-                </div>
-                <h3 className="font-extrabold text-xl text-white">Order Berhasil Dibuat</h3>
-                <p className="text-xs text-slate-300 mt-2">
-                  Simpan Kode Order ini untuk memantau progres pengerjaan di menu Cek Status:
-                </p>
-                <div className="my-4 p-3 rounded-xl bg-slate-950 border border-teal-500/40 text-teal-300 font-mono text-lg font-bold">
-                  {orderSuccessData.order_code}
-                </div>
-                <p className="text-[11px] text-slate-400 mb-6">
-                  Tim kami akan menghubungi nomor WhatsApp Anda ({orderSuccessData.client_whatsapp}) untuk konfirmasi detail teknis.
-                </p>
-                <button
-                  onClick={() => {
-                    openWhatsAppDirect(`Konfirmasi Order ${orderSuccessData.order_code}`);
-                    setIsOrderModalOpen(false);
-                    setOrderSuccessData(null);
-                  }}
-                  className="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  Konfirmasi via WhatsApp
-                </button>
-              </div>
-            ) : (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Header Sticky dengan Tombol X Permanen di Atas */}
+            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
               <div>
-                <h3 className="font-extrabold text-xl text-white">Form Pengajuan Order</h3>
-                <p className="text-xs text-slate-400 mt-1 mb-6">
-                  Lengkapi spesifikasi proyek Anda untuk mendapatkan Kode Order dan penjadwalan.
+                <h3 className="font-extrabold text-base sm:text-lg text-slate-900">
+                  {orderSuccessData ? 'Order Berhasil Dibuat' : 'Form Pengajuan Order'}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  {orderSuccessData ? 'Simpan kode order Anda' : 'Lengkapi detail spesifikasi proyek'}
                 </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOrderModalOpen(false);
+                  setOrderSuccessData(null);
+                }}
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                aria-label="Tutup"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
+            {/* Konten Scrollable */}
+            <div className="p-6 overflow-y-auto flex-1">
+              {orderSuccessData ? (
+                <div className="text-center py-4">
+                  <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-[#17C455] flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+                  <h3 className="font-extrabold text-xl text-slate-900">Order Berhasil Dibuat</h3>
+                  <p className="text-xs text-slate-500 mt-2">
+                    Simpan Kode Order ini untuk memantau progres pengerjaan di menu Cek Status:
+                  </p>
+                  <div className="my-4 p-3 rounded-2xl bg-slate-50 border border-emerald-200 text-[#0093E3] font-mono text-xl font-bold">
+                    {orderSuccessData.order_code}
+                  </div>
+                  <p className="text-[11px] text-slate-400 mb-6">
+                    Tim kami akan menghubungi WhatsApp Anda ({orderSuccessData.client_whatsapp}) untuk konfirmasi teknis.
+                  </p>
+                  <button
+                    onClick={() => {
+                      openWhatsAppDirect(`Konfirmasi Order ${orderSuccessData.order_code}`);
+                      setIsOrderModalOpen(false);
+                      setOrderSuccessData(null);
+                    }}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#07C995] to-[#17C455] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Konfirmasi via WhatsApp
+                  </button>
+                </div>
+              ) : (
                 <form onSubmit={handleOrderSubmit} className="space-y-4 text-xs">
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Nama Lengkap / Panggilan *</label>
+                    <label className="block text-slate-700 font-semibold mb-1">
+                      Nama Lengkap / Panggilan *
+                    </label>
                     <input
                       type="text"
                       required
                       value={orderForm.client_name}
-                      onChange={(e) => setOrderForm({ ...orderForm, client_name: e.target.value })}
+                      onChange={(e) =>
+                        setOrderForm({ ...orderForm, client_name: e.target.value })
+                      }
                       placeholder="Contoh: Budi Santoso"
-                      className="w-full px-3 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-teal-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Nomor WhatsApp Aktif *</label>
+                    <label className="block text-slate-700 font-semibold mb-1">
+                      Nomor WhatsApp Aktif *
+                    </label>
                     <input
                       type="text"
                       required
                       value={orderForm.client_whatsapp}
-                      onChange={(e) => setOrderForm({ ...orderForm, client_whatsapp: e.target.value })}
+                      onChange={(e) =>
+                        setOrderForm({ ...orderForm, client_whatsapp: e.target.value })
+                      }
                       placeholder="Contoh: 085692390483"
-                      className="w-full px-3 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-teal-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1">Layanan *</label>
+                      <label className="block text-slate-700 font-semibold mb-1">Layanan *</label>
                       <select
                         value={orderForm.service_type}
                         onChange={(e) => {
                           setOrderForm({ ...orderForm, service_type: e.target.value });
                           setCalcService(e.target.value);
                         }}
-                        className="w-full px-3 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-teal-500"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
                       >
                         {pricingConfig.services.map((s) => (
                           <option key={s.slug} value={s.slug}>
@@ -1859,48 +2324,58 @@ export default function App() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1">Target Deadline *</label>
+                      <label className="block text-slate-700 font-semibold mb-1">
+                        Target Deadline *
+                      </label>
                       <input
                         type="text"
                         required
                         value={orderForm.deadline}
                         onChange={(e) => setOrderForm({ ...orderForm, deadline: e.target.value })}
-                        placeholder="Contoh: 14 Hari / 25 Nov"
-                        className="w-full px-3 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-teal-500"
+                        placeholder="Contoh: 14 Hari"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Judul / Topik Proyek *</label>
+                    <label className="block text-slate-700 font-semibold mb-1">
+                      Judul / Topik Proyek *
+                    </label>
                     <input
                       type="text"
                       required
                       value={orderForm.title}
                       onChange={(e) => setOrderForm({ ...orderForm, title: e.target.value })}
-                      placeholder="Contoh: Sistem Klasifikasi Penyakit Daun Berbasis CNN"
-                      className="w-full px-3 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-teal-500"
+                      placeholder="Contoh: Sistem Klasifikasi Citra CNN & Web Dashboard"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Deskripsi & Kebutuhan Spesifik *</label>
+                    <label className="block text-slate-700 font-semibold mb-1">
+                      Deskripsi & Kebutuhan Spesifik *
+                    </label>
                     <textarea
                       rows={3}
                       required
                       value={orderForm.description}
-                      onChange={(e) => setOrderForm({ ...orderForm, description: e.target.value })}
+                      onChange={(e) =>
+                        setOrderForm({ ...orderForm, description: e.target.value })
+                      }
                       placeholder="Jelaskan fitur utama, algoritma/metode, dan bahasa pemrograman yang dibutuhkan..."
-                      className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-teal-500"
+                      className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Unggah Panduan / Dokumen (Opsional)</label>
+                    <label className="block text-slate-700 font-semibold mb-1">
+                      Unggah Panduan / Dokumen (Opsional)
+                    </label>
                     <input
                       type="file"
                       onChange={(e) => setOrderFile(e.target.files[0])}
-                      className="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-teal-400 hover:file:bg-slate-700 cursor-pointer"
+                      className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer"
                     />
                   </div>
 
@@ -1908,257 +2383,280 @@ export default function App() {
                     <button
                       type="submit"
                       disabled={orderSubmitting}
-                      className="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-slate-950 font-bold text-xs transition flex items-center justify-center gap-2"
+                      className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#07C995] to-[#17C455] hover:opacity-95 disabled:opacity-50 text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                     >
                       {orderSubmitting ? 'Mengirim Data...' : 'Kirim & Dapatkan Kode Order'}
                     </button>
                   </div>
                 </form>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* MODAL REVISION */}
-      {revisionCode && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 relative shadow-2xl">
-            <button
-              onClick={() => setRevisionCode('')}
-              className="absolute top-4 right-4 p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition"
-              aria-label="Tutup"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <h3 className="font-bold text-lg text-white">Ajukan Catatan Revisi</h3>
-            <p className="text-xs text-slate-400 mt-1 mb-4">
-              Kode Order: <span className="text-teal-400 font-mono font-bold">{revisionCode}</span>
-            </p>
-
-            {revisionSuccess ? (
-              <div className="p-4 rounded-xl bg-teal-950/40 border border-teal-500/30 text-teal-300 text-xs text-center">
-                Catatan revisi berhasil dikirim ke tim pengembang dan akan segera ditindaklanjuti.
-              </div>
-            ) : (
-              <form onSubmit={handleRevisionSubmit} className="space-y-4 text-xs">
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Poin-poin Perbaikan:</label>
-                  <textarea
-                    rows={4}
-                    required
-                    value={revisionNotes}
-                    onChange={(e) => setRevisionNotes(e.target.value)}
-                    placeholder="Tuliskan rincian perbaikan secara terstruktur di sini..."
-                    className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-100 focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={revisionSubmitting}
-                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-slate-950 font-bold text-xs transition"
-                >
-                  {revisionSubmitting ? 'Mengirim...' : 'Kirim Catatan Revisi'}
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* MODAL KIRIM TESTIMONI KLIEN TERVERIFIKASI */}
-      {clientTestiModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 relative shadow-2xl my-8">
-            <button
-              onClick={() => setClientTestiModal(null)}
-              className="absolute top-4 right-4 p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition"
-              aria-label="Tutup"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-center gap-2 text-teal-400 text-xs font-bold mb-1">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Ulasan Klien Terverifikasi</span>
+              )}
             </div>
-            <h3 className="font-extrabold text-lg text-white">Bagikan Pengalaman Anda</h3>
-            <p className="text-xs text-slate-400 mt-1 mb-4">
-              Masukkan <b>Kode Order</b> yang telah berstatus <b>Selesai (Completed)</b> beserta 4 digit terakhir nomor WhatsApp Anda.
-            </p>
+          </div>
+        </div>
+      )}
 
-            {clientTestiStatus.success ? (
-              <div className="p-4 rounded-xl bg-teal-950/50 border border-teal-500/40 text-teal-200 text-xs space-y-3 text-center">
-                <CheckCircle2 className="w-8 h-8 text-teal-400 mx-auto" />
-                <p className="leading-relaxed">{clientTestiStatus.success}</p>
-                <button
-                  type="button"
-                  onClick={() => setClientTestiModal(null)}
-                  className="px-4 py-2 rounded-xl bg-teal-500 text-slate-950 font-bold text-xs"
-                >
-                  Tutup
-                </button>
+      {/* ========================================================= */}
+      {/* MODAL 2: CATATAN REVISI */}
+      {/* ========================================================= */}
+      {revisionCode && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Header Sticky dengan Tombol X Permanen di Atas */}
+            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+              <div>
+                <h3 className="font-extrabold text-base sm:text-lg text-slate-900">Ajukan Catatan Revisi</h3>
+                <p className="text-xs text-slate-500">
+                  Kode Order: <span className="text-[#0093E3] font-mono font-bold">{revisionCode}</span>
+                </p>
               </div>
-            ) : (
-              <form onSubmit={handleClientTestimonialSubmit} className="space-y-3.5 text-xs">
-                {clientTestiStatus.error && (
-                  <div className="p-3 rounded-xl bg-red-950/50 border border-red-500/40 text-red-300 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{clientTestiStatus.error}</span>
-                  </div>
-                )}
+              <button
+                type="button"
+                onClick={() => setRevisionCode('')}
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                aria-label="Tutup"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Konten Scrollable */}
+            <div className="p-6 overflow-y-auto flex-1">
+              {revisionSuccess ? (
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs text-center font-medium">
+                  Catatan revisi berhasil dikirim ke tim pengembang dan akan segera ditindaklanjuti.
+                </div>
+              ) : (
+                <form onSubmit={handleRevisionSubmit} className="space-y-4 text-xs">
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Kode Order *</label>
-                    <input
-                      type="text"
+                    <label className="block text-slate-700 font-semibold mb-1">
+                      Poin-poin Perbaikan:
+                    </label>
+                    <textarea
+                      rows={5}
                       required
-                      placeholder="RZ-2610-XXXX"
-                      value={clientTestiModal.order_code}
+                      value={revisionNotes}
+                      onChange={(e) => setRevisionNotes(e.target.value)}
+                      placeholder="Tuliskan rincian perbaikan bab atau fungsi program di sini..."
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={revisionSubmitting}
+                    className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold text-xs transition cursor-pointer shadow-sm"
+                  >
+                    {revisionSubmitting ? 'Mengirim...' : 'Kirim Catatan Revisi'}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* MODAL 3: KIRIM TESTIMONI KLIEN TERVERIFIKASI */}
+      {/* ========================================================= */}
+      {clientTestiModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Header Sticky dengan Tombol X Permanen di Atas */}
+            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+              <div>
+                <div className="flex items-center gap-1.5 text-[#07C995] text-[11px] font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Ulasan Klien Terverifikasi</span>
+                </div>
+                <h3 className="font-extrabold text-base sm:text-lg text-slate-900 mt-0.5">
+                  Bagikan Pengalaman Anda
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setClientTestiModal(null)}
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                aria-label="Tutup"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Konten Scrollable */}
+            <div className="p-6 overflow-y-auto flex-1">
+              <p className="text-xs text-slate-500 mb-4">
+                Masukkan <b>Kode Order</b> yang telah berstatus <b>Selesai (Completed)</b> beserta 4 digit terakhir WhatsApp.
+              </p>
+
+              {clientTestiStatus.success ? (
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs space-y-3 text-center">
+                  <CheckCircle2 className="w-8 h-8 text-[#17C455] mx-auto" />
+                  <p className="leading-relaxed">{clientTestiStatus.success}</p>
+                  <button
+                    type="button"
+                    onClick={() => setClientTestiModal(null)}
+                    className="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleClientTestimonialSubmit} className="space-y-3.5 text-xs">
+                  {clientTestiStatus.error && (
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{clientTestiStatus.error}</span>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">Kode Order *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="RZ-2610-XXXX"
+                        value={clientTestiModal.order_code}
+                        onChange={(e) =>
+                          setClientTestiModal({
+                            ...clientTestiModal,
+                            order_code: e.target.value.toUpperCase(),
+                          })
+                        }
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-[#0093E3] font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">
+                        4 Digit Terakhir WA *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={4}
+                        placeholder="Contoh: 7890"
+                        value={clientTestiModal.wa_last4}
+                        onChange={(e) =>
+                          setClientTestiModal({
+                            ...clientTestiModal,
+                            wa_last4: e.target.value.replace(/\D/g, ''),
+                          })
+                        }
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">
+                        Nama Tampilan *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Contoh: Ahmad Rizky"
+                        value={clientTestiModal.client_name}
+                        onChange={(e) =>
+                          setClientTestiModal({ ...clientTestiModal, client_name: e.target.value })
+                        }
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">
+                        Status / Instansi *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Mahasiswa Teknik Informatika"
+                        value={clientTestiModal.client_role}
+                        onChange={(e) =>
+                          setClientTestiModal({ ...clientTestiModal, client_role: e.target.value })
+                        }
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">
+                        Rating Kepuasan *
+                      </label>
+                      <select
+                        value={clientTestiModal.rating}
+                        onChange={(e) =>
+                          setClientTestiModal({
+                            ...clientTestiModal,
+                            rating: Number(e.target.value),
+                          })
+                        }
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-semibold"
+                      >
+                        <option value={5}>5 / 5 - Sangat Puas</option>
+                        <option value={4}>4 / 5 - Puas</option>
+                        <option value={3}>3 / 5 - Cukup</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">
+                        Label Highlight Singkat
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Lulus Sidang Nilai A"
+                        value={clientTestiModal.tag}
+                        onChange={(e) =>
+                          setClientTestiModal({ ...clientTestiModal, tag: e.target.value })
+                        }
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 font-semibold mb-1">
+                      Komentar & Pengalaman Anda *
+                    </label>
+                    <textarea
+                      rows={3}
+                      required
+                      minLength={10}
+                      placeholder="Ceritakan pengalaman pengerjaan, komunikasi teknis, atau hasil akhir proyek Anda..."
+                      value={clientTestiModal.comment}
+                      onChange={(e) =>
+                        setClientTestiModal({ ...clientTestiModal, comment: e.target.value })
+                      }
+                      className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-2 cursor-pointer text-slate-600">
+                    <input
+                      type="checkbox"
+                      checked={clientTestiModal.consent_publish}
                       onChange={(e) =>
                         setClientTestiModal({
                           ...clientTestiModal,
-                          order_code: e.target.value.toUpperCase(),
+                          consent_publish: e.target.checked,
                         })
                       }
-                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-teal-300 font-mono"
+                      className="rounded text-[#0093E3] border-slate-300"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-slate-300 font-semibold mb-1">
-                      4 Digit Terakhir WA *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      maxLength={4}
-                      placeholder="Contoh: 0483"
-                      value={clientTestiModal.wa_last4}
-                      onChange={(e) =>
-                        setClientTestiModal({
-                          ...clientTestiModal,
-                          wa_last4: e.target.value.replace(/\D/g, ''),
-                        })
-                      }
-                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-slate-300 font-semibold mb-1">
-                      Nama Tampilan (Bisa Inisial) *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Contoh: Rizky A."
-                      value={clientTestiModal.client_name}
-                      onChange={(e) =>
-                        setClientTestiModal({ ...clientTestiModal, client_name: e.target.value })
-                      }
-                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-slate-300 font-semibold mb-1">
-                      Status / Jurusan / Bisnis *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Mahasiswa Teknik Informatika"
-                      value={clientTestiModal.client_role}
-                      onChange={(e) =>
-                        setClientTestiModal({ ...clientTestiModal, client_role: e.target.value })
-                      }
-                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-slate-300 font-semibold mb-1">
-                      Rating Kepuasan *
-                    </label>
-                    <select
-                      value={clientTestiModal.rating}
-                      onChange={(e) =>
-                        setClientTestiModal({
-                          ...clientTestiModal,
-                          rating: Number(e.target.value),
-                        })
-                      }
-                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white font-semibold"
-                    >
-                      <option value={5}>5 / 5 — Sangat Puas</option>
-                      <option value={4}>4 / 5 — Puas</option>
-                      <option value={3}>3 / 5 — Cukup</option>
-                      <option value={2}>2 / 5 — Kurang</option>
-                      <option value={1}>1 / 5 — Sangat Kurang</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-slate-300 font-semibold mb-1">
-                      Label Highlight Singkat
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Lulus Sidang Nilai A"
-                      value={clientTestiModal.tag}
-                      onChange={(e) =>
-                        setClientTestiModal({ ...clientTestiModal, tag: e.target.value })
-                      }
-                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">
-                    Komentar & Pengalaman Anda *
+                    <span>Saya mengizinkan ulasan ini ditampilkan di halaman utama Rizofara.</span>
                   </label>
-                  <textarea
-                    rows={3}
-                    required
-                    minLength={10}
-                    placeholder="Ceritakan pengalaman pengerjaan, komunikasi teknis, atau hasil akhir proyek Anda..."
-                    value={clientTestiModal.comment}
-                    onChange={(e) =>
-                      setClientTestiModal({ ...clientTestiModal, comment: e.target.value })
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white"
-                  />
-                </div>
 
-                <label className="flex items-center gap-2 cursor-pointer text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={clientTestiModal.consent_publish}
-                    onChange={(e) =>
-                      setClientTestiModal({
-                        ...clientTestiModal,
-                        consent_publish: e.target.checked,
-                      })
-                    }
-                    className="rounded border-slate-700"
-                  />
-                  <span>Saya mengizinkan ulasan ini ditampilkan di halaman utama Rizofara.</span>
-                </label>
-
-                <button
-                  type="submit"
-                  disabled={clientTestiStatus.loading}
-                  className="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-slate-950 font-bold text-xs transition"
-                >
-                  {clientTestiStatus.loading ? 'Memverifikasi & Mengirim...' : 'Kirim Ulasan Terverifikasi'}
-                </button>
-              </form>
-            )}
+                  <button
+                    type="submit"
+                    disabled={clientTestiStatus.loading}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#07C995] to-[#17C455] hover:opacity-95 disabled:opacity-50 text-white font-bold text-xs sm:text-sm transition cursor-pointer shadow-sm"
+                  >
+                    {clientTestiStatus.loading ? 'Memverifikasi...' : 'Kirim Ulasan Terverifikasi'}
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
         </div>
       )}

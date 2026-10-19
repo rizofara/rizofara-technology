@@ -99,7 +99,7 @@ def get_public_pricing_config(db: Session = Depends(get_db)):
 
 
 # =====================================================================
-# 2. ENDPOINT ADMIN — CRUD KATALOG LAYANAN (M3.A)
+# 2. ENDPOINT ADMIN - CRUD KATALOG LAYANAN (M3.A)
 # =====================================================================
 
 @router.get("/admin/all", response_model=List[ServiceCatalogResponse])
@@ -282,7 +282,7 @@ def delete_service(
 
 
 # =====================================================================
-# 3. ENDPOINT ADMIN — CRUD FAKTOR PENGALI (M3.B)
+# 3. ENDPOINT ADMIN - CRUD FAKTOR PENGALI (M3.B)
 # =====================================================================
 
 @router.get("/factors/all", response_model=List[PricingFactorResponse])
@@ -424,7 +424,7 @@ def delete_pricing_factor(
 
 
 # =====================================================================
-# 4. ENDPOINT ADMIN — CRUD ADD-ONS / FASILITAS TAMBAHAN (M3.D)
+# 4. ENDPOINT ADMIN - CRUD ADD-ONS / FASILITAS TAMBAHAN (M3.D)
 # =====================================================================
 
 @router.get("/addons/all", response_model=List[PricingAddonResponse])

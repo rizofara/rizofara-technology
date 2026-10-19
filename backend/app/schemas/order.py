@@ -175,6 +175,13 @@ class OrderCreate(BaseModel):
     include_wireframe: Optional[bool] = False
     selected_addons: Optional[List[str]] = None
     source: Optional[str] = "web"
+    # Field opsional ketika order diinput manual oleh Admin
+    status: Optional[str] = None
+    progress_percent: Optional[int] = Field(default=None, ge=0, le=100)
+    final_price: Optional[int] = Field(default=None, ge=0)
+    dp_amount: Optional[int] = Field(default=None, ge=0)
+    assigned_to: Optional[str] = None
+    current_stage_note: Optional[str] = None
 
 
 class OrderFileResponse(BaseModel):
@@ -210,6 +217,7 @@ class OrderResponse(BaseModel):
     pricing_snapshot: Optional[Dict[str, Any]] = None
     status: str
     progress_percent: int
+    current_stage: Optional[str] = None
     source: str = "web"
     cancel_reason: Optional[str] = None
     demo_url: Optional[str] = None
@@ -236,6 +244,7 @@ class OrderTrackResponse(BaseModel):
     deadline: str
     status: str
     progress_percent: int
+    current_stage: Optional[str] = None
     demo_url: Optional[str] = None
     price_estimate: int = 0
     final_price: int = 0
@@ -253,6 +262,11 @@ class OrderTrackResponse(BaseModel):
 
 
 class OrderStatusUpdate(BaseModel):
+    client_name: Optional[str] = None
+    client_whatsapp: Optional[str] = None
+    campus_or_company: Optional[str] = None
+    service_type: Optional[str] = None
+    tech_stack: Optional[str] = None
     title: Optional[str] = None
     description: Optional[str] = None
     deadline: Optional[str] = None
@@ -266,3 +280,4 @@ class OrderStatusUpdate(BaseModel):
     internal_notes: Optional[str] = None
     cancel_reason: Optional[str] = None
     timeline_message: Optional[str] = None
+

@@ -1,9 +1,13 @@
 @echo off
-title Rizofara Technology - Python Server
+title Rizofara Technology - Server Launcher
 echo ====================================================
-echo  Menjalankan Website Rizofara Technology di http://127.0.0.1:8000
+echo  Menjalankan Website Rizofara Technology
+echo  Backend & Web Bundle : http://127.0.0.1:8000
+echo  Swagger API Docs     : http://127.0.0.1:8000/docs
 echo ====================================================
 cd /d "%~dp0backend"
-call venv\Scripts\activate.bat
+if exist "venv\Scripts\activate.bat" (
+    call venv\Scripts\activate.bat
+)
 python run.py
 pause

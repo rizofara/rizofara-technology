@@ -146,14 +146,40 @@ def compute_order_financials(order: Order) -> Dict[str, Any]:
     }
 
 
+def resolve_current_stage(order: Order) -> str:
+    """
+    Menentukan deskripsi tahapan / Bab yang sedang dikerjakan saat ini untuk ditampilkan
+    di tabel Admin maupun halaman Cek Status Order Klien.
+    """
+    if order.status == "completed" or (order.progress_percent or 0) >= 100:
+        return "Selesai 100% - Seluruh Bab / Modul & Pengujian Tuntas"
+    if order.status == "cancelled":
+        return "Pesanan Dibatalkan"
+
+    # Cek log timeline terbaru yang memiliki pesan progres spesifik dari Admin
+    logs = order.timeline_logs or []
+    for log in logs:
+        if log.is_public and log.message and not log.title.startswith("Pesanan Diterima"):
+            return log.message
+
+    # Jika belum ada catatan spesifik, ambil milestone pertama yang belum selesai (sedang dikerjakan)
+    milestones = sorted(order.milestones or [], key=lambda m: (m.display_order, m.id))
+    for m in milestones:
+        if not m.is_completed:
+            return f"Sedang Dikerjakan: {m.title}"
+
+    return "Menunggu Konfirmasi & Penjadwalan Tim Teknis"
+
+
 def serialize_order_admin(order: Order) -> OrderResponse:
-    """Mengonversi model Order beserta kalkulasi finansial ke OrderResponse."""
+    """Mengonversi model Order beserta kalkulasi finansial & tahapan aktif ke OrderResponse."""
     fin = compute_order_financials(order)
     resp = OrderResponse.model_validate(order)
     resp.effective_bill = fin["effective_bill"]
     resp.total_paid = fin["total_paid"]
     resp.remaining_balance = fin["remaining_balance"]
     resp.payment_status = fin["payment_status"]
+    resp.current_stage = resolve_current_stage(order)
     return resp
 
 
@@ -171,53 +197,97 @@ def recalculate_milestone_progress(order: Order) -> int:
     return new_pct
 
 
-def create_default_milestones_and_timeline(db: Session, order: Order) -> None:
+def create_default_milestones_and_timeline(
+    db: Session, order: Order, current_stage_note: Optional[str] = None
+) -> None:
     """
-    Membuat 4 tahapan checklist Milestone standar dan 1 log Timeline awal
-    ketika sebuah Order baru berhasil dibuat (Modul M6).
+    Membuat 4 tahapan checklist Milestone standar (otomatis menyesuaikan format Bab 1-5
+    untuk Skripsi/Tugas atau Tahap 1-4 untuk Website/Chatbot) dan log Timeline awal.
     """
-    default_milestones = [
-        OrderMilestone(
-            order_id=order.id,
-            title="1. Konfirmasi Kebutuhan, Scope & Pembayaran DP",
-            description="Diskusi spesifikasi teknis detail dan verifikasi pembayaran uang muka (DP).",
-            weight_percent=15,
-            is_completed=False,
-            display_order=1,
-        ),
-        OrderMilestone(
-            order_id=order.id,
-            title="2. Perancangan Arsitektur, Database & Algoritma",
-            description="Penyusunan skema database, persiapan dataset/API, dan struktur proyek.",
-            weight_percent=25,
-            is_completed=False,
-            display_order=2,
-        ),
-        OrderMilestone(
-            order_id=order.id,
-            title="3. Pengembangan Kode Program & Integrasi Fitur Utama",
-            description="Implementasi logika backend, algoritma inti, serta antarmuka pengguna (UI).",
-            weight_percent=40,
-            is_completed=False,
-            display_order=3,
-        ),
-        OrderMilestone(
-            order_id=order.id,
-            title="4. Pengujian (QA), Demo Aplikasi & Serah Terima",
-            description="Uji coba fungsionalitas bersama klien, penyerahan source code, dan panduan.",
-            weight_percent=20,
-            is_completed=False,
-            display_order=4,
-        ),
-    ]
+    is_academic = (order.service_type or "").lower() in ("skripsi", "tugas")
+
+    if is_academic:
+        default_milestones = [
+            OrderMilestone(
+                order_id=order.id,
+                title="Bab 1 & 2 - Analisis Kebutuhan, Dataset & Landasan Sistem",
+                description="Identifikasi rumusan masalah, persiapan dataset/variabel, dan ruang lingkup sistem.",
+                weight_percent=15,
+                is_completed=False,
+                display_order=1,
+            ),
+            OrderMilestone(
+                order_id=order.id,
+                title="Bab 3 - Perancangan Arsitektur, Flowchart, UML/DFD & Database",
+                description="Penyusunan skema tabel database, diagram alur algoritma, dan wireframe antarmuka.",
+                weight_percent=25,
+                is_completed=False,
+                display_order=2,
+            ),
+            OrderMilestone(
+                order_id=order.id,
+                title="Bab 4 - Implementasi Kode Program, Integrasi Fitur & Pengujian",
+                description="Pengembangan source code utama, pelatihan model/algoritma, dan uji akurasi/blackbox.",
+                weight_percent=40,
+                is_completed=False,
+                display_order=3,
+            ),
+            OrderMilestone(
+                order_id=order.id,
+                title="Bab 5 - Evaluasi Akhir, Pembahasan Program & Demo Sidang",
+                description="Finalisasi dokumentasi bab pembahasan kode, video panduan instalasi, dan serah terima.",
+                weight_percent=20,
+                is_completed=False,
+                display_order=4,
+            ),
+        ]
+    else:
+        default_milestones = [
+            OrderMilestone(
+                order_id=order.id,
+                title="Tahap 1 - Konfirmasi Kebutuhan, Scope & Pembayaran DP",
+                description="Diskusi spesifikasi teknis detail dan verifikasi pembayaran uang muka (DP).",
+                weight_percent=15,
+                is_completed=False,
+                display_order=1,
+            ),
+            OrderMilestone(
+                order_id=order.id,
+                title="Tahap 2 - Perancangan Arsitektur, Database & Desain UI/UX",
+                description="Penyusunan skema database, persiapan API, dan struktur antarmuka proyek.",
+                weight_percent=25,
+                is_completed=False,
+                display_order=2,
+            ),
+            OrderMilestone(
+                order_id=order.id,
+                title="Tahap 3 - Pengembangan Kode Program & Integrasi Fitur Utama",
+                description="Implementasi logika backend, algoritma inti, serta antarmuka pengguna (UI).",
+                weight_percent=40,
+                is_completed=False,
+                display_order=3,
+            ),
+            OrderMilestone(
+                order_id=order.id,
+                title="Tahap 4 - Pengujian (QA), Demo Aplikasi & Serah Terima",
+                description="Uji coba fungsionalitas bersama klien, penyerahan source code, dan panduan.",
+                weight_percent=20,
+                is_completed=False,
+                display_order=4,
+            ),
+        ]
     db.add_all(default_milestones)
 
     initial_log = OrderTimelineLog(
         order_id=order.id,
         title="Pesanan Diterima & Masuk Antrean Review",
         message=(
-            f"Pesanan '{order.title}' dengan kode {order.order_code} telah tercatat di sistem. "
-            f"Tim kami akan segera meninjau spesifikasi Anda."
+            current_stage_note.strip()
+            if (current_stage_note and current_stage_note.strip())
+            else (
+                f"Pesanan '{order.title}' dengan kode {order.order_code} telah tercatat di sistem. "
+                f"Tim kami akan segera meninjau spesifikasi Anda."
+            )
         ),
         progress_percent=order.progress_percent,
         is_public=True,
@@ -227,13 +297,13 @@ def create_default_milestones_and_timeline(db: Session, order: Order) -> None:
 
 
 # =====================================================================
-# 1. PEMBUATAN ORDER & UNGGAH FILE PRIVAT (KLIEN / PUBLIK)
+# 1. PEMBUATAN ORDER & UNGGAH FILE PRIVAT (KLIEN / PUBLIK / ADMIN)
 # =====================================================================
 
 @router.post("/", response_model=OrderResponse)
 def create_order(data: OrderCreate, db: Session = Depends(get_db)):
     """
-    Buat order baru dari klien.
+    Buat order baru dari klien maupun input manual Admin.
     Harga dihitung ulang di sisi server menggunakan Pricing Engine dan disimpan
     sebagai `pricing_snapshot` agar perubahan harga di masa depan tidak mengubah
     tagihan order lama (Perbaikan B-01, B-02 & Modul M5).
@@ -277,18 +347,30 @@ def create_order(data: OrderCreate, db: Session = Depends(get_db)):
         deadline=data.deadline.strip(),
         price_estimate=calc_result.estimated_min_price,
         price_estimate_max=calc_result.estimated_max_price,
-        final_price=0,
+        final_price=data.final_price if data.final_price is not None else 0,
         discount_amount=0,
-        dp_amount=0,
+        dp_amount=data.dp_amount if data.dp_amount is not None else 0,
         pricing_snapshot=snapshot,
-        status="pending",
-        progress_percent=10,
+        status=data.status or "pending",
+        progress_percent=data.progress_percent if data.progress_percent is not None else 10,
+        assigned_to=data.assigned_to,
         source=data.source or "web",
     )
     db.add(order)
     db.flush()  # Dapatkan order.id sebelum membuat milestone & timeline
 
-    create_default_milestones_and_timeline(db, order)
+    create_default_milestones_and_timeline(db, order, data.current_stage_note)
+    if data.current_stage_note and data.current_stage_note.strip():
+        db.add(
+            OrderTimelineLog(
+                order_id=order.id,
+                title=f"Tahapan Aktif ({order.progress_percent}%)",
+                message=data.current_stage_note.strip(),
+                progress_percent=order.progress_percent,
+                is_public=True,
+                created_by="Admin Rizofara",
+            )
+        )
     db.commit()
     db.refresh(order)
     return serialize_order_admin(order)
@@ -416,6 +498,7 @@ def track_order(
                 deadline=o.deadline,
                 status=o.status,
                 progress_percent=o.progress_percent,
+                current_stage=resolve_current_stage(o),
                 demo_url=o.demo_url,
                 price_estimate=o.price_estimate or 0,
                 final_price=o.final_price or 0,
@@ -499,8 +582,8 @@ def update_order_status(
     db: Session = Depends(get_db),
 ):
     """
-    Update status, progres, harga deal (`final_price`), diskon, DP, atau PIC order.
-    Jika status berubah atau `timeline_message` diisi, otomatis membuat catatan di Timeline!
+    Update data order, status, progres, tahapan/bab aktif (`timeline_message`),
+    harga deal (`final_price`), diskon, DP, atau PIC order.
     """
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
@@ -508,6 +591,16 @@ def update_order_status(
 
     old_status = order.status
 
+    if data.client_name is not None and data.client_name.strip():
+        order.client_name = data.client_name.strip()
+    if data.client_whatsapp is not None and data.client_whatsapp.strip():
+        order.client_whatsapp = normalize_whatsapp(data.client_whatsapp)
+    if data.campus_or_company is not None:
+        order.campus_or_company = data.campus_or_company.strip()
+    if data.service_type is not None and data.service_type.strip():
+        order.service_type = data.service_type.lower().strip()
+    if data.tech_stack is not None:
+        order.tech_stack = data.tech_stack.strip()
     if data.title is not None:
         order.title = data.title.strip()
     if data.description is not None:

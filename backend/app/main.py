@@ -1,12 +1,15 @@
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse, Response
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.security_middleware import SecurityHeadersMiddleware, RateLimitMiddleware
 from app.db.base import Base
-from app.db.session import engine
+from app.db.session import engine, get_db
+from app.models.showcase import PortfolioItem
 from app.api.v1.api import api_router
 from app.seed import run_startup_seed
 
@@ -22,6 +25,10 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
 )
 
+# Setup Middleware Keamanan & Rate Limiting (Fase 6 - PRD §11)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RateLimitMiddleware)
+
 # Setup CORS
 app.add_middleware(
     CORSMiddleware,
@@ -31,12 +38,54 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount HANYA folder media publik (portofolio, avatar, logo) — Perbaikan S-03
+# Mount HANYA folder media publik (portofolio, avatar, logo) - Perbaikan S-03
 # Berkas tugas/skripsi klien disimpan di storage/private dan TIDAK diekspos di URL publik.
 app.mount("/media", StaticFiles(directory=settings.PUBLIC_MEDIA_DIR), name="media")
 
 # Include API Router
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+# --- ENDPOINT SEO PUBLIK: ROBOTS.TXT & SITEMAP.XML (Fase 6 - PRD §11) ---
+@app.get("/robots.txt", response_class=PlainTextResponse, include_in_schema=False)
+def get_robots_txt(request: Request):
+    base_url = str(request.base_url).rstrip("/")
+    content = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /api/\n"
+        "Disallow: /admin\n"
+        f"Sitemap: {base_url}/sitemap.xml\n"
+    )
+    return PlainTextResponse(content=content, media_type="text/plain")
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+def get_sitemap_xml(request: Request, db: Session = Depends(get_db)):
+    base_url = str(request.base_url).rstrip("/")
+    published_portfolios = (
+        db.query(PortfolioItem)
+        .filter(PortfolioItem.is_published == True, PortfolioItem.client_consent == True)
+        .order_by(PortfolioItem.display_order.asc())
+        .all()
+    )
+
+    urls = [
+        f"  <url><loc>{base_url}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>",
+    ]
+    for p in published_portfolios:
+        urls.append(
+            f"  <url><loc>{base_url}/?portfolio={p.slug}</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>"
+        )
+
+    xml_body = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(urls)
+        + "\n</urlset>\n"
+    )
+    return Response(content=xml_body, media_type="application/xml")
+
 
 # --- SATUKAN FRONTEND REACT LANGSUNG KE FASTAPI ---
 FRONTEND_DIST_DIR = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
@@ -72,4 +121,5 @@ else:
             "message": "Frontend belum di-build. Akses API Docs di /docs",
             "docs_url": "/docs",
         }
+
 

@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.main import app
+from app.core.security_middleware import rate_limiter
 from app.db.base import Base
 from app.db.session import get_db
 from app.seed import seed_initial_admins, seed_initial_pricing
@@ -35,8 +36,10 @@ app.dependency_overrides[get_db] = override_get_db
 def reset_test_db():
     """
     Fixture global (conftest.py) yang berjalan otomatis sebelum setiap fungsi test:
-    membuat ulang semua tabel di RAM, mengisi seed admin & pricing, lalu menghapusnya setelah test selesai.
+    mereset rate limiter, membuat ulang semua tabel di RAM, mengisi seed admin & pricing,
+    lalu menghapusnya setelah test selesai.
     """
+    rate_limiter.reset()
     Base.metadata.create_all(bind=test_engine)
     db = TestingSessionLocal()
     seed_initial_admins(db)
@@ -44,3 +47,4 @@ def reset_test_db():
     db.close()
     yield
     Base.metadata.drop_all(bind=test_engine)
+

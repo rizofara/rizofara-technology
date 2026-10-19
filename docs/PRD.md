@@ -1,11 +1,11 @@
-# 📘 PRD — Rizofara Technology Platform v2.0
+# 📘 PRD - Rizofara Technology Platform v2.0
 ### Product Requirements Document: Admin Panel, CMS (CRUD), Kalkulator Dinamis, Order & Progress Management
 
 | Item | Keterangan |
 | :--- | :--- |
 | **Versi Dokumen** | 1.0 |
 | **Tanggal** | 19 Oktober 2026 |
-| **Status** | Draft — menunggu review Founder |
+| **Status** | Draft - menunggu review Founder |
 | **Basis Analisis** | Commit `e0d9276` (second commit - change name & logo) |
 | **Pemilik Produk** | Founder 1 (Lead Tech & AI) & Founder 2 (Frontend & Client Ops) |
 
@@ -89,7 +89,7 @@ flowchart LR
 | 9 | FAQ (4 item) | ⚠️ Statis | Hardcoded |
 | 10 | Generator link WhatsApp | ✅ Ada | Endpoint ada, tapi FE tidak memakainya |
 | 11 | Update status order | ⚠️ Hanya via API | **Tanpa autentikasi** |
-| 12 | Login admin / dashboard | ❌ Tidak ada | — |
+| 12 | Login admin / dashboard | ❌ Tidak ada | - |
 | 13 | Pembayaran / invoice | ❌ Tidak ada | Hanya kolom `dp_amount` |
 | 14 | Notifikasi Telegram | ❌ Belum dipakai | Config sudah ada di `config.py` |
 
@@ -235,7 +235,7 @@ erDiagram
 | File klien aman | ❌ Publik | Penyimpanan privat + kategori file | **M14** |
 | Jejak siapa mengubah apa | ❌ | Audit log | **M15** |
 
-> 💡 **Apa itu CRUD?** Singkatan dari **C**reate (tambah), **R**ead (lihat), **U**pdate (ubah), **D**elete (hapus) — 4 operasi dasar untuk mengelola data. Hampir semua modul admin di PRD ini adalah CRUD.
+> 💡 **Apa itu CRUD?** Singkatan dari **C**reate (tambah), **R**ead (lihat), **U**pdate (ubah), **D**elete (hapus) - 4 operasi dasar untuk mengelola data. Hampir semua modul admin di PRD ini adalah CRUD.
 
 ---
 
@@ -257,8 +257,8 @@ erDiagram
 | :--- | :--- | :--- |
 | 🎓 **Mahasiswa (Klien Akademik)** | Butuh bantuan skripsi/tugas, deadline mepet, khawatir privasi | Harga jelas, progres terlihat, revisi mudah, identitas aman |
 | 🏪 **Pemilik UMKM (Klien Bisnis)** | Butuh website/chatbot, awam teknis | Lihat portofolio nyata, estimasi biaya, invoice resmi |
-| 👨‍💻 **Founder 1 — Lead Tech** | Mengerjakan project AI/backend | Lihat order yang di-assign, update progres cepat |
-| 👩‍🎨 **Founder 2 — Client Ops** | Closing klien, kelola konten | Kelola harga, testimoni, portofolio, pembayaran |
+| 👨‍💻 **Founder 1 - Lead Tech** | Mengerjakan project AI/backend | Lihat order yang di-assign, update progres cepat |
+| 👩‍🎨 **Founder 2 - Client Ops** | Closing klien, kelola konten | Kelola harga, testimoni, portofolio, pembayaran |
 
 ### 5.3 Peran & Hak Akses (RBAC)
 
@@ -281,7 +281,7 @@ erDiagram
 
 ## 6. Ruang Lingkup & Prioritas (MoSCoW)
 
-> 💡 **MoSCoW:** Teknik prioritas — **M**ust have (wajib), **S**hould have (penting), **C**ould have (bagus jika sempat), **W**on't have (tidak di versi ini). Membantu tim fokus agar tidak semua dikerjakan sekaligus.
+> 💡 **MoSCoW:** Teknik prioritas - **M**ust have (wajib), **S**hould have (penting), **C**ould have (bagus jika sempat), **W**on't have (tidak di versi ini). Membantu tim fokus agar tidak semua dikerjakan sekaligus.
 
 | Prioritas | Fitur |
 | :--- | :--- |
@@ -300,7 +300,7 @@ erDiagram
 
 ---
 
-### M1 — Autentikasi & Manajemen Admin
+### M1 - Autentikasi & Manajemen Admin
 
 **Tujuan:** Hanya Founder/tim yang berhak yang bisa mengakses panel admin dan endpoint sensitif.
 
@@ -330,7 +330,7 @@ erDiagram
 2. Password disimpan dengan **bcrypt** (tidak pernah disimpan/dikirim dalam bentuk asli).
 3. Login gagal **5 kali dalam 15 menit** dari IP yang sama → diblokir sementara 15 menit.
 4. Token **JWT** berlaku 8 jam. Payload: `sub` (id admin), `role`, `exp`.
-5. Superadmin pertama dibuat lewat script CLI: `python -m app.cli create-superadmin` (data dari `.env` / input terminal) — **tidak ada halaman registrasi publik**.
+5. Superadmin pertama dibuat lewat script CLI: `python -m app.cli create-superadmin` (data dari `.env` / input terminal) - **tidak ada halaman registrasi publik**.
 6. Superadmin **tidak bisa** menonaktifkan/menghapus dirinya sendiri, dan sistem wajib punya minimal 1 superadmin aktif.
 7. Admin yang dinonaktifkan langsung tidak bisa mengakses API walaupun tokennya belum kedaluwarsa (cek `is_active` di setiap request).
 
@@ -366,11 +366,11 @@ sequenceDiagram
 
 ---
 
-### M2 — Profil (Profil Bisnis, Tim, & Profil Akun Admin)
+### M2 - Profil (Profil Bisnis, Tim, & Profil Akun Admin)
 
 Modul ini terdiri dari **3 bagian**:
 
-#### M2.A — Profil Bisnis / Pengaturan Website (`site_settings`)
+#### M2.A - Profil Bisnis / Pengaturan Website (`site_settings`)
 
 **Tujuan:** Semua teks identitas bisnis di landing page bisa diubah dari admin.
 
@@ -381,16 +381,16 @@ Modul ini terdiri dari **3 bagian**:
 | `brand` | `logo_url`, `favicon_url` | `/media/logo.png` | Header, footer |
 | `brand` | `order_code_prefix` | `RZ` | Kode order (memperbaiki B-11) |
 | `contact` | `whatsapp_number` | 6285692390483 | Semua tombol WA |
-| `contact` | `email`, `instagram`, `tiktok`, `linkedin`, `address` | — | Footer |
+| `contact` | `email`, `instagram`, `tiktok`, `linkedin`, `address` | - | Footer |
 | `contact` | `wa_greeting_template` | "Halo Tim {brand_name}, ..." | Pesan WA otomatis |
-| `hero` | `hero_badge`, `hero_title`, `hero_highlight`, `hero_subtitle` | — | Section Hero |
+| `hero` | `hero_badge`, `hero_title`, `hero_highlight`, `hero_subtitle` | - | Section Hero |
 | `hero` | `trust_badges` (JSON list: icon, judul, deskripsi) | 4 item | Kartu di bawah hero |
-| `about` | `about_text`, `vision`, `mission` | — | Section "Tentang Kami" (baru) |
+| `about` | `about_text`, `vision`, `mission` | - | Section "Tentang Kami" (baru) |
 | `calculator` | `dp_percent` | 40 | Rumus DP |
 | `calculator` | `rounding_unit` | 50000 | Pembulatan harga |
 | `calculator` | `disclaimer` | "Estimasi ini bersifat indikatif..." | Bawah hasil kalkulator |
 | `calculator` | `default_benefits` (JSON list) | "Full Source Code 100% Hak Milik", ... | Daftar "Yang Sudah Termasuk" |
-| `seo` | `meta_title`, `meta_description`, `og_image_url` | — | Tag `<head>` |
+| `seo` | `meta_title`, `meta_description`, `og_image_url` | - | Tag `<head>` |
 | `system` | `maintenance_mode` | false | Tampilkan banner "sedang perbaikan" |
 
 **Aturan Bisnis:**
@@ -400,7 +400,7 @@ Modul ini terdiri dari **3 bagian**:
 
 > 💡 **Kenapa pola key-value?** Daripada membuat tabel dengan 30 kolom (yang harus migrasi setiap tambah setting), kita simpan sebagai pasangan `key` → `value`. Menambah setting baru cukup insert 1 baris.
 
-#### M2.B — Tim / Co-Founder (`team_members`) — CRUD
+#### M2.B - Tim / Co-Founder (`team_members`) - CRUD
 
 | Field | Tipe | Wajib | Keterangan |
 | :--- | :--- | :---: | :--- |
@@ -413,7 +413,7 @@ Modul ini terdiri dari **3 bagian**:
 | `display_order` | int | ✅ | Urutan tampil |
 | `is_published` | bool | ✅ | Tampil/sembunyikan |
 
-#### M2.C — Profil Akun Saya (Admin yang login)
+#### M2.C - Profil Akun Saya (Admin yang login)
 
 | User Story | Detail |
 | :--- | :--- |
@@ -429,11 +429,11 @@ Modul ini terdiri dari **3 bagian**:
 
 ---
 
-### M3 — Layanan & Harga (Services, Pricing Factors, Add-ons, Urgency Tiers)
+### M3 - Layanan & Harga (Services, Pricing Factors, Add-ons, Urgency Tiers)
 
 **Tujuan:** Founder bisa menambah layanan baru (misal "Aplikasi Mobile" atau "Desain UI/UX") dan mengatur harga **tanpa menyentuh kode**.
 
-#### M3.A — Layanan (`services`) — CRUD
+#### M3.A - Layanan (`services`) - CRUD
 
 | Field | Tipe | Wajib | Contoh |
 | :--- | :--- | :---: | :--- |
@@ -462,9 +462,9 @@ Modul ini terdiri dari **3 bagian**:
 | `website` | 1.200.000 | 3.800.000 | 14 | 5 |
 | `chatbot` | 900.000 | 2.800.000 | 10 | 5 |
 
-> ⚠️ Perhatikan `tugas.min_days = 1` → memperbaiki bug **B-06** (tugas kuliah sering hanya 1–3 hari).
+> ⚠️ Perhatikan `tugas.min_days = 1` → memperbaiki bug **B-06** (tugas kuliah sering hanya 1-3 hari).
 
-#### M3.B — Faktor Pengali (`pricing_factors`) — CRUD
+#### M3.B - Faktor Pengali (`pricing_factors`) - CRUD
 
 Satu tabel untuk 2 jenis faktor: **kompleksitas** dan **platform**.
 
@@ -474,7 +474,7 @@ Satu tabel untuk 2 jenis faktor: **kompleksitas** dan **platform**.
 | `code` | string(30) | `basic`, `intermediate`, `web`, `mobile`... |
 | `label` | string(50) | "Dasar (CRUD)", "Mobile (Flutter)" |
 | `description` | string | Tooltip penjelasan untuk klien |
-| `multiplier` | decimal(4,2) | 1.00 – 5.00 |
+| `multiplier` | decimal(4,2) | 1.00 - 5.00 |
 | `applicable_service_ids` | JSON list / null | `null` = berlaku untuk semua layanan |
 | `is_default` | bool | Opsi terpilih saat kalkulator dibuka |
 | `is_active`, `display_order` | | |
@@ -495,7 +495,7 @@ Satu tabel untuk 2 jenis faktor: **kompleksitas** dan **platform**.
 
 > 💡 Dengan `applicable_service_ids`, admin bisa mengatur misalnya platform **IoT** hanya muncul untuk **Skripsi**, tidak untuk **Chatbot** (kombinasi "Chatbot + IoT" di v1 kurang masuk akal).
 
-#### M3.C — Tier Urgensi (`urgency_tiers`) — CRUD
+#### M3.C - Tier Urgensi (`urgency_tiers`) - CRUD
 
 Urgensi v2 dihitung **relatif terhadap `standard_days` layanan**, bukan angka hari absolut. Alasannya: 7 hari untuk skripsi itu sangat kilat, tapi 7 hari untuk tugas kuliah itu santai.
 
@@ -512,12 +512,12 @@ $$\text{rasio} = \frac{\text{hari yang dipilih klien}}{\text{standard\_days laya
 
 | Label | Rasio | Multiplier | Contoh Skripsi (standar 21 hari) |
 | :--- | :--- | :---: | :--- |
-| 🔥 Kilat | rasio < 0,35 | 1.35 | 5–7 hari |
-| ⚡ Cepat | 0,35 ≤ rasio < 0,65 | 1.20 | 8–13 hari |
-| ✅ Standar | 0,65 ≤ rasio < 1,00 | 1.10 | 14–20 hari |
+| 🔥 Kilat | rasio < 0,35 | 1.35 | 5-7 hari |
+| ⚡ Cepat | 0,35 ≤ rasio < 0,65 | 1.20 | 8-13 hari |
+| ✅ Standar | 0,65 ≤ rasio < 1,00 | 1.10 | 14-20 hari |
 | 🌿 Santai | rasio ≥ 1,00 | 1.00 | ≥ 21 hari |
 
-#### M3.D — Add-on / Fasilitas Tambahan (`addons`) — CRUD
+#### M3.D - Add-on / Fasilitas Tambahan (`addons`) - CRUD
 
 | Field | Tipe | Keterangan |
 | :--- | :--- | :--- |
@@ -544,7 +544,7 @@ $$\text{rasio} = \frac{\text{hari yang dipilih klien}}{\text{standard\_days laya
 1. `base_price_min` ≤ `base_price_max`; `min_days` ≤ `standard_days` ≤ `max_days`.
 2. Layanan yang sudah dipakai oleh order **tidak bisa dihapus permanen** → hanya bisa dinonaktifkan (*soft delete*). Order lama tetap menyimpan *snapshot* harga.
 3. Minimal harus ada 1 faktor `complexity` dan 1 faktor `platform` yang aktif & default.
-4. Perubahan harga **tidak memengaruhi** order yang sudah dibuat (karena snapshot — lihat M5).
+4. Perubahan harga **tidak memengaruhi** order yang sudah dibuat (karena snapshot - lihat M5).
 
 > 💡 **Soft delete vs hard delete:** *Hard delete* = baris benar-benar dihapus dari DB. *Soft delete* = baris tetap ada, hanya ditandai `is_active=false` atau `deleted_at` terisi. Soft delete dipakai agar data historis (order lama yang merujuk layanan tersebut) tidak rusak.
 
@@ -556,33 +556,33 @@ $$\text{rasio} = \frac{\text{hari yang dipilih klien}}{\text{standard\_days laya
 
 ---
 
-### M4 — Kalkulator Harga Dinamis
+### M4 - Kalkulator Harga Dinamis
 
 **Tujuan:** Kalkulator membaca semua konfigurasi dari M3, menampilkan **rincian perhitungan** secara transparan, dan menjadi **satu-satunya sumber kebenaran** harga.
 
 #### 4.1 Rumus Perhitungan (v2)
 
-**Langkah 1 — Subtotal dasar (dikali semua faktor):**
+**Langkah 1 - Subtotal dasar (dikali semua faktor):**
 
 $$\text{Subtotal}_{min} = \text{HargaDasar}_{min} \times M_{kompleksitas} \times M_{platform} \times M_{urgensi}$$
 
 $$\text{Subtotal}_{max} = \text{HargaDasar}_{max} \times M_{kompleksitas} \times M_{platform} \times M_{urgensi}$$
 
-**Langkah 2 — Tambah add-on:**
+**Langkah 2 - Tambah add-on:**
 
 $$\text{Total} = \text{Subtotal} + \sum \text{AddOn}_{fixed} + \sum \left(\text{Subtotal} \times \frac{\text{AddOn}_{percent}}{100}\right)$$
 
-**Langkah 3 — Pembulatan** ke kelipatan `rounding_unit` (default Rp 50.000):
+**Langkah 3 - Pembulatan** ke kelipatan `rounding_unit` (default Rp 50.000):
 
 $$\text{Total}_{bulat} = \text{round}\left(\frac{\text{Total}}{50.000}\right) \times 50.000$$
 
-> ⚠️ **Jebakan pembulatan:** `round()` di Python memakai *banker's rounding* (`round(2.5) = 2`, `round(3.5) = 4`), sedangkan `Math.round()` di JavaScript selalu ke atas (`Math.round(2.5) = 3`). Agar hasil frontend & backend **identik**, kedua sisi wajib memakai aturan yang sama: **"half-up"** — di Python gunakan `Decimal(x).quantize(Decimal("1"), rounding=ROUND_HALF_UP)`, di JS gunakan `Math.round()`.
+> ⚠️ **Jebakan pembulatan:** `round()` di Python memakai *banker's rounding* (`round(2.5) = 2`, `round(3.5) = 4`), sedangkan `Math.round()` di JavaScript selalu ke atas (`Math.round(2.5) = 3`). Agar hasil frontend & backend **identik**, kedua sisi wajib memakai aturan yang sama: **"half-up"** - di Python gunakan `Decimal(x).quantize(Decimal("1"), rounding=ROUND_HALF_UP)`, di JS gunakan `Math.round()`.
 
-**Langkah 4 — Rekomendasi DP:**
+**Langkah 4 - Rekomendasi DP:**
 
 $$\text{DP} = \text{round}\left(\frac{\text{Total}_{min} \times \text{dp\_percent}/100}{50.000}\right) \times 50.000$$
 
-**Langkah 5 — Cek kelayakan deadline:**
+**Langkah 5 - Cek kelayakan deadline:**
 - Jika `hari < min_days` layanan → `is_feasible = false`, tombol order diganti "Konsultasi Dulu via WhatsApp".
 - Jika tier = Kilat → tampil peringatan "Pengerjaan kilat, slot terbatas".
 
@@ -592,13 +592,13 @@ $$\text{DP} = \text{round}\left(\frac{\text{Total}_{min} \times \text{dp\_percen
 
 | Langkah | Perhitungan | Min | Max |
 | :--- | :--- | ---: | ---: |
-| Harga dasar Skripsi | — | 1.800.000 | 3.500.000 |
+| Harga dasar Skripsi | - | 1.800.000 | 3.500.000 |
 | × Kompleksitas Menengah | × 1,30 | 2.340.000 | 4.550.000 |
 | × Platform Web | × 1,00 | 2.340.000 | 4.550.000 |
 | × Urgensi (14/21 = 0,67 → Standar) | × 1,10 | 2.574.000 | 5.005.000 |
 | + Add-on Laporan | + 200rb / + 400rb | 2.774.000 | 5.405.000 |
 | Pembulatan 50rb | round | **2.750.000** | **5.400.000** |
-| DP 40% dari min | 2.750.000 × 40% = 1.100.000 | **1.100.000** | — |
+| DP 40% dari min | 2.750.000 × 40% = 1.100.000 | **1.100.000** | - |
 
 > ✅ Hasil ini **sama persis** dengan rumus v1, sehingga harga tidak berubah mendadak bagi klien setelah migrasi.
 
@@ -669,7 +669,7 @@ flowchart TD
 
 ---
 
-### M5 — Manajemen Order (Admin)
+### M5 - Manajemen Order (Admin)
 
 **Tujuan:** Founder mengelola seluruh siklus order dari 1 halaman.
 
@@ -719,7 +719,7 @@ flowchart TD
 
 ---
 
-### M6 — Progres Pengerjaan & Timeline
+### M6 - Progres Pengerjaan & Timeline
 
 **Tujuan:** Klien melihat progres yang **bermakna** (bukan sekadar angka %), dan admin cukup sekali klik untuk update.
 
@@ -747,22 +747,22 @@ stateDiagram-v2
 
 | Status | Label untuk Klien | Tahap Stepper | Progres Default | Progres Boleh Diatur |
 | :--- | :--- | :---: | :---: | :--- |
-| `pending` | Menunggu Konfirmasi | 1 | 5% | — |
-| `confirmed` | Harga Disepakati, Menunggu DP | 1 | 10% | — |
-| `dp_paid` | DP Diterima | 1 | 15% | — |
-| `analysis` | Analisis & Desain | 2 | 25% | 16–40% |
-| `development` | Pengerjaan / Koding | 3 | 50% | 41–85% |
-| `review` | Demo & Review | 4 | 90% | 86–95% |
-| `revision` | Sedang Direvisi | 4 | 85% | 80–95% |
-| `completed` | Selesai | 5 | 100% | — |
-| `cancelled` | Dibatalkan | — | — | — |
+| `pending` | Menunggu Konfirmasi | 1 | 5% | - |
+| `confirmed` | Harga Disepakati, Menunggu DP | 1 | 10% | - |
+| `dp_paid` | DP Diterima | 1 | 15% | - |
+| `analysis` | Analisis & Desain | 2 | 25% | 16-40% |
+| `development` | Pengerjaan / Koding | 3 | 50% | 41-85% |
+| `review` | Demo & Review | 4 | 90% | 86-95% |
+| `revision` | Sedang Direvisi | 4 | 85% | 80-95% |
+| `completed` | Selesai | 5 | 100% | - |
+| `cancelled` | Dibatalkan | - | - | - |
 
 **Aturan:**
 1. Stepper FE ditentukan dari **status**, bukan persen (memperbaiki B-09).
 2. Saat status berubah, `progress_percent` otomatis diset ke nilai default; admin boleh menggeser di dalam rentang yang diizinkan.
 3. Transisi ke `completed` hanya boleh jika **sisa tagihan = 0** (M8), kecuali superadmin memakai opsi "override" dengan alasan.
 
-#### 6.2 Timeline Update Progres (`order_updates`) — CRUD
+#### 6.2 Timeline Update Progres (`order_updates`) - CRUD
 
 Setiap perubahan status atau catatan progres dicatat sebagai entri timeline.
 
@@ -780,13 +780,13 @@ Setiap perubahan status atau catatan progres dicatat sebagai entri timeline.
 
 **Contoh tampilan timeline di halaman tracking klien:**
 ```
-● 21 Okt 2026 14:30 — Demo Siap Diuji (90%)
+● 21 Okt 2026 14:30 - Demo Siap Diuji (90%)
 │  Link demo sudah tersedia. Silakan dicoba, kabari jika ada revisi.
-● 18 Okt 2026 09:12 — Modul Klasifikasi CNN Selesai (70%)
+● 18 Okt 2026 09:12 - Modul Klasifikasi CNN Selesai (70%)
 │  Akurasi model pada data uji: 93,8%.
-● 15 Okt 2026 10:00 — Mulai Pengerjaan (50%)
-● 14 Okt 2026 16:45 — DP Diterima (15%)
-● 14 Okt 2026 11:20 — Order Dibuat (5%)
+● 15 Okt 2026 10:00 - Mulai Pengerjaan (50%)
+● 14 Okt 2026 16:45 - DP Diterima (15%)
+● 14 Okt 2026 11:20 - Order Dibuat (5%)
 ```
 
 #### 6.3 Halaman Tracking Klien (Perbaikan Keamanan S-02)
@@ -796,8 +796,8 @@ Setiap perubahan status atau catatan progres dicatat sebagai entri timeline.
 | Input | Kode **atau** No. WA (partial match) | Kode order **+** 4 digit terakhir No. WA (exact match) |
 | Hasil | Bisa banyak order milik orang lain | Hanya 1 order yang cocok |
 | Nama klien | Tampil penuh | Disamarkan: "Rizky A***" |
-| Link langsung | — | `/track/RZ-2610-K7Q2?v=0483` (bisa dikirim admin lewat WA) |
-| Rate limit | — | 10 percobaan / 10 menit per IP |
+| Link langsung | - | `/track/RZ-2610-K7Q2?v=0483` (bisa dikirim admin lewat WA) |
+| Rate limit | - | 10 percobaan / 10 menit per IP |
 | Isi halaman | Status, %, stepper, demo | + Timeline publik, file deliverable, ringkasan tagihan, riwayat revisi, form testimoni (jika selesai) |
 
 #### Acceptance Criteria M6
@@ -809,7 +809,7 @@ Setiap perubahan status atau catatan progres dicatat sebagai entri timeline.
 
 ---
 
-### M7 — Manajemen Revisi
+### M7 - Manajemen Revisi
 
 | Field Tambahan `revisions` | Tipe | Keterangan |
 | :--- | :--- | :--- |
@@ -834,7 +834,7 @@ Setiap perubahan status atau catatan progres dicatat sebagai entri timeline.
 
 ---
 
-### M8 — Pembayaran & Tagihan
+### M8 - Pembayaran & Tagihan
 
 **Tujuan:** Mencatat DP, pelunasan, dan biaya tambahan sehingga Founder tahu persis siapa yang belum lunas.
 
@@ -874,7 +874,7 @@ $$\text{Sisa Tagihan} = \text{Total Tagihan} - \text{Sudah Dibayar}$$
 
 ---
 
-### M9 — Testimoni
+### M9 - Testimoni
 
 **Tujuan:** Testimoni bisa dikelola admin dan dikirim langsung oleh klien yang ordernya sudah selesai (lebih kredibel karena terverifikasi).
 
@@ -885,8 +885,8 @@ $$\text{Sisa Tagihan} = \text{Total Tagihan} - \text{Sudah Dibayar}$$
 | `client_role` | string(100) | ✅ | "Mahasiswa Teknik Informatika" |
 | `project_label` | string(150) | ❌ | "Skripsi AI Klasifikasi Citra CNN" |
 | `tag` | string(50) | ❌ | "Lulus Sidang Nilai A" |
-| `comment` | text (20–600 karakter) | ✅ | |
-| `rating` | int 1–5 | ✅ | |
+| `comment` | text (20-600 karakter) | ✅ | |
+| `rating` | int 1-5 | ✅ | |
 | `avatar_url` | string | ❌ | Jika kosong → inisial otomatis |
 | `avatar_color` | string | ❌ | Gradien inisial |
 | `service_id` | FK | ❌ | Untuk filter per layanan |
@@ -922,7 +922,7 @@ flowchart LR
 
 ---
 
-### M10 — Portofolio
+### M10 - Portofolio
 
 **Tujuan:** Menampilkan studi kasus nyata yang bisa ditambah kapan saja, lengkap dengan gambar & halaman detail.
 
@@ -960,9 +960,9 @@ flowchart LR
 
 ---
 
-### M11 — FAQ & Tech Stack
+### M11 - FAQ & Tech Stack
 
-#### FAQ (`faqs`) — CRUD
+#### FAQ (`faqs`) - CRUD
 | Field | Tipe | Keterangan |
 | :--- | :--- | :--- |
 | `question` | string(255) | |
@@ -970,7 +970,7 @@ flowchart LR
 | `category` | enum `umum`/`pembayaran`/`revisi`/`privasi` | |
 | `is_published`, `display_order` | | Admin bisa *drag & drop* urutan |
 
-#### Tech Stack (`tech_stacks`) — CRUD
+#### Tech Stack (`tech_stacks`) - CRUD
 | Field | Tipe | Keterangan |
 | :--- | :--- | :--- |
 | `name` | string(50) | "Python" |
@@ -984,7 +984,7 @@ flowchart LR
 
 ---
 
-### M12 — Dashboard & Laporan
+### M12 - Dashboard & Laporan
 
 | Widget | Isi | Sumber Data |
 | :--- | :--- | :--- |
@@ -1002,7 +1002,7 @@ flowchart LR
 
 ---
 
-### M13 — Notifikasi
+### M13 - Notifikasi
 
 | Event | Kanal | Penerima | Prioritas |
 | :--- | :--- | :--- | :--- |
@@ -1015,11 +1015,11 @@ flowchart LR
 
 **Aturan:** pengiriman notifikasi dijalankan di **background task** (FastAPI `BackgroundTasks`) agar kegagalan Telegram tidak menggagalkan pembuatan order.
 
-> 💡 Config `TELEGRAM_BOT_TOKEN` & `TELEGRAM_CHAT_ID` sudah ada di [config.py#L21-L22](file:///e:/DATA/Ngoding/sofia/WebsiteFreelance/backend/app/core/config.py#L21-L22) tapi belum dipakai — modul ini mengaktifkannya.
+> 💡 Config `TELEGRAM_BOT_TOKEN` & `TELEGRAM_CHAT_ID` sudah ada di [config.py#L21-L22](file:///e:/DATA/Ngoding/sofia/WebsiteFreelance/backend/app/core/config.py#L21-L22) tapi belum dipakai - modul ini mengaktifkannya.
 
 ---
 
-### M14 — File & Media
+### M14 - File & Media
 
 | Kategori | Contoh | Diunggah oleh | Disimpan di | Akses |
 | :--- | :--- | :--- | :--- | :--- |
@@ -1038,11 +1038,11 @@ flowchart LR
 
 ---
 
-### M15 — Audit Log (Could)
+### M15 - Audit Log (Could)
 
 Mencatat setiap aksi admin: `admin_id`, `action` (`create`/`update`/`delete`/`login`/`status_change`), `entity` (`order`/`service`/...), `entity_id`, `changes` (JSON before/after), `ip_address`, `created_at`. Hanya bisa dilihat superadmin, tidak bisa diedit/dihapus.
 
-> 💡 Berguna saat ada pertanyaan "Siapa yang mengubah harga order ini kemarin?" — terutama ketika tim sudah lebih dari 2 orang.
+> 💡 Berguna saat ada pertanyaan "Siapa yang mengubah harga order ini kemarin?" - terutama ketika tim sudah lebih dari 2 orang.
 
 ---
 
@@ -1287,7 +1287,7 @@ erDiagram
 
 | Method | Endpoint | Fungsi | Role |
 | :--- | :--- | :--- | :--- |
-| POST | `/admin/auth/login` | Login → JWT | — |
+| POST | `/admin/auth/login` | Login → JWT | - |
 | GET / PATCH | `/admin/auth/me` | Lihat / ubah profil sendiri | admin |
 | POST | `/admin/auth/change-password` | Ganti password | admin |
 | GET / POST | `/admin/users` | List / tambah admin | superadmin |
@@ -1405,7 +1405,7 @@ flowchart TD
     D --> O --> OD
 ```
 
-### 10.2 Halaman Admin — Rincian UI
+### 10.2 Halaman Admin - Rincian UI
 
 | Halaman | Komponen Utama |
 | :--- | :--- |
@@ -1519,7 +1519,7 @@ frontend/src/
 ├── App.jsx                       # Hanya definisi router
 ├── lib/
 │   ├── api.js                    # 🆕 axios instance + interceptor token & 401
-│   ├── pricing.js                # 🆕 calculatePrice() — cermin pricing_engine.py
+│   ├── pricing.js                # 🆕 calculatePrice() - cermin pricing_engine.py
 │   └── format.js                 # formatRupiah, formatTanggalWIB, maskName
 ├── context/AuthContext.jsx       # 🆕
 ├── hooks/                        # useSite, useServices, usePricingConfig, ...
@@ -1567,27 +1567,27 @@ flowchart LR
 | **5. Pembayaran, Dashboard, Notifikasi** | • Payments + billing + aturan completed • Dashboard stats + grafik • Notifier Telegram (background task) • Tombol kirim update via WA | Founder tahu omzet & piutang; dapat notif order baru |
 | **6. Testing, Polish, Deploy** | • Lengkapi test & UAT checklist • Rate limit, security headers • SEO meta dinamis • Backup otomatis • Update README & `.env.example` • Deploy (VPS + Nginx + HTTPS) | Siap produksi |
 
-**Total estimasi: ± 9–10 minggu.**
+**Total estimasi: ± 9-10 minggu.**
 
 ---
 
 ## 14. Rencana Pengujian
 
-### 14.1 Unit Test — Pricing Engine (paling kritis)
+### 14.1 Unit Test - Pricing Engine (paling kritis)
 
 Test case **yang sama** dijalankan di backend (`pytest`) dan frontend (`vitest`) agar hasil kedua sisi dijamin identik.
 
 | # | Layanan | Kompleksitas | Platform | Hari | Add-on | Total Min | Total Max | DP |
 | :- | :--- | :--- | :--- | :-: | :--- | ---: | ---: | ---: |
 | 1 | skripsi | intermediate | web | 14 | report | 2.750.000 | 5.400.000 | 1.100.000 |
-| 2 | skripsi | basic | web | 21 | — | 1.800.000 | 3.500.000 | 700.000 |
-| 3 | tugas | basic | web | 3 | — | 100.000 | 350.000 | 50.000 |
-| 4 | skripsi | (apa saja) | (apa saja) | 3 | — | `is_feasible=false` | — | — |
+| 2 | skripsi | basic | web | 21 | - | 1.800.000 | 3.500.000 | 700.000 |
+| 3 | tugas | basic | web | 3 | - | 100.000 | 350.000 | 50.000 |
+| 4 | skripsi | (apa saja) | (apa saja) | 3 | - | `is_feasible=false` | - | - |
 | 5 | website | advanced | mobile | 5 | wireframe | *(dihitung saat implementasi)* | | |
 
 > Catatan: kasus #3 → DP = round(100.000 × 40% / 50.000) × 50.000 = round(0,8) × 50.000 = **50.000**.
 
-### 14.2 Unit Test — State Machine Status
+### 14.2 Unit Test - State Machine Status
 - Semua transisi valid berhasil; semua transisi tidak valid → `InvalidTransition`.
 - `review → completed` dengan sisa tagihan > 0 → ditolak.
 
@@ -1597,7 +1597,7 @@ Test case **yang sama** dijalankan di backend (`pytest`) dan frontend (`vitest`)
 - Upload `.exe` → 422; file 25 MB → 413.
 - Buat order dengan field `price_estimate` palsu → diabaikan, harga dihitung server.
 
-### 14.4 UAT (User Acceptance Test) — Checklist Manual Founder
+### 14.4 UAT (User Acceptance Test) - Checklist Manual Founder
 - [ ] Login, ubah profil, ganti password, logout.
 - [ ] Tambah layanan baru → muncul di landing & kalkulator.
 - [ ] Ubah harga & multiplier → simulasi & kalkulator sesuai.
@@ -1630,15 +1630,15 @@ Test case **yang sama** dijalankan di backend (`pytest`) dan frontend (`vitest`)
 
 Mohon keputusan Founder untuk poin berikut sebelum implementasi:
 
-1. **Definisi "Profil"** — PRD ini mengasumsikan **Profil Bisnis** (identitas website) **+ Profil Akun Admin**. Apakah juga perlu halaman publik "Tentang Kami / Tim"?
-2. **Prefix kode order** — Ganti dari `JT-` ke `RZ-`? Order lama tetap memakai kode lamanya.
-3. **Verifikasi tracking** — Setuju memakai *kode order + 4 digit terakhir WA*? Alternatif: link rahasia saja (`/track/RZ-...?token=...`).
-4. **Masa garansi revisi** — 30 hari setelah selesai sudah sesuai?
-5. **Persentase DP** — Tetap 40% (UI saat ini menulis "30–40%")? Perlu dibedakan per layanan?
-6. **Akun klien** — Tetap tanpa login (cukup kode order) di v2? *(Rekomendasi: ya, lebih sederhana bagi mahasiswa.)*
-7. **Payment gateway** (Midtrans/Xendit) — Ditunda ke v3?
-8. **Hosting produksi** — VPS (mis. DigitalOcean/IDCloudHost) atau PaaS (Railway/Render)? Memengaruhi strategi penyimpanan file & database.
-9. **Domain email** — Perlu notifikasi email ke klien, atau cukup WhatsApp?
+1. **Definisi "Profil"** - PRD ini mengasumsikan **Profil Bisnis** (identitas website) **+ Profil Akun Admin**. Apakah juga perlu halaman publik "Tentang Kami / Tim"?
+2. **Prefix kode order** - Ganti dari `JT-` ke `RZ-`? Order lama tetap memakai kode lamanya.
+3. **Verifikasi tracking** - Setuju memakai *kode order + 4 digit terakhir WA*? Alternatif: link rahasia saja (`/track/RZ-...?token=...`).
+4. **Masa garansi revisi** - 30 hari setelah selesai sudah sesuai?
+5. **Persentase DP** - Tetap 40% (UI saat ini menulis "30-40%")? Perlu dibedakan per layanan?
+6. **Akun klien** - Tetap tanpa login (cukup kode order) di v2? *(Rekomendasi: ya, lebih sederhana bagi mahasiswa.)*
+7. **Payment gateway** (Midtrans/Xendit) - Ditunda ke v3?
+8. **Hosting produksi** - VPS (mis. DigitalOcean/IDCloudHost) atau PaaS (Railway/Render)? Memengaruhi strategi penyimpanan file & database.
+9. **Domain email** - Perlu notifikasi email ke klien, atau cukup WhatsApp?
 
 ---
 
@@ -1648,7 +1648,7 @@ Mohon keputusan Founder untuk poin berikut sebelum implementasi:
 | :--- | :--- |
 | **API** | "Pintu" komunikasi antara frontend (tampilan) dan backend (server/data) |
 | **Endpoint** | Alamat spesifik di API, contoh `POST /api/v1/orders` |
-| **CRUD** | Create, Read, Update, Delete — 4 operasi dasar data |
+| **CRUD** | Create, Read, Update, Delete - 4 operasi dasar data |
 | **JWT** | Token "tiket masuk" setelah login, dikirim di setiap request |
 | **bcrypt** | Algoritma pengacak password yang sengaja dibuat lambat agar sulit ditebak |
 | **RBAC** | Hak akses berdasarkan peran (admin, superadmin) |
@@ -1670,4 +1670,4 @@ Mohon keputusan Founder untuk poin berikut sebelum implementasi:
 
 ---
 
-*Dokumen ini adalah living document — perbarui versi & tanggal setiap kali ada perubahan keputusan.*
+*Dokumen ini adalah living document - perbarui versi & tanggal setiap kali ada perubahan keputusan.*

@@ -1,4 +1,4 @@
-# Rizofara Technology — Digital Roots for a Brighter Tomorrow 🚀
+# Rizofara Technology - Digital Roots for a Brighter Tomorrow (v2.0)
 
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/Frontend-React%2018-61DAFB?style=flat-square&logo=react)](https://react.dev)
@@ -6,152 +6,121 @@
 [![Vite](https://img.shields.io/badge/Build-Vite-646CFF?style=flat-square&logo=vite)](https://vitejs.dev)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python)](https://python.org)
 
-Website platform bisnis profesional untuk layanan asistensi akademik (tugas kuliah, program skripsi) serta solusi software house komersial (pembuatan website custom, chatbot AI, dan UI/UX wireframing).
+Platform manajemen order, kalkulator harga dinamis, dan Content Management System (CMS) untuk layanan asistensi perangkat lunak akademik (tugas kuliah, program skripsi IT) serta solusi software house komersial (pembuatan website custom, chatbot AI, dan wireframing UI/UX).
 
 ---
 
-## 🌟 Fitur Utama Platform
+## Arsitektur & Fitur Utama (v2.0)
 
-1. **🧮 Kalkulator Estimasi Biaya Interaktif:**
-   - Klien dapat menghitung perkiraan biaya secara mandiri berdasarkan jenis layanan, platform, tingkat kerumitan, dan deadline (mulai dari 5 hari).
-   - Opsi tambahan: Pembuatan laporan/bab pembahasan algoritma dan **Desain Wireframe UI/UX (Balsamiq Mockups)**.
-   - Rekomendasi uang muka (DP) otomatis dan tombol langsung ke WhatsApp dengan pesan terformat.
+1. **Autentikasi JWT & Role-Based Access Control (RBAC):**
+   - Portal Admin terproteksi dengan hashing password `PBKDF2-SHA256` dan token `JWT (HS256)`.
+   - Pembagian hak akses antara `superadmin` (akses penuh pengaturan bisnis, manajemen tim admin, hapus order, dan backup database) dan `admin` operasional.
+   - Fitur CRUD Profil Admin, manajemen anggota tim Co-Founder, dan ganti password mandiri.
 
-2. **🔍 Live Order Tracker (Pelacak Status Pesanan):**
-   - Transparansi pengerjaan penuh: Klien cukup memasukkan **Kode Order** (misal: `JT-2610-A1B2`) atau **Nomor WhatsApp**.
-   - Indikator progres visual dengan 5 tahapan pengerjaan (Konsultasi $\rightarrow$ Analisis $\rightarrow$ Koding $\rightarrow$ Demo $\rightarrow$ Selesai).
-   - Link preview demo aplikasi & form pengajuan revisi terintegrasi.
+2. **Mesin Kalkulator Harga & Katalog Layanan Dinamis:**
+   - Seluruh layanan, harga dasar (`min`/`max`), durasi standar/minimum, faktor pengali kompleksitas & platform, serta fasilitas tambahan (*add-ons*) disimpan di database dan dapat dikelola penuh dari Dashboard Admin.
+   - Perhitungan harga dilakukan secara deterministik di sisi server (*Single Source of Truth*) dengan pembulatan ke kelipatan Rp 50.000 terdekat dan penyimpanan *pricing snapshot* saat order dibuat.
 
-3. **📝 Formulir Order & Upload Dokumen:**
-   - Klien dapat langsung mengunggah file panduan tugas/soal/jurnal acuan (PDF/ZIP).
-   - Kode order unik digenerate secara otomatis dan tersimpan ke database.
+3. **Manajemen Siklus Order, Milestone Bobot, & Buku Kas Pembayaran:**
+   - Pelacakan progres berbasis checklist *milestone* berbobot otomatis (0-100%) dan log riwayat pengerjaan (*timeline updates*).
+   - Buku kas pencatatan pembayaran bertahap (DP, Termin, Pelunasan) beserta aturan bisnis yang mengunci status `completed` hingga seluruh tagihan berstatus `paid` (Lunas).
+   - Penyimpanan berkas klien di direktori privat (`storage/private/`) yang hanya dapat diunduh melalui endpoint terautentikasi.
 
-4. **⭐ Testimoni & Review Klien:**
-   - Kartu ulasan kepuasan klien dilengkapi rating bintang dan tag pencapaian (misal: *Lulus Sidang Nilai A*, *Bisnis UMKM*).
+4. **Pelacakan Order Publik Privasi-Aman & Moderasi Testimoni:**
+   - Pelacakan pesanan wajib menggunakan kecocokan persis (*exact match*) **Kode Order** (`RZ-YYMM-XXXX`) dan **4 digit terakhir nomor WhatsApp** dengan penyamaran nama klien otomatis (*privacy masking*).
+   - Klien dengan pesanan selesai (`completed`) dapat mengirim ulasan langsung dari halaman pelacakan dengan alur moderasi (`pending` -> `approved` / `rejected`).
+   - Katalog portofolio dilengkapi bendera izin publikasi klien (`client_consent`).
 
-5. **🛠️ Stack Teknologi yang Didukung:**
-   - **Bahasa:** Python, Java, C++, PHP, SQL
-   - **Framework:** Laravel, Next.js, Django, React, FastAPI
-   - **Design & Tools:** Balsamiq Mockups (Wireframing), Git, Docker
+5. **CMS Pengaturan Situs, Keamanan HTTP, & Hot-Backup Database:**
+   - Pengaturan nama brand, nomor WhatsApp utama (normalisasi otomatis `628xx`), konten Hero, FAQ, dan daftar keahlian teknologi (*Tech Stack*) secara langsung dari Dashboard Admin.
+   - Dilengkapi *Security Headers Middleware* (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`), *Sliding Window Rate Limiter* untuk proteksi login/tracking, endpoint SEO (`/robots.txt` & `/sitemap.xml`), serta fitur *Hot-Backup SQLite* dengan retensi otomatis 14 snapshot.
 
 ---
 
-## 📁 Struktur Direktori Proyek
+## Struktur Direktori Proyek
 
-```
-RizofaraTechnology/
+```text
+WebsiteFreelance/
 ├── backend/
 │   ├── app/
 │   │   ├── api/v1/
-│   │   │   ├── endpoints/
-│   │   │   │   ├── calculator.py   # Logika kalkulator harga & estimasi deadline
-│   │   │   │   ├── orders.py       # API order, tracking, upload file, revisi
-│   │   │   │   └── contact.py      # Generator link WhatsApp profesional
+│   │   │   ├── endpoints/          # Endpoint: auth, services, calculator, orders, showcase, cms, contact
+│   │   │   ├── deps.py             # Dependency injection JWT & RBAC (get_current_admin, require_superadmin)
 │   │   │   └── api.py              # Router agregator API v1
 │   │   ├── core/
-│   │   │   └── config.py           # Konfigurasi aplikasi & environment
-│   │   ├── db/
-│   │   │   ├── session.py          # Session database SQLAlchemy
-│   │   │   └── base.py             # Base metadata tabel
-│   │   ├── models/
-│   │   │   └── order.py            # Model database: Order, OrderFile, Revision
-│   │   ├── schemas/
-│   │   │   └── order.py            # Pydantic schemas (validasi request/response)
-│   │   └── main.py                 # FastAPI entry point & penyaji frontend
-│   ├── uploads/                    # Folder penyimpanan berkas panduan klien
+│   │   │   ├── config.py           # Konfigurasi environment & direktori storage
+│   │   │   ├── security.py         # Utilitas PBKDF2-SHA256 & JWT
+│   │   │   ├── security_middleware.py # Middleware Security Headers & Sliding Window Rate Limiter
+│   │   │   └── validators.py       # Validasi ekstensi, ukuran, dan magic bytes file upload
+│   │   ├── db/                     # Koneksi SQLAlchemy & Base ORM
+│   │   ├── models/                 # Model ORM: AdminUser, ServiceCatalog, Order, Showcase, CMS
+│   │   ├── schemas/                # Skema validasi Pydantic v2
+│   │   ├── services/
+│   │   │   ├── backup.py           # Layanan Hot-Backup SQLite & rotasi 14 file
+│   │   │   └── notifications.py    # Integrasi notifikasi Telegram & generator WhatsApp
+│   │   ├── seed.py                 # Seeder otomatis akun admin, harga, portofolio, dan CMS
+│   │   └── main.py                 # Entry point FastAPI, SEO endpoints, & static SPA server
+│   ├── storage/
+│   │   ├── backups/                # Snapshot cadangan database SQLite
+│   │   ├── private/                # Berkas rahasia tugas/skripsi klien & bukti bayar
+│   │   └── public/media/           # Media publik portofolio
+│   ├── tests/                      # 6 modul pengujian integrasi otomatis (pytest)
 │   ├── requirements.txt            # Dependensi Python
-│   ├── run.py                      # Script peluncur server backend
-│   └── .env.example                # Template konfigurasi environment
+│   └── run.py                      # Script peluncur server backend
 │
 ├── frontend/
+│   ├── public/
+│   │   └── favicon.png             # Logo & ikon resmi Rizofara Technology
 │   ├── src/
-│   │   ├── App.jsx                 # Komponen utama (Hero, Katalog, Kalkulator, Tracker, Modal)
+│   │   ├── components/             # Modul Portal Admin (Order, Pricing, Showcase, CMS)
+│   │   ├── App.jsx                 # Komponen utama aplikasi publik
 │   │   ├── main.jsx                # Entry point React
-│   │   └── index.css               # Styling Tailwind CSS & custom design
-│   ├── package.json                # Dependensi NPM (React, Lucide, Tailwind, Axios)
-│   ├── tailwind.config.js          # Konfigurasi Tailwind CSS
+│   │   └── index.css               # Styling Tailwind CSS
+│   ├── package.json                # Dependensi NPM
 │   └── vite.config.js              # Konfigurasi Vite
 │
-├── JALANKAN_WEBSITE.bat            # Script 1-klik untuk menjalankan website di Windows
-├── .gitignore                      # Mengabaikan file sensitif & folder besar (venv, node_modules)
+├── docs/
+│   └── PRD.md                      # Dokumen Analisis Sistem & Product Requirements Document (PRD)
+├── JALANKAN_WEBSITE.bat            # Script 1-klik untuk menyalakan server di Windows
 └── README.md                       # Dokumentasi resmi proyek
 ```
 
 ---
 
-## ⚡ Cara Menjalankan Proyek
+## Cara Menjalankan Proyek di Localhost
 
-### Cara 1: Menggunakan Script 1-Klik (Windows)
-1. Pastikan Anda berada di folder proyek:
-2. Dobel klik file **`JALANKAN_WEBSITE.bat`**.
-3. Server otomatis menyala dan browser akan terbuka di:
-   👉 **http://127.0.0.1:8000**
-
----
-
-### Cara 2: Instalasi & Menjalankan Manual (Fresh Clone dari GitHub)
-
-#### 1. Clone Repository:
-```bash
-git clone https://github.com/SofiaAzzahra09/WebsiteFreelance.git
-cd WebsiteFreelance
-```
-
-#### 2. Setup Backend (Python):
-```bash
+### 1. Menjalankan Backend (FastAPI - Port 8000)
+```powershell
 cd backend
-python -m venv venv
-
-# Mengaktifkan venv:
-# Di Windows:
-.\venv\Scripts\activate
-# Di Linux/macOS:
-source venv/bin/activate
-
-# Instal dependensi:
 pip install -r requirements.txt
-
-# Salin konfigurasi environment:
-cp .env.example .env
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
+- **API & Production Bundle:** `http://127.0.0.1:8000`
+- **Swagger UI (Dokumentasi API):** `http://127.0.0.1:8000/docs`
 
-#### 3. Setup Frontend (React Vite):
-```bash
-cd ../frontend
+### 2. Menjalankan Frontend Development Server (Vite - Port 5173)
+```powershell
+cd frontend
 npm install
-npm run build
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+- **Akses Frontend Dev Server:** `http://localhost:5173`
+
+### 3. Akun Default Portal Admin (Otomatis Dibuat oleh Seeder)
+- **Superadmin:** `admin@rizofara.com` / Password: `Admin123!`
+- **Admin Operasional:** `ops@rizofara.com` / Password: `Admin123!`
+
+---
+
+## Menjalankan Pengujian Otomatis (`pytest`)
+
+Seluruh modul dari Fase 0 hingga Fase 6 dilengkapi pengujian integrasi otomatis:
+```powershell
+cd backend
+python -m pytest -v
 ```
 
-#### 4. Jalankan Aplikasi:
-```bash
-cd ../backend
-python run.py
-```
-* **Akses Website:** [http://127.0.0.1:8000](http://127.0.0.1:8000)
-* **Dokumentasi API Swagger UI:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-
 ---
 
-## ⚙️ Konfigurasi Environment (`backend/.env`)
-
-| Variabel | Deskripsi | Default / Contoh |
-| :--- | :--- | :--- |
-| `PROJECT_NAME` | Nama brand platform | `"Rizofara Technology"` |
-| `DATABASE_URL` | URL koneksi database | `"sqlite:///./app.db"` |
-| `WHATSAPP_ADMIN_NUMBER` | Nomor WA admin bisnis | `"6285692390483"` |
-| `TELEGRAM_BOT_TOKEN` | Token Bot Telegram (opsional) | `""` |
-| `TELEGRAM_CHAT_ID` | Chat ID Telegram untuk notif order | `""` |
-
----
-
-## 👥 Tim & Pembagian Tugas (Co-Founders)
-
-| Peran | Fokus Utama |
-| :--- | :--- |
-| **Founder 1 (Lead Tech & AI)** | Arsitektur backend FastAPI, database, pengerjaan skripsi AI/Machine Learning, Python, dan Chatbot. |
-| **Founder 2 (Frontend & Client Ops)** | UI/UX desain Tailwind, komunikasi dan closing klien via WhatsApp, pengerjaan project Web (React, Laravel), QA. |
-
----
-
-## 📄 Lisensi
+## Lisensi
 Hak Cipta © 2026 **Rizofara Technology**. Seluruh hak cipta dilindungi undang-undang.

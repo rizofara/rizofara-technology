@@ -161,7 +161,7 @@ def submit_client_testimonial(
 
 
 # =====================================================
-# 2. ADMIN ENDPOINTS — CRUD & MODERASI TESTIMONI (M9)
+# 2. ADMIN ENDPOINTS - CRUD & MODERASI TESTIMONI (M9)
 # =====================================================
 @router.get("/testimonials", response_model=List[TestimonialResponse])
 def list_all_testimonials_admin(
@@ -243,7 +243,7 @@ def delete_testimonial_admin(
 
 
 # =====================================================
-# 3. ADMIN ENDPOINTS — CRUD PORTOFOLIO (M10)
+# 3. ADMIN ENDPOINTS - CRUD PORTOFOLIO (M10)
 # =====================================================
 @router.get("/portfolio", response_model=List[PortfolioItemResponse])
 def list_all_portfolio_admin(

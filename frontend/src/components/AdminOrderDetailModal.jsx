@@ -31,8 +31,16 @@ export default function AdminOrderDetailModal({
   const [activeTab, setActiveTab] = useState('general'); // 'general' | 'milestones' | 'payments' | 'revisions'
   const [currentOrder, setCurrentOrder] = useState(order);
 
-  // State Tab 1: General & Harga Deal
+  // State Tab 1: General, Data Klien/Proyek, Bab Aktif & Harga Deal
   const [generalForm, setGeneralForm] = useState({
+    client_name: order.client_name || '',
+    client_whatsapp: order.client_whatsapp || '',
+    campus_or_company: order.campus_or_company || '',
+    service_type: order.service_type || 'skripsi',
+    title: order.title || '',
+    tech_stack: order.tech_stack || '',
+    deadline: order.deadline || '',
+    description: order.description || '',
     status: order.status || 'pending',
     progress_percent: order.progress_percent || 0,
     final_price: order.final_price || 0,
@@ -76,6 +84,14 @@ export default function AdminOrderDetailModal({
     setCurrentOrder(updatedData);
     setGeneralForm((prev) => ({
       ...prev,
+      client_name: updatedData.client_name || '',
+      client_whatsapp: updatedData.client_whatsapp || '',
+      campus_or_company: updatedData.campus_or_company || '',
+      service_type: updatedData.service_type || 'skripsi',
+      title: updatedData.title || '',
+      tech_stack: updatedData.tech_stack || '',
+      deadline: updatedData.deadline || '',
+      description: updatedData.description || '',
       status: updatedData.status,
       progress_percent: updatedData.progress_percent,
       final_price: updatedData.final_price || 0,
@@ -89,7 +105,7 @@ export default function AdminOrderDetailModal({
   };
 
   // ===================================================================
-  // TAB 1: SIMPAN INFO UMUM, HARGA DEAL & STATUS
+  // TAB 1: SIMPAN INFO UMUM, DATA PROYEK, BAB AKTIF, HARGA DEAL & STATUS
   // ===================================================================
   const handleSaveGeneral = async (e) => {
     e.preventDefault();
@@ -98,6 +114,14 @@ export default function AdminOrderDetailModal({
       const res = await axios.patch(
         `${API_BASE}/orders/${currentOrder.id}/status`,
         {
+          client_name: generalForm.client_name,
+          client_whatsapp: generalForm.client_whatsapp,
+          campus_or_company: generalForm.campus_or_company || null,
+          service_type: generalForm.service_type,
+          title: generalForm.title,
+          tech_stack: generalForm.tech_stack || null,
+          deadline: generalForm.deadline,
+          description: generalForm.description || null,
           status: generalForm.status,
           progress_percent: parseInt(generalForm.progress_percent) || 0,
           final_price: parseInt(generalForm.final_price) || 0,
@@ -283,82 +307,103 @@ export default function AdminOrderDetailModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full p-6 relative shadow-2xl my-8">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
-          aria-label="Tutup modal"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
-        {/* Header Info Order */}
-        <div className="border-b border-slate-800 pb-4 mb-5">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-mono font-extrabold text-base px-3 py-1 rounded-lg bg-teal-500/10 border border-teal-500/30 text-teal-400">
-              {currentOrder.order_code}
-            </span>
-            <span className="text-xs uppercase font-bold px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-300">
-              {currentOrder.service_type}
-            </span>
-            <span className="text-xs uppercase font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-amber-300">
-              Status: {currentOrder.status} ({currentOrder.progress_percent}%)
-            </span>
-            <span
-              className={`text-xs uppercase font-bold px-2.5 py-1 rounded-lg ${
-                currentOrder.payment_status === 'paid'
-                  ? 'bg-emerald-500/20 text-emerald-300'
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white border border-slate-200 rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+        {/* Sticky Header Permanen di Atas dengan Tombol X yang Selalu Terlihat */}
+        <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-start justify-between shrink-0">
+          <div className="min-w-0 flex-1 pr-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono font-extrabold text-sm px-2.5 py-0.5 rounded-lg bg-sky-50 border border-sky-200 text-[#0093E3]">
+                {currentOrder.order_code}
+              </span>
+              <span className="text-xs uppercase font-bold px-2 py-0.5 rounded-lg bg-slate-100 text-slate-700">
+                {currentOrder.service_type}
+              </span>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">
+                Status: {currentOrder.status} ({currentOrder.progress_percent}%)
+              </span>
+              <span
+                className={`text-xs uppercase font-bold px-2 py-0.5 rounded-lg ${
+                  currentOrder.payment_status === 'paid'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                    : currentOrder.payment_status === 'partial'
+                    ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                    : 'bg-rose-50 text-rose-800 border border-rose-200'
+                }`}
+              >
+                Tagihan:{' '}
+                {currentOrder.payment_status === 'paid'
+                  ? 'LUNAS'
                   : currentOrder.payment_status === 'partial'
-                  ? 'bg-amber-500/20 text-amber-300'
-                  : 'bg-red-500/20 text-red-300'
-              }`}
-            >
-              Tagihan:{' '}
-              {currentOrder.payment_status === 'paid'
-                ? 'LUNAS'
-                : currentOrder.payment_status === 'partial'
-                ? 'DP / CICILAN'
-                : 'BELUM BAYAR'}
-            </span>
+                  ? 'DP / CICILAN'
+                  : 'BELUM BAYAR'}
+              </span>
+            </div>
+            <h3 className="font-extrabold text-base sm:text-lg text-slate-900 mt-1 truncate">{currentOrder.title}</h3>
+            <p className="text-xs text-slate-500">
+              Klien: <strong className="text-slate-800">{currentOrder.client_name}</strong> (WA:{' '}
+              {currentOrder.client_whatsapp})
+              {currentOrder.campus_or_company ? ` • ${currentOrder.campus_or_company}` : ''} • Deadline:{' '}
+              {currentOrder.deadline}
+            </p>
           </div>
-          <h3 className="font-extrabold text-lg text-white mt-2">{currentOrder.title}</h3>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Klien: <strong className="text-slate-200">{currentOrder.client_name}</strong> (WA:{' '}
-            {currentOrder.client_whatsapp}) • Deadline: {currentOrder.deadline}
-          </p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+            aria-label="Tutup modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        {/* Navigation Sub-Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        {/* Modal Scrollable Body */}
+        <div className="p-6 overflow-y-auto flex-1 space-y-5">
+          {/* Banner Bab / Tahapan yang sedang dikerjakan saat ini */}
+          <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-start justify-between gap-3">
+            <div>
+              <span className="text-[10px] uppercase font-extrabold text-emerald-700 block">
+                Tahapan / Bab yang Sedang Dikerjakan Saat Ini:
+              </span>
+              <span className="font-semibold text-slate-900 text-sm">
+                {currentOrder.current_stage || 'Menunggu update tahapan pengerjaan'}
+              </span>
+            </div>
+            <span className="font-mono font-extrabold text-base text-emerald-700 shrink-0">
+              {currentOrder.progress_percent}%
+            </span>
+          </div>
+
+          {/* Navigation Sub-Tabs */}
+          <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setActiveTab('general')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
               activeTab === 'general'
                 ? 'bg-teal-500 text-slate-950'
-                : 'bg-slate-950 text-slate-300 border border-slate-800'
+                : 'bg-slate-50 text-slate-700 border border-slate-200'
             }`}
           >
             <Settings className="w-3.5 h-3.5" />
-            1. Status & Harga Deal
+            1. Edit Order, Bab Aktif & Harga
           </button>
           <button
             onClick={() => setActiveTab('milestones')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
               activeTab === 'milestones'
                 ? 'bg-teal-500 text-slate-950'
-                : 'bg-slate-950 text-slate-300 border border-slate-800'
+                : 'bg-slate-50 text-slate-700 border border-slate-200'
             }`}
           >
             <GitCommit className="w-3.5 h-3.5" />
-            2. Milestone & Timeline ({currentOrder.milestones?.length || 0})
+            2. Checklist Bab & Timeline ({currentOrder.milestones?.length || 0})
           </button>
           <button
             onClick={() => setActiveTab('payments')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
               activeTab === 'payments'
                 ? 'bg-teal-500 text-slate-950'
-                : 'bg-slate-950 text-slate-300 border border-slate-800'
+                : 'bg-slate-50 text-slate-700 border border-slate-200'
             }`}
           >
             <CreditCard className="w-3.5 h-3.5" />
@@ -369,7 +414,7 @@ export default function AdminOrderDetailModal({
             className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
               activeTab === 'revisions'
                 ? 'bg-teal-500 text-slate-950'
-                : 'bg-slate-950 text-slate-300 border border-slate-800'
+                : 'bg-slate-50 text-slate-700 border border-slate-200'
             }`}
           >
             <MessageSquareWarning className="w-3.5 h-3.5" />
@@ -378,35 +423,195 @@ export default function AdminOrderDetailModal({
         </div>
 
         {/* ================================================================= */}
-        {/* TAB 1: STATUS, HARGA DEAL, PIC & LINK DEMO */}
+        {/* TAB 1: CRUD DATA KLIEN/PROYEK, UPDATE BAB PENGERJAAN & HARGA DEAL */}
         {/* ================================================================= */}
         {activeTab === 'general' && (
           <form onSubmit={handleSaveGeneral} className="space-y-4 text-xs">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl bg-slate-950 border border-slate-800">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
               <div>
-                <div className="text-[10px] text-slate-400">Estimasi Awal Kalkulator</div>
-                <div className="font-bold text-slate-200 text-sm mt-0.5">
+                <div className="text-[10px] text-slate-500">Estimasi Awal Kalkulator</div>
+                <div className="font-bold text-slate-800 text-sm mt-0.5">
                   Rp {(currentOrder.price_estimate || 0).toLocaleString('id-ID')}
                 </div>
               </div>
               <div>
-                <div className="text-[10px] text-slate-400">Total Tagihan Efektif</div>
+                <div className="text-[10px] text-slate-500">Total Tagihan Efektif</div>
                 <div className="font-extrabold text-teal-400 text-sm mt-0.5">
                   Rp {(currentOrder.effective_bill || 0).toLocaleString('id-ID')}
                 </div>
               </div>
               <div>
-                <div className="text-[10px] text-slate-400">Sisa Tagihan Belum Dibayar</div>
+                <div className="text-[10px] text-slate-500">Sisa Tagihan Belum Dibayar</div>
                 <div className="font-extrabold text-amber-400 text-sm mt-0.5">
                   Rp {(currentOrder.remaining_balance || 0).toLocaleString('id-ID')}
                 </div>
               </div>
             </div>
 
+            {/* Bagian Highlight: Update Bab / Tahapan yang sedang dikerjakan */}
+            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="text-emerald-700 font-extrabold text-xs">
+                  Update Bab / Tahapan yang Sedang Dikerjakan (Langsung Tampil di Tabel & Cek Order Klien)
+                </label>
+                <span className="text-[10px] text-slate-500">Pilih cepat Bab/Tahap:</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  {
+                    label: 'Sedang Kerjakan Bab 1 & 2 (20%)',
+                    pct: 20,
+                    status: 'in_progress',
+                    msg: 'Sedang mengerjakan Bab 1 & 2: Penyusunan latar belakang, kajian literatur & persiapan dataset',
+                  },
+                  {
+                    label: 'Sedang Kerjakan Bab 3 (40%)',
+                    pct: 40,
+                    status: 'in_progress',
+                    msg: 'Sedang mengerjakan Bab 3: Perancangan metodologi penelitian, flowchart, ERD/UML & arsitektur sistem',
+                  },
+                  {
+                    label: 'Sedang Kerjakan Bab 4 Koding & Uji (70%)',
+                    pct: 70,
+                    status: 'in_progress',
+                    msg: 'Sedang mengerjakan Bab 4: Implementasi source code, pelatihan model AI/Web & pengujian akurasi / Blackbox',
+                  },
+                  {
+                    label: 'Sedang Kerjakan Bab 5 & Demo (90%)',
+                    pct: 90,
+                    status: 'review',
+                    msg: 'Sedang mengerjakan Bab 5: Penyusunan kesimpulan laporan akhir, pengecekan plagiasi & persiapan demo sidang',
+                  },
+                  {
+                    label: 'Selesai Bab 1-5 & Serah Terima (100%)',
+                    pct: 100,
+                    status: 'completed',
+                    msg: 'Seluruh pengerjaan Bab 1-5 dan source code selesai 100% serta siap diserahterimakan',
+                  },
+                ].map((preset) => (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    onClick={() =>
+                      setGeneralForm({
+                        ...generalForm,
+                        status: preset.status,
+                        progress_percent: preset.pct,
+                        timeline_message: preset.msg,
+                      })
+                    }
+                    className="px-2.5 py-1 rounded-lg bg-white hover:bg-teal-500/20 border border-slate-200 hover:border-emerald-200 text-emerald-700 font-semibold text-[11px] transition"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                value={generalForm.timeline_message}
+                onChange={(e) =>
+                  setGeneralForm({ ...generalForm, timeline_message: e.target.value })
+                }
+                placeholder="Ketik progres Bab/Tahapan terbaru (Contoh: Sedang mengerjakan Bab 4: Integrasi model CNN & tabel pengujian)..."
+                className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+              />
+            </div>
+
+            {/* Edit Data Klien & Judul Proyek */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Nama Klien *</label>
+                <input
+                  type="text"
+                  required
+                  value={generalForm.client_name}
+                  onChange={(e) =>
+                    setGeneralForm({ ...generalForm, client_name: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">WhatsApp Klien *</label>
+                <input
+                  type="text"
+                  required
+                  value={generalForm.client_whatsapp}
+                  onChange={(e) =>
+                    setGeneralForm({ ...generalForm, client_whatsapp: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Kampus / Instansi</label>
+                <input
+                  type="text"
+                  value={generalForm.campus_or_company}
+                  onChange={(e) =>
+                    setGeneralForm({ ...generalForm, campus_or_company: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Kategori Layanan</label>
+                <select
+                  value={generalForm.service_type}
+                  onChange={(e) =>
+                    setGeneralForm({ ...generalForm, service_type: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                >
+                  <option value="skripsi">Skripsi / Tugas Akhir</option>
+                  <option value="website">Pembuatan Website / Sistem</option>
+                  <option value="chatbot">AI Chatbot / Machine Learning</option>
+                  <option value="tugas">Tugas Kuliah / Praktikum</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Tech Stack / Metode</label>
+                <input
+                  type="text"
+                  value={generalForm.tech_stack}
+                  onChange={(e) =>
+                    setGeneralForm({ ...generalForm, tech_stack: e.target.value })
+                  }
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-slate-700 font-semibold mb-1">Deadline *</label>
+                <input
+                  type="text"
+                  required
+                  value={generalForm.deadline}
+                  onChange={(e) => setGeneralForm({ ...generalForm, deadline: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-slate-700 font-semibold mb-1">
+                Judul Skripsi / Proyek Sistem *
+              </label>
+              <input
+                type="text"
+                required
+                value={generalForm.title}
+                onChange={(e) => setGeneralForm({ ...generalForm, title: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+              />
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">
-                  Harga Deal Final (Rp) — Isi 0 jika masih pakai estimasi
+                <label className="block text-slate-700 font-semibold mb-1">
+                  Harga Deal Final (Rp) - Isi 0 jika masih pakai estimasi
                 </label>
                 <input
                   type="number"
@@ -414,11 +619,11 @@ export default function AdminOrderDetailModal({
                   onChange={(e) =>
                     setGeneralForm({ ...generalForm, final_price: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">
+                <label className="block text-slate-700 font-semibold mb-1">
                   Potongan Diskon (Rp)
                 </label>
                 <input
@@ -427,18 +632,18 @@ export default function AdminOrderDetailModal({
                   onChange={(e) =>
                     setGeneralForm({ ...generalForm, discount_amount: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">Status Order</label>
+                <label className="block text-slate-700 font-semibold mb-1">Status Order</label>
                 <select
                   value={generalForm.status}
                   onChange={(e) => setGeneralForm({ ...generalForm, status: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 >
                   <option value="pending">pending (Menunggu Konfirmasi)</option>
                   <option value="confirmed">confirmed (Harga Disepakati)</option>
@@ -451,7 +656,7 @@ export default function AdminOrderDetailModal({
                 </select>
               </div>
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">
+                <label className="block text-slate-700 font-semibold mb-1">
                   Persentase Progres ({generalForm.progress_percent}%)
                 </label>
                 <input
@@ -467,7 +672,7 @@ export default function AdminOrderDetailModal({
                 />
               </div>
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">
+                <label className="block text-slate-700 font-semibold mb-1">
                   PIC / Ditugaskan Ke
                 </label>
                 <select
@@ -475,7 +680,7 @@ export default function AdminOrderDetailModal({
                   onChange={(e) =>
                     setGeneralForm({ ...generalForm, assigned_to: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 >
                   <option value="">-- Belum Ditentukan --</option>
                   {(teamUsers || []).map((u) => (
@@ -488,7 +693,7 @@ export default function AdminOrderDetailModal({
             </div>
 
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">
+              <label className="block text-slate-700 font-semibold mb-1">
                 URL Demo Aplikasi / Link Hasil Kerja (Tampil ke Klien)
               </label>
               <input
@@ -496,28 +701,13 @@ export default function AdminOrderDetailModal({
                 value={generalForm.demo_url}
                 onChange={(e) => setGeneralForm({ ...generalForm, demo_url: e.target.value })}
                 placeholder="https://demo.rizofara.com/..."
-                className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white"
+                className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
               />
             </div>
 
             <div>
-              <label className="block text-slate-300 font-semibold mb-1">
-                Pesan Update Timeline untuk Klien (Opsional saat simpan status)
-              </label>
-              <input
-                type="text"
-                value={generalForm.timeline_message}
-                onChange={(e) =>
-                  setGeneralForm({ ...generalForm, timeline_message: e.target.value })
-                }
-                placeholder="Contoh: Modul autentikasi & database selesai dirakit."
-                className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-300 font-semibold mb-1">
-                Catatan Internal Tim (Rahasia — Tidak pernah tampil ke klien)
+              <label className="block text-slate-700 font-semibold mb-1">
+                Catatan Internal Tim (Rahasia - Tidak pernah tampil ke klien)
               </label>
               <textarea
                 rows={2}
@@ -525,7 +715,7 @@ export default function AdminOrderDetailModal({
                 onChange={(e) =>
                   setGeneralForm({ ...generalForm, internal_notes: e.target.value })
                 }
-                className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-white"
+                className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
               />
             </div>
 
@@ -535,7 +725,7 @@ export default function AdminOrderDetailModal({
               className="w-full py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2"
             >
               <Save className="w-4 h-4" />
-              {savingGeneral ? 'Menyimpan...' : 'Simpan Perubahan Info & Harga Order'}
+              {savingGeneral ? 'Menyimpan...' : 'Simpan Perubahan Data Order, Progres Bab & Harga'}
             </button>
           </form>
         )}
@@ -548,10 +738,10 @@ export default function AdminOrderDetailModal({
             {/* Kolom Kiri: Checklist Milestone */}
             <div className="lg:col-span-7 space-y-4">
               <div>
-                <h4 className="font-extrabold text-sm text-white">
+                <h4 className="font-extrabold text-sm text-slate-900">
                   Checklist Tahapan Pengerjaan (Milestones)
                 </h4>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-500">
                   Klik kotak centang untuk menandai tahap selesai. Persentase progres order ({currentOrder.progress_percent}%) akan dihitung otomatis!
                 </p>
               </div>
@@ -562,8 +752,8 @@ export default function AdminOrderDetailModal({
                     key={m.id}
                     className={`p-3.5 rounded-xl border flex items-start justify-between gap-3 transition ${
                       m.is_completed
-                        ? 'bg-teal-950/20 border-teal-500/40'
-                        : 'bg-slate-950 border-slate-800'
+                        ? 'bg-emerald-50 border-emerald-200'
+                        : 'bg-slate-50 border-slate-200'
                     }`}
                   >
                     <button
@@ -579,13 +769,13 @@ export default function AdminOrderDetailModal({
                       <div>
                         <div
                           className={`font-bold ${
-                            m.is_completed ? 'text-teal-300 line-through' : 'text-white'
+                            m.is_completed ? 'text-emerald-700 line-through' : 'text-slate-900'
                           }`}
                         >
                           {m.title}
                         </div>
                         {m.description && (
-                          <div className="text-[11px] text-slate-400 mt-0.5">
+                          <div className="text-[11px] text-slate-500 mt-0.5">
                             {m.description}
                           </div>
                         )}
@@ -593,7 +783,7 @@ export default function AdminOrderDetailModal({
                     </button>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="px-2 py-0.5 rounded bg-slate-800 text-teal-300 font-mono text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded bg-slate-100 text-emerald-700 font-mono text-[10px] font-bold">
                         {m.weight_percent}%
                       </span>
                       <button
@@ -611,9 +801,9 @@ export default function AdminOrderDetailModal({
               {/* Form Tambah Milestone */}
               <form
                 onSubmit={handleAddMilestone}
-                className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5"
+                className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5"
               >
-                <div className="font-bold text-slate-300">Tambah Tahapan Milestone Kustom</div>
+                <div className="font-bold text-slate-700">Tambah Tahapan Milestone Kustom</div>
                 <div className="grid grid-cols-4 gap-2">
                   <input
                     type="text"
@@ -623,7 +813,7 @@ export default function AdminOrderDetailModal({
                       setNewMilestone({ ...newMilestone, title: e.target.value })
                     }
                     placeholder="Nama tahapan..."
-                    className="col-span-3 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white"
+                    className="col-span-3 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                   <input
                     type="number"
@@ -633,12 +823,12 @@ export default function AdminOrderDetailModal({
                       setNewMilestone({ ...newMilestone, weight_percent: e.target.value })
                     }
                     placeholder="Bobot %"
-                    className="px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white"
+                    className="px-2 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-400 font-bold flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-teal-400 font-bold flex items-center gap-1"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   Tambah Milestone
@@ -649,17 +839,17 @@ export default function AdminOrderDetailModal({
             {/* Kolom Kanan: Timeline Kabar Progres */}
             <div className="lg:col-span-5 space-y-4">
               <div>
-                <h4 className="font-extrabold text-sm text-white">
+                <h4 className="font-extrabold text-sm text-slate-900">
                   Timeline Riwayat Update Progres
                 </h4>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-500">
                   Kirim kabar progres terbaru agar klien tenang dan percaya.
                 </p>
               </div>
 
               <form
                 onSubmit={handleAddTimelineLog}
-                className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5"
+                className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5"
               >
                 <input
                   type="text"
@@ -667,7 +857,7 @@ export default function AdminOrderDetailModal({
                   value={newTimeline.title}
                   onChange={(e) => setNewTimeline({ ...newTimeline, title: e.target.value })}
                   placeholder="Judul kabar (misal: Model CNN Selesai Dilatih)"
-                  className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white"
+                  className="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
                 <textarea
                   rows={2}
@@ -676,7 +866,7 @@ export default function AdminOrderDetailModal({
                     setNewTimeline({ ...newTimeline, message: e.target.value })
                   }
                   placeholder="Detail penjelasan untuk klien..."
-                  className="w-full px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white"
+                  className="w-full px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
                 <button
                   type="submit"
@@ -691,13 +881,13 @@ export default function AdminOrderDetailModal({
                 {(currentOrder.timeline_logs || []).map((log) => (
                   <div
                     key={log.id}
-                    className="p-3 rounded-xl bg-slate-950 border border-slate-800/80 space-y-1"
+                    className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1"
                   >
                     <div className="flex items-center justify-between text-[10px] text-teal-400 font-bold">
                       <span>{log.title}</span>
                       <span>{log.progress_percent}%</span>
                     </div>
-                    {log.message && <p className="text-[11px] text-slate-300">{log.message}</p>}
+                    {log.message && <p className="text-[11px] text-slate-700">{log.message}</p>}
                     <div className="text-[10px] text-slate-500">
                       Oleh {log.created_by || 'Admin'} •{' '}
                       {new Date(log.created_at).toLocaleString('id-ID')}
@@ -715,21 +905,21 @@ export default function AdminOrderDetailModal({
         {activeTab === 'payments' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs">
             <div className="lg:col-span-5 space-y-4">
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Total Tagihan Efektif:</span>
-                  <span className="font-bold text-white">
+                  <span className="text-slate-500">Total Tagihan Efektif:</span>
+                  <span className="font-bold text-slate-900">
                     Rp {(currentOrder.effective_bill || 0).toLocaleString('id-ID')}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Sudah Dibayar (Verified):</span>
+                  <span className="text-slate-500">Sudah Dibayar (Verified):</span>
                   <span className="font-bold text-emerald-400">
                     Rp {(currentOrder.total_paid || 0).toLocaleString('id-ID')}
                   </span>
                 </div>
-                <div className="pt-2 border-t border-slate-800 flex justify-between text-sm">
-                  <span className="font-bold text-slate-200">Sisa Tagihan:</span>
+                <div className="pt-2 border-t border-slate-200 flex justify-between text-sm">
+                  <span className="font-bold text-slate-800">Sisa Tagihan:</span>
                   <span className="font-extrabold text-amber-400">
                     Rp {(currentOrder.remaining_balance || 0).toLocaleString('id-ID')}
                   </span>
@@ -738,18 +928,18 @@ export default function AdminOrderDetailModal({
 
               <form
                 onSubmit={handleRecordPayment}
-                className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3"
+                className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3"
               >
-                <h4 className="font-extrabold text-sm text-white">Catat Pembayaran Masuk</h4>
+                <h4 className="font-extrabold text-sm text-slate-900">Catat Pembayaran Masuk</h4>
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block text-slate-400 mb-1">Tipe Pembayaran</label>
+                    <label className="block text-slate-500 mb-1">Tipe Pembayaran</label>
                     <select
                       value={paymentForm.payment_type}
                       onChange={(e) =>
                         setPaymentForm({ ...paymentForm, payment_type: e.target.value })
                       }
-                      className="w-full px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white"
+                      className="w-full px-2.5 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                     >
                       <option value="dp">DP (Uang Muka)</option>
                       <option value="installment">Termin / Cicilan</option>
@@ -759,13 +949,13 @@ export default function AdminOrderDetailModal({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-slate-400 mb-1">Metode</label>
+                    <label className="block text-slate-500 mb-1">Metode</label>
                     <select
                       value={paymentForm.method}
                       onChange={(e) =>
                         setPaymentForm({ ...paymentForm, method: e.target.value })
                       }
-                      className="w-full px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white"
+                      className="w-full px-2.5 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                     >
                       <option value="transfer_bank">Transfer Bank</option>
                       <option value="qris">QRIS</option>
@@ -776,7 +966,7 @@ export default function AdminOrderDetailModal({
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 mb-1">Nominal Rupiah (Rp) *</label>
+                  <label className="block text-slate-500 mb-1">Nominal Rupiah (Rp) *</label>
                   <input
                     type="number"
                     required
@@ -785,12 +975,12 @@ export default function AdminOrderDetailModal({
                       setPaymentForm({ ...paymentForm, amount: e.target.value })
                     }
                     placeholder="Contoh: 1200000"
-                    className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 mb-1">Catatan Referensi / Bank</label>
+                  <label className="block text-slate-500 mb-1">Catatan Referensi / Bank</label>
                   <input
                     type="text"
                     value={paymentForm.reference_note}
@@ -798,7 +988,7 @@ export default function AdminOrderDetailModal({
                       setPaymentForm({ ...paymentForm, reference_note: e.target.value })
                     }
                     placeholder="Contoh: BCA a.n. Budi Santoso"
-                    className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
 
@@ -812,11 +1002,11 @@ export default function AdminOrderDetailModal({
             </div>
 
             <div className="lg:col-span-7 space-y-3">
-              <h4 className="font-extrabold text-sm text-white">
+              <h4 className="font-extrabold text-sm text-slate-900">
                 Riwayat Transaksi Pembayaran ({currentOrder.payments?.length || 0})
               </h4>
               {(currentOrder.payments || []).length === 0 ? (
-                <div className="p-8 rounded-xl bg-slate-950 border border-slate-800 text-center text-slate-400">
+                <div className="p-8 rounded-xl bg-slate-50 border border-slate-200 text-center text-slate-500">
                   Belum ada transaksi pembayaran yang tercatat pada order ini.
                 </div>
               ) : (
@@ -824,22 +1014,22 @@ export default function AdminOrderDetailModal({
                   {currentOrder.payments.map((p) => (
                     <div
                       key={p.id}
-                      className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between"
+                      className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between"
                     >
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="uppercase text-[10px] font-bold px-2 py-0.5 rounded bg-teal-500/15 text-teal-300">
+                          <span className="uppercase text-[10px] font-bold px-2 py-0.5 rounded bg-teal-500/15 text-emerald-700">
                             {p.payment_type}
                           </span>
-                          <span className="font-extrabold text-sm text-white">
+                          <span className="font-extrabold text-sm text-slate-900">
                             Rp {p.amount.toLocaleString('id-ID')}
                           </span>
-                          <span className="text-[10px] text-slate-400 uppercase">
+                          <span className="text-[10px] text-slate-500 uppercase">
                             via {p.method}
                           </span>
                         </div>
                         {p.reference_note && (
-                          <div className="text-[11px] text-slate-300 mt-1">
+                          <div className="text-[11px] text-slate-700 mt-1">
                             {p.reference_note}
                           </div>
                         )}
@@ -852,7 +1042,7 @@ export default function AdminOrderDetailModal({
                       <button
                         type="button"
                         onClick={() => handleDeletePayment(p)}
-                        className="p-1.5 rounded-lg bg-slate-900 hover:bg-red-950 text-red-400"
+                        className="p-1.5 rounded-lg bg-white hover:bg-red-950 text-red-400"
                         title="Hapus Transaksi"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -871,16 +1061,16 @@ export default function AdminOrderDetailModal({
         {activeTab === 'revisions' && (
           <div className="space-y-4 text-xs">
             <div>
-              <h4 className="font-extrabold text-sm text-white">
+              <h4 className="font-extrabold text-sm text-slate-900">
                 Daftar Permintaan Revisi dari Klien
               </h4>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500">
                 Berikan balasan resmi tim teknis (`admin_response`) dan ubah status revisi menjadi Selesai (`completed`) agar tampil di halaman tracking klien.
               </p>
             </div>
 
             {(currentOrder.revisions || []).length === 0 ? (
-              <div className="p-8 rounded-xl bg-slate-950 border border-slate-800 text-center text-slate-400">
+              <div className="p-8 rounded-xl bg-slate-50 border border-slate-200 text-center text-slate-500">
                 Belum ada pengajuan revisi dari klien untuk pesanan ini.
               </div>
             ) : (
@@ -890,7 +1080,7 @@ export default function AdminOrderDetailModal({
                   return (
                     <div
                       key={rev.id}
-                      className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3"
+                      className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
@@ -898,22 +1088,22 @@ export default function AdminOrderDetailModal({
                             Revisi #{rev.id} • Diajukan{' '}
                             {new Date(rev.created_at).toLocaleString('id-ID')}
                           </span>
-                          <p className="text-slate-100 font-semibold mt-1">{rev.notes}</p>
+                          <p className="text-slate-900 font-semibold mt-1">{rev.notes}</p>
                         </div>
-                        <span className="px-2.5 py-1 rounded bg-slate-800 text-teal-300 font-bold text-[10px] uppercase">
+                        <span className="px-2.5 py-1 rounded bg-slate-100 text-emerald-700 font-bold text-[10px] uppercase">
                           {rev.status}
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-800/80">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-200">
                         <div>
-                          <label className="block text-slate-400 mb-1">Status Revisi</label>
+                          <label className="block text-slate-500 mb-1">Status Revisi</label>
                           <select
                             value={st.status}
                             onChange={(e) =>
                               updateRevState(rev.id, 'status', e.target.value, rev)
                             }
-                            className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white"
+                            className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                           >
                             <option value="submitted">submitted (Baru Masuk)</option>
                             <option value="in_progress">in_progress (Dikerjakan)</option>
@@ -935,14 +1125,14 @@ export default function AdminOrderDetailModal({
                                 )
                               }
                             />
-                            <span className="text-slate-300">
+                            <span className="text-slate-700">
                               Di Luar Scope Awal (Biaya Tambahan)
                             </span>
                           </label>
                         </div>
                         {st.is_out_of_scope && (
                           <div>
-                            <label className="block text-slate-400 mb-1">
+                            <label className="block text-slate-500 mb-1">
                               Biaya Tambahan Revisi (Rp)
                             </label>
                             <input
@@ -951,14 +1141,14 @@ export default function AdminOrderDetailModal({
                               onChange={(e) =>
                                 updateRevState(rev.id, 'extra_cost', e.target.value, rev)
                               }
-                              className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-white"
+                              className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                             />
                           </div>
                         )}
                       </div>
 
                       <div>
-                        <label className="block text-slate-400 mb-1">
+                        <label className="block text-slate-500 mb-1">
                           Balasan Tim Teknis untuk Klien (`admin_response`)
                         </label>
                         <textarea
@@ -968,7 +1158,7 @@ export default function AdminOrderDetailModal({
                             updateRevState(rev.id, 'admin_response', e.target.value, rev)
                           }
                           placeholder="Contoh: Bug pada halaman laporan sudah diperbaiki dan di-deploy ke link demo."
-                          className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-white"
+                          className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                         />
                       </div>
 
@@ -990,5 +1180,6 @@ export default function AdminOrderDetailModal({
         )}
       </div>
     </div>
+  </div>
   );
 }

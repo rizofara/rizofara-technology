@@ -23,6 +23,7 @@ from app.schemas.cms import (
     DashboardSummaryResponse,
 )
 from app.seed import seed_initial_cms, seed_initial_showcase
+from app.services.backup import create_database_backup, list_database_backups
 
 router = APIRouter()
 
@@ -37,7 +38,7 @@ def _normalize_wa_number(raw: str) -> str:
 
 
 # =====================================================
-# 1. PUBLIC ENDPOINT — BUNDLE CMS (Settings, FAQ, TechStack)
+# 1. PUBLIC ENDPOINT - BUNDLE CMS (Settings, FAQ, TechStack)
 # =====================================================
 @router.get("/public", response_model=CmsPublicBundle)
 def get_public_cms_bundle(db: Session = Depends(get_db)):
@@ -72,7 +73,7 @@ def get_public_cms_bundle(db: Session = Depends(get_db)):
 
 
 # =====================================================
-# 2. ADMIN ENDPOINT — RINGKASAN DASHBOARD & KEUANGAN (Modul M12)
+# 2. ADMIN ENDPOINT - RINGKASAN DASHBOARD & KEUANGAN (Modul M12)
 # =====================================================
 @router.get("/dashboard-summary", response_model=DashboardSummaryResponse)
 def get_admin_dashboard_summary(
@@ -142,7 +143,7 @@ def get_admin_dashboard_summary(
 
 
 # =====================================================
-# 3. ADMIN ENDPOINTS — SITE SETTINGS / PROFIL BISNIS (Modul M2.A)
+# 3. ADMIN ENDPOINTS - SITE SETTINGS / PROFIL BISNIS (Modul M2.A)
 # =====================================================
 @router.get("/settings", response_model=List[SiteSettingItem])
 def list_site_settings(
@@ -189,7 +190,7 @@ def update_site_settings_batch(
 
 
 # =====================================================
-# 4. ADMIN ENDPOINTS — CRUD FAQ (Modul M11)
+# 4. ADMIN ENDPOINTS - CRUD FAQ (Modul M11)
 # =====================================================
 @router.get("/faqs", response_model=List[FaqItemResponse])
 def list_all_faqs_admin(
@@ -251,7 +252,7 @@ def delete_faq_admin(
 
 
 # =====================================================
-# 5. ADMIN ENDPOINTS — CRUD TECH STACK (Modul M11)
+# 5. ADMIN ENDPOINTS - CRUD TECH STACK (Modul M11)
 # =====================================================
 @router.get("/tech-stacks", response_model=List[TechStackItemResponse])
 def list_all_tech_stacks_admin(
@@ -315,3 +316,29 @@ def delete_tech_stack_admin(
     db.delete(item)
     db.commit()
     return {"message": "Tech stack berhasil dihapus."}
+
+
+# =====================================================
+# 6. ADMIN ENDPOINTS - DATABASE BACKUP SNAPSHOT (Fase 6)
+# =====================================================
+@router.get("/backups")
+def list_backups_admin(
+    current_admin: AdminUser = Depends(require_superadmin),
+):
+    """
+    Mengambil daftar snapshot backup database SQLite yang tersimpan di `storage/backups/`.
+    Hanya dapat diakses oleh Superadmin.
+    """
+    return list_database_backups()
+
+
+@router.post("/backups")
+def trigger_backup_admin(
+    current_admin: AdminUser = Depends(require_superadmin),
+):
+    """
+    Membuat snapshot hot-backup database SQLite secara langsung dan menerapkan
+    kebijakan retensi maksimal 14 file terbaru (PRD §11).
+    """
+    return create_database_backup(max_keep=14)
+

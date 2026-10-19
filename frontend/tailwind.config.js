@@ -8,15 +8,16 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#f0fdfa',
-          100: '#ccfbf1',
-          500: '#14b8a6',
-          600: '#0d9488',
-          700: '#0f766e',
-          900: '#134e4a',
+          green: '#17C455',     // [ Daun Hijau ] Fresh Green
+          teal: '#07C995',      // [ Pangkal Daun/Tunas ] Teal / Mint
+          cyan: '#00C4D7',      // [ Lengkungan Atas R ] Electric Cyan
+          sky: '#0093E3',       // [ Badan Tengah R ] Sky Blue
+          royal: '#005CDF',     // [ Kaki & Akar Bawah ] Royal Blue
+          marine: '#005A91',    // [ Kaki & Akar Bawah ] Deep Marine
         }
       }
     },
   },
   plugins: [],
 }
+

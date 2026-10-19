@@ -1,10 +1,52 @@
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 from app.models.admin_user import AdminUser
 from app.models.pricing import ServiceCatalog, PricingFactor, PricingAddon
 from app.models.showcase import Testimonial, PortfolioItem
 from app.models.cms import SiteSetting, FaqItem, TechStackItem
+from app.models.order import Order, OrderMilestone, OrderTimelineLog, OrderPayment, Revision
 from app.core.security import hash_password
+
+
+def ensure_sqlite_schema_columns(db: Session) -> None:
+    """
+    Memastikan tabel `orders` dan `revisions` pada file SQLite lama (`app.db`)
+    memiliki seluruh kolom terbaru (Fase 3-6) melalui ALTER TABLE otomatis jika belum ada.
+    """
+    order_columns = {
+        "campus_or_company": "VARCHAR(100)",
+        "price_estimate_max": "INTEGER DEFAULT 0",
+        "final_price": "INTEGER DEFAULT 0",
+        "discount_amount": "INTEGER DEFAULT 0",
+        "pricing_snapshot": "JSON",
+        "source": "VARCHAR(30) DEFAULT 'web'",
+        "cancel_reason": "TEXT",
+        "completed_at": "DATETIME",
+        "updated_at": "DATETIME",
+    }
+    existing_order_cols = {
+        row[1] for row in db.execute(text("PRAGMA table_info(orders)")).fetchall()
+    }
+    for col_name, col_def in order_columns.items():
+        if existing_order_cols and col_name not in existing_order_cols:
+            db.execute(text(f"ALTER TABLE orders ADD COLUMN {col_name} {col_def}"))
+
+    revision_columns = {
+        "admin_response": "TEXT",
+        "is_out_of_scope": "BOOLEAN DEFAULT 0",
+        "extra_cost": "INTEGER DEFAULT 0",
+        "resolved_at": "DATETIME",
+    }
+    existing_rev_cols = {
+        row[1] for row in db.execute(text("PRAGMA table_info(revisions)")).fetchall()
+    }
+    for col_name, col_def in revision_columns.items():
+        if existing_rev_cols and col_name not in existing_rev_cols:
+            db.execute(text(f"ALTER TABLE revisions ADD COLUMN {col_name} {col_def}"))
+
+    db.commit()
+
 
 
 def seed_initial_admins(db: Session) -> None:
@@ -23,7 +65,7 @@ def seed_initial_admins(db: Session) -> None:
             email="admin@rizofara.com",
             password_hash=hash_password("Admin123!"),
             role="superadmin",
-            title="Co-Founder — Lead Tech & AI",
+            title="Co-Founder - Lead Tech & AI",
             bio="Fokus pada arsitektur backend FastAPI, database, skripsi AI/Machine Learning, Python, dan Chatbot.",
             whatsapp="6285692390483",
             is_active=True,
@@ -33,7 +75,7 @@ def seed_initial_admins(db: Session) -> None:
             email="ops@rizofara.com",
             password_hash=hash_password("Admin123!"),
             role="admin",
-            title="Co-Founder — Frontend & Client Ops",
+            title="Co-Founder - Frontend & Client Ops",
             bio="Fokus pada UI/UX desain Tailwind, komunikasi dan closing klien via WhatsApp, pengerjaan Web (React, Laravel), & QA.",
             whatsapp="6285692390483",
             is_active=True,
@@ -417,7 +459,7 @@ def seed_initial_cms(db: Session) -> None:
             ),
             SiteSetting(
                 key="tagline",
-                value="Digital Roots for a Brighter Tomorrow",
+                value="Digital roots endless possibilities",
                 group="brand",
                 description="Slogan di bawah nama brand",
             ),
@@ -456,6 +498,12 @@ def seed_initial_cms(db: Session) -> None:
                 value="BCA / Mandiri / Gopay / Dana / QRIS (Hubungi Admin untuk Nomor Rekening Resmi)",
                 group="payment",
                 description="Informasi metode pembayaran resmi",
+            ),
+            SiteSetting(
+                key="company_values",
+                value='[{"id": 1, "name": "Growth Mindset", "desc": "Terus belajar, berkembang menghadapi kemajuan teknologi terbaru, dan selalu terbuka pada solusi kreatif."}, {"id": 2, "name": "Inovasi", "desc": "Mengembangkan arsitektur perangkat lunak dan implementasi AI yang relevan, mutakhir, dan berdampak nyata."}, {"id": 3, "name": "Wajib Bgt Pantang Menyerah", "desc": "Tangguh menuntaskan setiap tantangan koding, perbaikan bug rumit, hingga bimbingan sidang selesai beres."}, {"id": 4, "name": "Integritas", "desc": "Kejujuran penuh dalam kesepakatan scope, kerahasiaan data terjamin aman, dan orisinalitas kode terjaga."}, {"id": 5, "name": "Collaborative", "desc": "Komunikasi solutif, mendengar masukan klien dan dosen penguji, serta bermitra erat selama pengerjaan."}, {"id": 6, "name": "Good Services", "desc": "Pelayanan ramah, responsif, bergaransi revisi, serta pendampingan pemahaman logika sistem secara tuntas."}, {"id": 7, "name": "Transparan", "desc": "Alur kerja terbuka per Bab, estimasi biaya jelas tanpa biaya tersembunyi, dan progres dapat dipantau real-time."}]',
+                group="about",
+                description="7 Nilai Budaya Perusahaan Rizofara",
             ),
         ]
         db.add_all(default_settings)
@@ -511,13 +559,303 @@ def seed_initial_cms(db: Session) -> None:
         db.commit()
 
 
+def seed_initial_orders(db: Session) -> None:
+    """
+    Mengisi 3 contoh data Order awal lengkap dengan tahapan Bab Skripsi / Modul,
+    persentase progres, riwayat timeline, dan pencatatan pembayaran jika tabel `orders` masih kosong.
+    """
+    if db.query(Order).count() > 0:
+        return
+
+    # 1. Order Skripsi IT - Sedang Mengerjakan Bab 4 (Progres 65%)
+    o1 = Order(
+        order_code="RZ-2610-SKR1",
+        client_name="Ahmad Fauzi",
+        client_whatsapp="6281234567890",
+        client_email="ahmad.fauzi@student.ac.id",
+        campus_or_company="Universitas Brawijaya (Teknik Informatika)",
+        service_type="skripsi",
+        tech_stack="Python, PyTorch, FastAPI, React",
+        title="Klasifikasi Penyakit Daun Padi Menggunakan Algoritma CNN ResNet-50 & FastAPI",
+        description="Pembuatan sistem deteksi penyakit daun padi berbasis web lengkap dengan pelatihan model CNN, tabel confusion matrix, flowchart, dan penyusunan Bab 3 & Bab 4.",
+        deadline="14 Hari",
+        price_estimate=2750000,
+        price_estimate_max=4500000,
+        final_price=3200000,
+        discount_amount=200000,
+        dp_amount=1200000,
+        status="in_progress",
+        progress_percent=65,
+        assigned_to="Founder 1 (Lead Tech & AI)",
+        demo_url="https://demo.rizofara.com/cnn-padi",
+        internal_notes="Dosen pembimbing meminta grafik perbandingan epoch 10, 25, dan 50 di Bab 4.",
+        source="web",
+    )
+    db.add(o1)
+    db.flush()
+
+    db.add_all([
+        OrderMilestone(
+            order_id=o1.id,
+            title="Bab 1 & 2 - Analisis Masalah, Dataset Citra & Studi Literatur",
+            description="Pengumpulan 2.400 citra daun padi (4 kelas) dan perumusan arsitektur sistem.",
+            weight_percent=15,
+            is_completed=True,
+            display_order=1,
+        ),
+        OrderMilestone(
+            order_id=o1.id,
+            title="Bab 3 - Perancangan Arsitektur CNN, Flowchart, DFD & Wireframe",
+            description="Penyusunan flowchart preprocessing, arsitektur ResNet-50, dan desain UI Balsamiq.",
+            weight_percent=25,
+            is_completed=True,
+            display_order=2,
+        ),
+        OrderMilestone(
+            order_id=o1.id,
+            title="Bab 4 (Bagian 1) - Training Model PyTorch & Evaluasi Confusion Matrix",
+            description="Pelatihan model mencapai akurasi validasi 94.6% beserta grafik loss/accuracy.",
+            weight_percent=25,
+            is_completed=True,
+            display_order=3,
+        ),
+        OrderMilestone(
+            order_id=o1.id,
+            title="Bab 4 (Bagian 2) - Integrasi Web FastAPI & Penulisan Pembahasan Program",
+            description="Menghubungkan model .pt ke endpoint prediksi FastAPI dan menyusun naskah Bab 4.",
+            weight_percent=20,
+            is_completed=False,
+            display_order=4,
+        ),
+        OrderMilestone(
+            order_id=o1.id,
+            title="Bab 5 - Pengujian Blackbox, Video Panduan & Persiapan Sidang",
+            description="Uji coba fungsionalitas sistem bersama klien dan pembuatan video tutorial instalasi.",
+            weight_percent=15,
+            is_completed=False,
+            display_order=5,
+        ),
+    ])
+    db.add_all([
+        OrderTimelineLog(
+            order_id=o1.id,
+            title="Pesanan Diterima & DP Terverifikasi",
+            message="Order RZ-2610-SKR1 dikonfirmasi. DP sebesar Rp 1.200.000 telah diterima.",
+            progress_percent=15,
+            is_public=True,
+            created_by="Founder 1 (Lead Tech & AI)",
+        ),
+        OrderTimelineLog(
+            order_id=o1.id,
+            title="Selesai Bab 3 - Perancangan Flowchart & Arsitektur",
+            message="Perancangan Bab 3 (Flowchart, Struktur Tabel, & Desain Antarmuka) telah selesai.",
+            progress_percent=40,
+            is_public=True,
+            created_by="Founder 1 (Lead Tech & AI)",
+        ),
+        OrderTimelineLog(
+            order_id=o1.id,
+            title="Update Progres Bab 4 (65%)",
+            message="Sedang mengerjakan Bab 4: Integrasi model CNN (akurasi 94.6%) ke halaman Web FastAPI & penyusunan tabel pengujian Blackbox.",
+            progress_percent=65,
+            is_public=True,
+            created_by="Founder 1 (Lead Tech & AI)",
+        ),
+    ])
+    db.add(
+        OrderPayment(
+            order_id=o1.id,
+            payment_type="dp",
+            amount=1200000,
+            method="transfer_bank",
+            reference_note="DP 40% via BCA a.n. Ahmad Fauzi",
+            status="verified",
+            verified_by="Founder 1 (Lead Tech & AI)",
+        )
+    )
+
+    # 2. Order Website Komersial - Tahap Perancangan Database & UI/UX (Progres 40%)
+    o2 = Order(
+        order_code="RZ-2610-WEB2",
+        client_name="Siti Rahmawati",
+        client_whatsapp="6285711223344",
+        client_email="owner@kopinusantara.id",
+        campus_or_company="UMKM Kopi Nusantara",
+        service_type="website",
+        tech_stack="Laravel 11, Tailwind CSS, MySQL",
+        title="Sistem Informasi Kasir POS & Inventaris Gudang Multi-Cabang",
+        description="Aplikasi web kasir thermal print, manajemen stok bahan baku otomatis, dan laporan laba rugi bulanan.",
+        deadline="21 Hari",
+        price_estimate=2200000,
+        price_estimate_max=3800000,
+        final_price=2500000,
+        discount_amount=0,
+        dp_amount=1000000,
+        status="in_progress",
+        progress_percent=40,
+        assigned_to="Founder 2 (Frontend & Client Ops)",
+        internal_notes="Tambahkan fitur export laporan penjualan ke format Excel dan PDF.",
+        source="whatsapp",
+    )
+    db.add(o2)
+    db.flush()
+
+    db.add_all([
+        OrderMilestone(
+            order_id=o2.id,
+            title="Tahap 1 - Analisis Kebutuhan Bisnis & Verifikasi DP",
+            description="Pemetaan alur kasir, hak akses kasir vs manajer, dan konfirmasi DP.",
+            weight_percent=15,
+            is_completed=True,
+            display_order=1,
+        ),
+        OrderMilestone(
+            order_id=o2.id,
+            title="Tahap 2 - Perancangan Skema Database MySQL & Wireframe UI/UX",
+            description="Pembuatan relasi tabel produk, mutasi stok, dan desain dashboard kasir.",
+            weight_percent=25,
+            is_completed=True,
+            display_order=2,
+        ),
+        OrderMilestone(
+            order_id=o2.id,
+            title="Tahap 3 - Pengembangan Modul Transaksi POS & Laporan Keuangan",
+            description="Implementasi fitur keranjang kasir, cetak struk thermal 58mm, dan rekap stok.",
+            weight_percent=40,
+            is_completed=False,
+            display_order=3,
+        ),
+        OrderMilestone(
+            order_id=o2.id,
+            title="Tahap 4 - Pengujian UAT, Deployment Server & Serah Terima",
+            description="Uji coba bersama pemilik toko dan instalasi di hosting produksi.",
+            weight_percent=20,
+            is_completed=False,
+            display_order=4,
+        ),
+    ])
+    db.add_all([
+        OrderTimelineLog(
+            order_id=o2.id,
+            title="Update Progres Tahap 3 (40%)",
+            message="Sedang mengerjakan Tahap 3: Pengembangan modul transaksi Kasir POS, potong stok otomatis, & cetak struk.",
+            progress_percent=40,
+            is_public=True,
+            created_by="Founder 2 (Frontend & Client Ops)",
+        ),
+    ])
+    db.add(
+        OrderPayment(
+            order_id=o2.id,
+            payment_type="dp",
+            amount=1000000,
+            method="qris",
+            reference_note="DP Awal QRIS Kopi Nusantara",
+            status="verified",
+            verified_by="Founder 2 (Frontend & Client Ops)",
+        )
+    )
+
+    # 3. Order Tugas / Skripsi SPK - Selesai 100% & Lunas
+    o3 = Order(
+        order_code="RZ-2610-SPK3",
+        client_name="Bagas Pratama",
+        client_whatsapp="6281399887766",
+        client_email="bagas.p@campus.ac.id",
+        campus_or_company="Universitas Diponegoro (Sistem Informasi)",
+        service_type="skripsi",
+        tech_stack="PHP Laravel, MySQL, Bootstrap",
+        title="Sistem Pendukung Keputusan Pemilihan Supplier Terbaik Metode TOPSIS",
+        description="Aplikasi SPK metode TOPSIS lengkap dengan perhitungan matriks ternormalisasi, solusi ideal positif/negatif, dan laporan Bab 4.",
+        deadline="10 Hari",
+        price_estimate=1800000,
+        price_estimate_max=3000000,
+        final_price=2000000,
+        discount_amount=0,
+        dp_amount=2000000,
+        status="completed",
+        progress_percent=100,
+        assigned_to="Founder 2 (Frontend & Client Ops)",
+        demo_url="https://demo.rizofara.com/spk-topsis",
+        source="web",
+    )
+    db.add(o3)
+    db.flush()
+
+    db.add_all([
+        OrderMilestone(
+            order_id=o3.id,
+            title="Bab 1 & 2 - Analisis Kriteria & Bobot Preferensi TOPSIS",
+            weight_percent=15,
+            is_completed=True,
+            display_order=1,
+        ),
+        OrderMilestone(
+            order_id=o3.id,
+            title="Bab 3 - Perancangan Database & Perhitungan Manual Excel",
+            weight_percent=25,
+            is_completed=True,
+            display_order=2,
+        ),
+        OrderMilestone(
+            order_id=o3.id,
+            title="Bab 4 - Implementasi Kode Program SPK TOPSIS & Export PDF",
+            weight_percent=40,
+            is_completed=True,
+            display_order=3,
+        ),
+        OrderMilestone(
+            order_id=o3.id,
+            title="Bab 5 - Finalisasi Laporan Pembahasan & Serah Terima Source Code",
+            weight_percent=20,
+            is_completed=True,
+            display_order=4,
+        ),
+    ])
+    db.add(
+        OrderTimelineLog(
+            order_id=o3.id,
+            title="Proyek Selesai 100% - Seluruh Bab 1 s/d Bab 5 Tuntas",
+            message="Seluruh source code, file perhitungan Excel TOPSIS, laporan Bab 4, dan video panduan instalasi telah diserahkan.",
+            progress_percent=100,
+            is_public=True,
+            created_by="Founder 2 (Frontend & Client Ops)",
+        )
+    )
+    db.add_all([
+        OrderPayment(
+            order_id=o3.id,
+            payment_type="dp",
+            amount=800000,
+            method="transfer_bank",
+            reference_note="DP 40% Mandiri",
+            status="verified",
+            verified_by="Founder 2 (Frontend & Client Ops)",
+        ),
+        OrderPayment(
+            order_id=o3.id,
+            payment_type="final",
+            amount=1200000,
+            method="transfer_bank",
+            reference_note="Pelunasan 60% Mandiri",
+            status="verified",
+            verified_by="Founder 2 (Frontend & Client Ops)",
+        ),
+    ])
+
+    db.commit()
+
+
 def run_startup_seed() -> None:
-    """Menjalankan seeder awal saat aplikasi menyala."""
+    """Menjalankan migrasi kolom otomatis dan seeder awal saat aplikasi menyala."""
     db = SessionLocal()
     try:
+        ensure_sqlite_schema_columns(db)
         seed_initial_admins(db)
         seed_initial_pricing(db)
         seed_initial_showcase(db)
         seed_initial_cms(db)
+        seed_initial_orders(db)
     finally:
         db.close()
+

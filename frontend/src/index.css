@@ -4,32 +4,29 @@
 
 @layer base {
   body {
-    @apply bg-slate-950 text-slate-100 min-h-screen overflow-x-hidden;
+    @apply bg-white text-slate-900 min-h-screen overflow-x-hidden antialiased;
   }
 }
 
-/* Clean architectural surface utilities */
-.gradient-border {
-  position: relative;
-  border: 1px solid #1e293b;
-  border-radius: 0.75rem;
+/* Brand gradient text utility */
+.brand-gradient-text {
+  background: linear-gradient(135deg, #17C455 0%, #07C995 25%, #00C4D7 50%, #0093E3 75%, #005CDF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.gradient-text {
-  color: #2dd4bf;
-}
-
-/* Custom scrollbar */
+/* Custom scrollbar for clean light mode */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #020617;
+  background: #f8fafc;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #94a3b8;
 }
+
