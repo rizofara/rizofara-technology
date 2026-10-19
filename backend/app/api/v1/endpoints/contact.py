@@ -25,7 +25,7 @@ def generate_whatsapp_link(data: ConsultationMessageRequest):
     dan profesional agar tingkat konversi closing tinggi.
     """
     text = (
-        f"Halo Tim Tech Solution,\n\n"
+        f"Halo Tim {settings.PROJECT_NAME},\n\n"
         f"Saya mau konsultasi project:\n"
         f"👤 Nama: {data.name}\n"
         f"📌 Layanan: {data.service_type}\n"
@@ -33,6 +33,7 @@ def generate_whatsapp_link(data: ConsultationMessageRequest):
         f"⏰ Target Deadline: {data.deadline}\n"
         f"💰 Estimasi Budget: {data.budget_estimate}\n"
     )
+
     if data.notes:
         text += f"📝 Catatan Tambahan: {data.notes}\n"
     

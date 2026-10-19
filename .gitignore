@@ -13,9 +13,18 @@ venv/
 *.sqlite3
 backend/app.db
 
-# Uploaded Client Files
+# Uploaded Client Files & Storage
 backend/uploads/*
 !backend/uploads/.gitkeep
+backend/storage/private/orders/*
+!backend/storage/private/orders/.gitkeep
+backend/storage/private/payments/*
+!backend/storage/private/payments/.gitkeep
+backend/storage/public/media/*
+!backend/storage/public/media/.gitkeep
+.pytest_cache/
+backend/.pytest_cache/
+
 
 # Environment Variables
 .env

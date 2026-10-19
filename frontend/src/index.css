@@ -8,18 +8,15 @@
   }
 }
 
-/* Custom glow and backdrop effects */
+/* Clean architectural surface utilities */
 .gradient-border {
   position: relative;
-  background: linear-gradient(to right, #0d9488, #3b82f6);
-  padding: 1px;
-  border-radius: 1rem;
+  border: 1px solid #1e293b;
+  border-radius: 0.75rem;
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #2dd4bf 0%, #38bdf8 50%, #818cf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #2dd4bf;
 }
 
 /* Custom scrollbar */
