@@ -16,7 +16,12 @@ from app.models.order import (
     Revision,
 )
 from app.models.admin_user import AdminUser
-from app.api.v1.deps import get_current_admin
+from app.api.v1.deps import (
+    get_current_admin,
+    get_admin_permissions,
+    admin_can_access_order,
+    is_order_assigned_to,
+)
 from app.schemas.order import (
     CalculatorRequest,
     OrderCreate,
@@ -115,20 +120,20 @@ def compute_order_financials(order: Order) -> Dict[str, Any]:
     effective_bill = max(0, base_bill - (order.discount_amount or 0) + extra_rev_cost)
 
     payments = order.payments or []
-    if len(payments) > 0:
-        verified_in = sum(
-            p.amount
-            for p in payments
-            if p.status == "verified" and p.payment_type != "refund"
-        )
-        verified_refund = sum(
-            p.amount
-            for p in payments
-            if p.status == "verified" and p.payment_type == "refund"
-        )
-        total_paid = max(0, verified_in - verified_refund)
-    else:
-        total_paid = max(0, order.dp_amount or 0)
+    verified_in = sum(
+        p.amount
+        for p in payments
+        if p.status == "verified" and p.payment_type != "refund"
+    )
+    verified_refund = sum(
+        p.amount
+        for p in payments
+        if p.status == "verified" and p.payment_type == "refund"
+    )
+    has_dp_in_payments = any(p.payment_type == "dp" for p in payments)
+    if not has_dp_in_payments and (order.dp_amount or 0) > 0:
+        verified_in += (order.dp_amount or 0)
+    total_paid = max(0, verified_in - verified_refund)
 
     remaining_balance = max(0, effective_bill - total_paid)
     if total_paid <= 0:
@@ -181,6 +186,53 @@ def serialize_order_admin(order: Order) -> OrderResponse:
     resp.payment_status = fin["payment_status"]
     resp.current_stage = resolve_current_stage(order)
     return resp
+
+
+def serialize_for_admin(order: Order, admin: AdminUser, db: Session) -> OrderResponse:
+    """
+    Serialisasi order sesuai hak akses: role tanpa `payments.view` (misal Freelance)
+    tidak dapat melihat data keuangan, riwayat pembayaran, maupun catatan internal finansial.
+    """
+    resp = serialize_order_admin(order)
+    perms = get_admin_permissions(admin, db)
+    if "payments.view" not in perms:
+        resp.price_estimate = 0
+        resp.price_estimate_max = 0
+        resp.final_price = 0
+        resp.discount_amount = 0
+        resp.dp_amount = 0
+        resp.effective_bill = 0
+        resp.total_paid = 0
+        resp.remaining_balance = 0
+        resp.payment_status = "hidden"
+        resp.pricing_snapshot = None
+        resp.payments = []
+    return resp
+
+
+def get_order_for_admin(
+    db: Session, order_id: int, admin: AdminUser, *required_perms: str
+) -> Order:
+    """
+    Mengambil order + memastikan admin boleh mengaksesnya (view_all / PIC) dan memiliki
+    minimal satu permission yang diminta.
+    """
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+    if not admin_can_access_order(admin, db, order):
+        raise HTTPException(
+            status_code=403,
+            detail="Akses ditolak. Order ini tidak di-assign (PIC) ke akun Anda.",
+        )
+    if required_perms:
+        perms = get_admin_permissions(admin, db)
+        if not any(p in perms for p in required_perms):
+            raise HTTPException(
+                status_code=403,
+                detail="Akses ditolak. Role Anda tidak memiliki izin untuk aksi ini.",
+            )
+    return order
 
 
 def recalculate_milestone_progress(order: Order) -> int:
@@ -558,7 +610,13 @@ def get_all_orders(
         )
 
     orders = query.order_by(Order.created_at.desc()).all()
-    return [serialize_order_admin(o) for o in orders]
+    perms = get_admin_permissions(current_admin, db)
+    if "orders.view_all" not in perms:
+        if "orders.view_assigned" in perms:
+            orders = [o for o in orders if is_order_assigned_to(o, current_admin)]
+        else:
+            orders = []
+    return [serialize_for_admin(o, current_admin, db) for o in orders]
 
 
 @router.get("/{order_id}", response_model=OrderResponse)
@@ -568,10 +626,8 @@ def get_order_detail(
     db: Session = Depends(get_db),
 ):
     """Detail lengkap order beserta milestone, timeline, pembayaran, dan revisi."""
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
-    return serialize_order_admin(order)
+    order = get_order_for_admin(db, order_id, current_admin)
+    return serialize_for_admin(order, current_admin, db)
 
 
 @router.patch("/{order_id}/status", response_model=OrderResponse)
@@ -585,9 +641,18 @@ def update_order_status(
     Update data order, status, progres, tahapan/bab aktif (`timeline_message`),
     harga deal (`final_price`), diskon, DP, atau PIC order.
     """
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+    order = get_order_for_admin(db, order_id, current_admin, "orders.edit", "progress.edit")
+    perms = get_admin_permissions(current_admin, db)
+    if "orders.edit" not in perms:
+        # Role progress-only (misal Freelance): hanya boleh ubah persentase progres & catatan tahapan
+        data = OrderStatusUpdate(
+            progress_percent=data.progress_percent,
+            timeline_message=data.timeline_message,
+        )
+    elif "payments.view" not in perms:
+        data.final_price = None
+        data.discount_amount = None
+        data.dp_amount = None
 
     old_status = order.status
 
@@ -663,7 +728,7 @@ def update_order_status(
 
     db.commit()
     db.refresh(order)
-    return serialize_order_admin(order)
+    return serialize_for_admin(order, current_admin, db)
 
 
 @router.delete("/{order_id}")
@@ -673,9 +738,7 @@ def delete_order(
     db: Session = Depends(get_db),
 ):
     """Menghapus data order (Wajib Login JWT)."""
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+    order = get_order_for_admin(db, order_id, current_admin, "orders.delete")
     code = order.order_code
     db.delete(order)
     db.commit()
@@ -698,9 +761,7 @@ def add_order_milestone(
     db: Session = Depends(get_db),
 ):
     """Admin: Menambahkan tahapan checklist milestone baru pada order."""
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+    order = get_order_for_admin(db, order_id, current_admin, "progress.create")
 
     milestone = OrderMilestone(
         order_id=order.id,
@@ -717,7 +778,7 @@ def add_order_milestone(
     recalculate_milestone_progress(order)
     db.commit()
     db.refresh(order)
-    return serialize_order_admin(order)
+    return serialize_for_admin(order, current_admin, db)
 
 
 @router.patch("/{order_id}/milestones/{milestone_id}", response_model=OrderResponse)
@@ -732,9 +793,7 @@ def update_order_milestone(
     Admin: Mencentang/mengubah milestone pengerjaan.
     Otomatis menghitung ulang persentase progres order dan mencatatnya ke Timeline klien!
     """
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+    order = get_order_for_admin(db, order_id, current_admin, "progress.edit")
 
     milestone = (
         db.query(OrderMilestone)
@@ -783,7 +842,7 @@ def update_order_milestone(
 
     db.commit()
     db.refresh(order)
-    return serialize_order_admin(order)
+    return serialize_for_admin(order, current_admin, db)
 
 
 @router.delete("/{order_id}/milestones/{milestone_id}", response_model=OrderResponse)
@@ -794,9 +853,7 @@ def delete_order_milestone(
     db: Session = Depends(get_db),
 ):
     """Admin: Menghapus salah satu item milestone dan menghitung ulang progres."""
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+    order = get_order_for_admin(db, order_id, current_admin, "progress.delete")
 
     milestone = (
         db.query(OrderMilestone)
@@ -815,7 +872,7 @@ def delete_order_milestone(
     recalculate_milestone_progress(order)
     db.commit()
     db.refresh(order)
-    return serialize_order_admin(order)
+    return serialize_for_admin(order, current_admin, db)
 
 
 @router.post(
@@ -830,9 +887,7 @@ def add_order_timeline_log(
     db: Session = Depends(get_db),
 ):
     """Admin: Menambahkan kabar/update progres baru ke Timeline pesanan."""
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+    order = get_order_for_admin(db, order_id, current_admin, "progress.create", "progress.edit")
 
     if data.progress_percent is not None:
         order.progress_percent = data.progress_percent
@@ -848,7 +903,7 @@ def add_order_timeline_log(
     db.add(log)
     db.commit()
     db.refresh(order)
-    return serialize_order_admin(order)
+    return serialize_for_admin(order, current_admin, db)
 
 
 # =====================================================================
@@ -871,10 +926,9 @@ def record_order_payment(
     Otomatis memperbarui `dp_amount` (total pembayaran masuk), meng-update status order
     bila DP telah diterima, dan mencatat ke Timeline!
     """
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+    order = get_order_for_admin(db, order_id, current_admin, "payments.create")
 
+    paid_at_val = data.paid_at or utc_now()
     payment = OrderPayment(
         order_id=order.id,
         payment_type=data.payment_type,
@@ -883,6 +937,7 @@ def record_order_payment(
         reference_note=data.reference_note.strip() if data.reference_note else None,
         status=data.status,
         verified_by=current_admin.name if data.status == "verified" else None,
+        paid_at=paid_at_val,
     )
     db.add(payment)
     db.flush()
@@ -920,7 +975,7 @@ def record_order_payment(
 
     db.commit()
     db.refresh(order)
-    return serialize_order_admin(order)
+    return serialize_for_admin(order, current_admin, db)
 
 
 @router.delete("/{order_id}/payments/{payment_id}", response_model=OrderResponse)
@@ -931,9 +986,7 @@ def delete_order_payment(
     db: Session = Depends(get_db),
 ):
     """Admin: Menghapus catatan pembayaran yang salah input & menghitung ulang tagihan."""
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+    order = get_order_for_admin(db, order_id, current_admin, "payments.delete")
 
     payment = (
         db.query(OrderPayment)
@@ -953,7 +1006,7 @@ def delete_order_payment(
     order.dp_amount = fin["total_paid"]
     db.commit()
     db.refresh(order)
-    return serialize_order_admin(order)
+    return serialize_for_admin(order, current_admin, db)
 
 
 # =====================================================================
@@ -1022,9 +1075,7 @@ def update_revision_admin(
     (`in_progress` / `completed` / `rejected`), atau menandai `is_out_of_scope` + `extra_cost`.
     Jika revisi selesai (`completed`), status order dikembalikan ke `review` dan tercatat di Timeline.
     """
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order tidak ditemukan")
+    order = get_order_for_admin(db, order_id, current_admin, "orders.edit")
 
     rev = (
         db.query(Revision)
@@ -1067,4 +1118,4 @@ def update_revision_admin(
 
     db.commit()
     db.refresh(order)
-    return serialize_order_admin(order)
+    return serialize_for_admin(order, current_admin, db)

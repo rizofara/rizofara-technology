@@ -12,3 +12,4 @@ from app.models.admin_user import AdminUser
 from app.models.pricing import ServiceCatalog, PricingFactor, PricingAddon
 from app.models.showcase import Testimonial, PortfolioItem
 from app.models.cms import SiteSetting, FaqItem, TechStackItem
+from app.models.role import Role

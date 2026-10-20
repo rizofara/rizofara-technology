@@ -36,6 +36,8 @@ import {
   TrendingUp,
   Layers,
   ChevronDown,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import axios from 'axios';
 import AdminPortal from './components/AdminPortal';
@@ -68,10 +70,34 @@ export function RizofaraBrandLogo({ className = 'w-9 h-9' }) {
 }
 
 export default function App() {
+  // Theme State (Dark / Light Mode)
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('rizofara_theme');
+    if (saved) return saved === 'dark';
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('rizofara_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('rizofara_theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => setIsDarkMode((prev) => !prev);
+
   // Navigation State
   const [activeTab, setActiveTab] = useState(() =>
     window.location.pathname.startsWith('/admin') ? 'admin' : 'home'
   );
+
+  // Otomatis scroll ke paling atas saat berpindah tab (Home <-> Admin)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [activeTab]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaqId, setOpenFaqId] = useState(null);
 
@@ -374,15 +400,8 @@ export default function App() {
         id: 3,
         question: 'Berapa lama waktu pengerjaan?',
         answer:
-          'Durasi pengerjaan fleksibel mulai dari 3 hari (paket kilat) hingga 21 hari kerja sesuai kompleksitas sistem dan kesepakatan jadwal Anda.',
+          'Durasi pengerjaan fleksibel mulai dari 5 hari (paket kilat) hingga 21 hari kerja sesuai kompleksitas sistem dan kesepakatan jadwal Anda.',
         category: 'waktu',
-      },
-      {
-        id: 4,
-        question: 'Metode pembayaran apa saja?',
-        answer:
-          'Pembayaran dapat dilakukan melalui Transfer Bank (BCA, Mandiri), E-Wallet (Dana, Gopay, OVO), dan QRIS dengan skema DP aman 30%-40% di awal.',
-        category: 'pembayaran',
       },
       {
         id: 5,
@@ -431,17 +450,17 @@ export default function App() {
       },
       {
         id: 2,
-        name: 'Inovasi',
+        name: 'Innovation',
         desc: 'Mengembangkan arsitektur perangkat lunak dan implementasi AI yang relevan, mutakhir, dan berdampak nyata.',
       },
       {
         id: 3,
-        name: 'Wajib bgt pantang menyerah',
+        name: 'Never Give Up',
         desc: 'Tangguh menuntaskan setiap tantangan koding, perbaikan bug rumit, hingga bimbingan sidang selesai beres.',
       },
       {
         id: 4,
-        name: 'Integritas',
+        name: 'Integrity',
         desc: 'Kejujuran penuh dalam kesepakatan scope, kerahasiaan data terjamin aman, dan orisinalitas kode terjaga.',
       },
       {
@@ -456,7 +475,7 @@ export default function App() {
       },
       {
         id: 7,
-        name: 'Transparan',
+        name: 'Transparent',
         desc: 'Alur kerja terbuka per Bab, estimasi biaya jelas tanpa biaya tersembunyi, dan progres dapat dipantau real-time.',
       },
     ];
@@ -791,12 +810,13 @@ export default function App() {
   const companyValues = getCompanyValues();
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-[#07C995] selection:text-white">
+    <div className="min-h-screen bg-white dark:bg-[#020B18] text-slate-900 dark:text-[#F1F5F9] flex flex-col font-sans selection:bg-[#07C995] selection:text-white transition-colors duration-200">
       {/* ========================================================= */}
-      {/* 1. STICKY NAVBAR PUTIH BERSIH */}
+      {/* 1. STICKY NAVBAR DENGAN JARAK ATAS (FLOATING ISLAND) */}
       {/* ========================================================= */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-3">
+      <div className="sticky top-0 z-40 pt-3 sm:pt-4 px-3 sm:px-6 lg:px-8 pointer-events-none">
+        <header className="max-w-7xl mx-auto bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-md border border-slate-200/90 dark:border-[#183247] rounded-2xl shadow-sm overflow-hidden pointer-events-auto transition-all duration-200">
+          <div className="px-4 sm:px-6 h-18 flex items-center justify-between gap-3">
           {/* Logo & Brand Name */}
           <div
             className="flex items-center gap-3 cursor-pointer shrink-0"
@@ -808,91 +828,108 @@ export default function App() {
           >
             <RizofaraBrandLogo className="w-9 h-9 shrink-0 drop-shadow-xs" />
             <div>
-              <span className="font-extrabold text-base tracking-tight text-slate-900 block leading-tight">
+              <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-[#F1F5F9] block leading-tight">
                 {cmsData.settings?.brand_name || 'Rizofara Technology'}
               </span>
-              <p className="text-[11px] text-slate-500 font-medium">
+              <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] font-medium">
                 {cmsData.settings?.tagline || 'Digital roots endless possibilities'}
               </p>
             </div>
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 text-[13px] font-semibold text-slate-600">
+          <nav className="hidden lg:flex items-center gap-1 text-[13px] font-semibold text-slate-600 dark:text-[#94A3B8]">
             <a
               href="#home"
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+              className="px-3 py-2 rounded-xl hover:text-[#00C4D7] dark:hover:text-[#00C4D7] hover:bg-slate-50 dark:hover:bg-[#0B1929] transition"
             >
               Beranda
             </a>
             <a
               href="#services"
-              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+              className="px-3 py-2 rounded-xl hover:text-[#00C4D7] dark:hover:text-[#00C4D7] hover:bg-slate-50 dark:hover:bg-[#0B1929] transition"
             >
               Layanan
             </a>
             <a
               href="#about"
-              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition font-bold text-slate-800"
+              className="px-3 py-2 rounded-xl hover:text-[#00C4D7] dark:hover:text-[#00C4D7] hover:bg-slate-50 dark:hover:bg-[#0B1929] transition font-bold text-slate-800 dark:text-[#F1F5F9]"
             >
               About
             </a>
             <a
               href="#workflow"
-              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+              className="px-3 py-2 rounded-xl hover:text-[#00C4D7] dark:hover:text-[#00C4D7] hover:bg-slate-50 dark:hover:bg-[#0B1929] transition"
             >
               Alur Kerja
             </a>
             <a
               href="#calculator"
-              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+              className="px-3 py-2 rounded-xl hover:text-[#00C4D7] dark:hover:text-[#00C4D7] hover:bg-slate-50 dark:hover:bg-[#0B1929] transition"
             >
               Kalkulator
             </a>
             <a
               href="#tracking"
-              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+              className="px-3 py-2 rounded-xl hover:text-[#00C4D7] dark:hover:text-[#00C4D7] hover:bg-slate-50 dark:hover:bg-[#0B1929] transition"
             >
               Cek Order
             </a>
             <a
               href="#portfolio"
-              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+              className="px-3 py-2 rounded-xl hover:text-[#00C4D7] dark:hover:text-[#00C4D7] hover:bg-slate-50 dark:hover:bg-[#0B1929] transition"
             >
               Portofolio
             </a>
             <a
               href="#testimonials"
-              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+              className="px-3 py-2 rounded-xl hover:text-[#00C4D7] dark:hover:text-[#00C4D7] hover:bg-slate-50 dark:hover:bg-[#0B1929] transition"
             >
               Testimoni
             </a>
             <a
               href="#faq"
-              className="px-3 py-2 rounded-xl hover:text-[#0093E3] hover:bg-slate-50 transition"
+              className="px-3 py-2 rounded-xl hover:text-[#00C4D7] dark:hover:text-[#00C4D7] hover:bg-slate-50 dark:hover:bg-[#0B1929] transition"
             >
               FAQ
             </a>
           </nav>
 
           {/* Right Action Buttons */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            {/* Dark Mode Toggle */}
             <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 sm:px-2.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0B1929] dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-slate-700 dark:text-[#F1F5F9] transition cursor-pointer flex items-center gap-1.5"
+              title={isDarkMode ? 'Ganti ke Light Mode' : 'Ganti ke Dark Mode'}
+              aria-label="Toggle Theme"
+            >
+              {isDarkMode ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-slate-700" />
+              )}
+            </button>
+
+            <button
+              type="button"
               onClick={() => {
                 window.history.pushState({}, '', '/admin');
                 setActiveTab('admin');
+                window.scrollTo({ top: 0, behavior: 'instant' });
                 setMobileMenuOpen(false);
               }}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0B1929] dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-slate-700 dark:text-[#F1F5F9] text-xs font-semibold transition cursor-pointer"
               title="Portal Login Admin"
             >
-              <Lock className="w-3.5 h-3.5 text-slate-600" />
-              <span className="hidden xl:inline">Admin</span>
+              <Lock className="w-3.5 h-3.5 text-teal-500" />
+              <span>Admin</span>
             </button>
             <button
               onClick={() => openWhatsAppDirect('Konsultasi Skripsi/Web')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#07C995] to-[#17C455] hover:opacity-95 text-white text-xs sm:text-sm font-bold shadow-sm shadow-emerald-500/20 transition cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#07C995] to-[#00C4D7] hover:opacity-95 text-slate-950 text-xs sm:text-sm font-extrabold shadow-md shadow-teal-500/20 transition cursor-pointer"
             >
               <MessageSquare className="w-4 h-4 shrink-0" />
               <span>Konsultasi Sekarang</span>
@@ -901,17 +938,17 @@ export default function App() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 transition"
+              className="lg:hidden p-2.5 rounded-xl bg-slate-50 dark:bg-[#0B1929] hover:bg-slate-100 dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-slate-700 dark:text-[#F1F5F9] transition"
               aria-label="Menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5 text-slate-900" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-5 h-5 text-slate-900 dark:text-[#F1F5F9]" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t border-slate-100 px-4 pt-3 pb-5 space-y-3 shadow-xl">
+          <div className="lg:hidden bg-white dark:bg-[#06111F] border-t border-slate-100 dark:border-[#183247] px-4 pt-3 pb-5 space-y-3 shadow-xl">
             <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
               {[
                 { href: '#home', label: 'Beranda' },
@@ -928,7 +965,7 @@ export default function App() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-3.5 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 text-slate-800 flex items-center justify-between transition"
+                  className="px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#0B1929] hover:bg-slate-100 dark:hover:bg-[#183247] border border-slate-100 dark:border-[#183247] text-slate-800 dark:text-[#F1F5F9] flex items-center justify-between transition"
                 >
                   <span>{item.label}</span>
                   <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
@@ -954,24 +991,26 @@ export default function App() {
                   setMobileMenuOpen(false);
                   window.history.pushState({}, '', '/admin');
                   setActiveTab('admin');
+                  window.scrollTo({ top: 0, behavior: 'instant' });
                 }}
-                className="py-2.5 px-3 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5"
+                className="py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-[#0B1929] text-slate-700 dark:text-[#F1F5F9] border border-slate-200 dark:border-[#183247] font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Lock className="w-3.5 h-3.5 text-slate-600" />
+                <Lock className="w-3.5 h-3.5 text-teal-400" />
                 Portal Admin
               </button>
             </div>
           </div>
         )}
-      </header>
+        </header>
+      </div>
 
       {/* ========================================================= */}
       {/* 2. HERO SECTION PERSIS MOCKUP (Light Mode Putih) */}
       {/* ========================================================= */}
-      <section id="home" className="relative pt-10 pb-16 lg:pt-16 lg:pb-24 overflow-hidden bg-white">
+      <section id="home" className="relative pt-10 pb-16 lg:pt-16 lg:pb-24 overflow-hidden bg-white dark:bg-[#020B18]">
         {/* Soft Ambient Background Elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100/30 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-        <div className="absolute top-1/2 left-0 w-80 h-80 bg-sky-100/30 rounded-full blur-3xl pointer-events-none -ml-20" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100/30 dark:bg-emerald-950/20 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="absolute top-1/2 left-0 w-80 h-80 bg-sky-100/30 dark:bg-sky-950/20 rounded-full blur-3xl pointer-events-none -ml-20" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -979,7 +1018,7 @@ export default function App() {
             <div className="lg:col-span-7 text-left space-y-6">
               {/* Badges Bar */}
               <div className="flex flex-wrap items-center gap-3">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-700 text-xs font-semibold">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-[#06111F] border border-emerald-200/70 dark:border-[#183247] text-emerald-700 dark:text-[#07C995] text-xs font-semibold">
                   <span className="w-2 h-2 rounded-full bg-[#17C455]" />
                   <span>Solusi Digital untuk Mahasiswa & Bisnis</span>
                 </div>
@@ -989,14 +1028,14 @@ export default function App() {
               </div>
 
               {/* Main Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.15]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-[#F1F5F9] leading-[1.15]">
                 Solusi Skripsi IT,<br />
                 Pembuatan <span style={{ color: '#0093E3' }}>Website</span> &<br />
                 <span style={{ color: '#07C995' }}>Chatbot AI</span>
               </h1>
 
               {/* Subtitle */}
-              <p className="text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed">
+              <p className="text-base sm:text-lg text-slate-600 dark:text-[#94A3B8] max-w-xl leading-relaxed">
                 {cmsData.settings?.hero_subtitle ||
                   'Dikerjakan oleh tim berpengalaman dengan hasil berkualitas, tepat waktu, dan bergaransi.'}
               </p>
@@ -1012,81 +1051,38 @@ export default function App() {
                 </a>
                 <a
                   href="#calculator"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm border border-slate-200 shadow-xs transition cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 dark:bg-[#0B1929] dark:hover:bg-[#183247] text-slate-800 dark:text-[#F1F5F9] font-bold text-sm border border-slate-200 dark:border-[#183247] shadow-xs transition cursor-pointer"
                 >
                   <Calculator className="w-4 h-4 text-slate-600" />
                   <span>Hitung Estimasi Biaya</span>
                 </a>
               </div>
-
-              {/* 4 Counter Metrics */}
-              <div className="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 border-t border-slate-100">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#17C455] flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="font-extrabold text-lg text-slate-900">250+</div>
-                    <div className="text-xs text-slate-500">Proyek Selesai</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0093E3] flex items-center justify-center shrink-0">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="font-extrabold text-lg text-slate-900">100+</div>
-                    <div className="text-xs text-slate-500">Klien Puas</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
-                    <Star className="w-5 h-5 fill-amber-400" />
-                  </div>
-                  <div>
-                    <div className="font-extrabold text-lg text-slate-900">4.9/5</div>
-                    <div className="text-xs text-slate-500">Rating Klien</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-50 text-[#00C4D7] flex items-center justify-center shrink-0">
-                    <Clock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="font-extrabold text-lg text-slate-900">24/7</div>
-                    <div className="text-xs text-slate-500">Konsultasi</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+</div>
 
             {/* Right Laptop Mockup Column with Floating Badges */}
             <div className="lg:col-span-5 relative flex justify-center items-center">
               {/* Floating Badge 1: Website Modern */}
-              <div className="absolute -top-3 left-4 sm:left-8 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-4 py-2.5 shadow-lg flex items-center gap-2.5 animate-bounce-slow">
+              <div className="absolute -top-3 left-4 sm:left-8 z-20 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-md border border-slate-200/90 dark:border-[#183247] rounded-2xl px-4 py-2.5 shadow-lg flex items-center gap-2.5 animate-bounce-slow text-slate-800 dark:text-[#F1F5F9]">
                 <div className="w-8 h-8 rounded-xl bg-sky-50 text-[#0093E3] flex items-center justify-center">
                   <Laptop className="w-4 h-4" />
                 </div>
-                <span className="text-xs font-bold text-slate-800">Website Modern</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-[#F1F5F9]">Website Modern</span>
               </div>
 
               {/* Floating Badge 2: Chatbot AI */}
-              <div className="absolute top-1/3 -left-4 sm:-left-6 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-4 py-2.5 shadow-lg flex items-center gap-2.5">
+              <div className="absolute top-1/3 -left-4 sm:-left-6 z-20 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-md border border-slate-200/90 dark:border-[#183247] rounded-2xl px-4 py-2.5 shadow-lg flex items-center gap-2.5 text-slate-800 dark:text-[#F1F5F9]">
                 <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#07C995] flex items-center justify-center">
                   <Bot className="w-4 h-4" />
                 </div>
-                <span className="text-xs font-bold text-slate-800">Chatbot AI</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-[#F1F5F9]">Chatbot AI</span>
               </div>
 
               {/* Floating Badge 3: Tugas & Skripsi */}
-              <div className="absolute -bottom-3 left-6 sm:left-12 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-4 py-2.5 shadow-lg flex items-center gap-2.5">
+              <div className="absolute -bottom-3 left-6 sm:left-12 z-20 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-md border border-slate-200/90 dark:border-[#183247] rounded-2xl px-4 py-2.5 shadow-lg flex items-center gap-2.5 text-slate-800 dark:text-[#F1F5F9]">
                 <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                   <GraduationCap className="w-4 h-4" />
                 </div>
-                <span className="text-xs font-bold text-slate-800">Tugas & Skripsi</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-[#F1F5F9]">Tugas & Skripsi</span>
               </div>
 
               {/* Laptop Screen Frame Container */}
@@ -1145,14 +1141,14 @@ export default function App() {
       {/* ========================================================= */}
       {/* 3. LAYANAN KAMI (PILIH SESUAI KEBUTUHAN ANDA) */}
       {/* ========================================================= */}
-      <section id="services" className="py-20 bg-slate-50/70 border-t border-slate-100">
+      <section id="services" className="py-20 bg-slate-50/70 dark:bg-[#020B18] border-t border-slate-100 dark:border-[#183247]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12">
             <div>
               <span className="text-xs font-bold text-[#0093E3] uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60">
                 LAYANAN KAMI
               </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-[#F1F5F9] mt-2">
                 Pilih layanan sesuai kebutuhan Anda
               </h2>
             </div>
@@ -1166,12 +1162,12 @@ export default function App() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Card 1: Pembuatan Website */}
-            <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-sky-200 transition flex flex-col justify-between">
+            <div className="bg-white dark:bg-[#0B1929] rounded-2xl border border-slate-100 dark:border-[#183247] p-6 shadow-sm hover:shadow-md hover:border-sky-200 transition flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-sky-50 text-[#0093E3] flex items-center justify-center mb-5">
                   <Laptop className="w-6 h-6" />
                 </div>
-                <h3 className="font-extrabold text-lg text-slate-900 mb-2">Pembuatan Website</h3>
+                <h3 className="font-extrabold text-lg text-slate-900 dark:text-[#F1F5F9] mb-2">Pembuatan Website</h3>
                 <p className="text-xs text-slate-500 leading-relaxed mb-6">
                   Website company profile, web app, landing page, dan sistem informasi.
                 </p>
@@ -1179,7 +1175,7 @@ export default function App() {
               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                 <div>
                   <span className="text-[11px] text-slate-400 block">Mulai dari</span>
-                  <span className="text-base font-extrabold text-slate-900">Rp 500.000</span>
+                  <span className="text-base font-extrabold text-slate-900 dark:text-[#07C995]">Rp 500.000</span>
                 </div>
                 <button
                   onClick={() => {
@@ -1195,12 +1191,12 @@ export default function App() {
             </div>
 
             {/* Card 2: Tugas Kuliah */}
-            <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-teal-200 transition flex flex-col justify-between">
+            <div className="bg-white dark:bg-[#0B1929] rounded-2xl border border-slate-100 dark:border-[#183247] p-6 shadow-sm hover:shadow-md hover:border-teal-200 transition flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-teal-50 text-[#07C995] flex items-center justify-center mb-5">
                   <FileText className="w-6 h-6" />
                 </div>
-                <h3 className="font-extrabold text-lg text-slate-900 mb-2">Tugas Kuliah</h3>
+                <h3 className="font-extrabold text-lg text-slate-900 dark:text-[#F1F5F9] mb-2">Tugas Kuliah</h3>
                 <p className="text-xs text-slate-500 leading-relaxed mb-6">
                   Makalah, presentasi, dan proyek koding jurusan pemrograman/IT.
                 </p>
@@ -1208,7 +1204,7 @@ export default function App() {
               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                 <div>
                   <span className="text-[11px] text-slate-400 block">Mulai dari</span>
-                  <span className="text-base font-extrabold text-slate-900">Rp 50.000</span>
+                  <span className="text-base font-extrabold text-slate-900 dark:text-[#07C995]">Rp 50.000</span>
                 </div>
                 <button
                   onClick={() => {
@@ -1224,12 +1220,12 @@ export default function App() {
             </div>
 
             {/* Card 3: Skripsi */}
-            <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-amber-200 transition flex flex-col justify-between">
+            <div className="bg-white dark:bg-[#0B1929] rounded-2xl border border-slate-100 dark:border-[#183247] p-6 shadow-sm hover:shadow-md hover:border-amber-200 transition flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center mb-5">
                   <GraduationCap className="w-6 h-6" />
                 </div>
-                <h3 className="font-extrabold text-lg text-slate-900 mb-2">Skripsi</h3>
+                <h3 className="font-extrabold text-lg text-slate-900 dark:text-[#F1F5F9] mb-2">Skripsi</h3>
                 <p className="text-xs text-slate-500 leading-relaxed mb-6">
                   Bantuan analisis data, penulisan laporan per bab, dan dokumentasi sistem.
                 </p>
@@ -1237,7 +1233,7 @@ export default function App() {
               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                 <div>
                   <span className="text-[11px] text-slate-400 block">Mulai dari</span>
-                  <span className="text-base font-extrabold text-slate-900">Rp 200.000</span>
+                  <span className="text-base font-extrabold text-slate-900 dark:text-[#07C995]">Rp 200.000</span>
                 </div>
                 <button
                   onClick={() => {
@@ -1253,12 +1249,12 @@ export default function App() {
             </div>
 
             {/* Card 4: Chatbot AI */}
-            <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-emerald-200 transition flex flex-col justify-between">
+            <div className="bg-white dark:bg-[#0B1929] rounded-2xl border border-slate-100 dark:border-[#183247] p-6 shadow-sm hover:shadow-md hover:border-emerald-200 transition flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#17C455] flex items-center justify-center mb-5">
                   <Bot className="w-6 h-6" />
                 </div>
-                <h3 className="font-extrabold text-lg text-slate-900 mb-2">Chatbot AI</h3>
+                <h3 className="font-extrabold text-lg text-slate-900 dark:text-[#F1F5F9] mb-2">Chatbot AI</h3>
                 <p className="text-xs text-slate-500 leading-relaxed mb-6">
                   Integrasi AI untuk bisnis dan edukasi, WhatsApp Gateway & RAG LLM.
                 </p>
@@ -1266,7 +1262,7 @@ export default function App() {
               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                 <div>
                   <span className="text-[11px] text-slate-400 block">Mulai dari</span>
-                  <span className="text-base font-extrabold text-slate-900">Rp 750.000</span>
+                  <span className="text-base font-extrabold text-slate-900 dark:text-[#07C995]">Rp 750.000</span>
                 </div>
                 <button
                   onClick={() => {
@@ -1287,11 +1283,11 @@ export default function App() {
       {/* ========================================================= */}
       {/* 4. MENGAPA MEMILIH KAMI? */}
       {/* ========================================================= */}
-      <section className="py-16 bg-white border-t border-slate-100">
+      <section className="py-16 bg-white dark:bg-[#020B18] border-t border-slate-100 dark:border-[#183247]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-10">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-[#F1F5F9]">
                 Mengapa Memilih Kami?
               </h2>
             </div>
@@ -1301,43 +1297,43 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-start gap-3.5">
+            <div className="p-5 rounded-2xl bg-slate-50/80 dark:bg-[#0B1929] border border-slate-100 dark:border-[#183247] flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0093E3] flex items-center justify-center shrink-0">
                 <Award className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-slate-900">Hasil Berkualitas</h4>
-                <p className="text-xs text-slate-500 mt-1">Dikerjakan oleh tim berpengalaman.</p>
+                <h4 className="font-bold text-sm text-slate-900 dark:text-[#F1F5F9]">Hasil Berkualitas</h4>
+                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-1">Dikerjakan oleh tim berpengalaman.</p>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-start gap-3.5">
+            <div className="p-5 rounded-2xl bg-slate-50/80 dark:bg-[#0B1929] border border-slate-100 dark:border-[#183247] flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
                 <Clock className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-slate-900">Tepat Waktu</h4>
-                <p className="text-xs text-slate-500 mt-1">Timeline jelas dan sesuai kesepakatan.</p>
+                <h4 className="font-bold text-sm text-slate-900 dark:text-[#F1F5F9]">Tepat Waktu</h4>
+                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-1">Timeline jelas dan sesuai kesepakatan.</p>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-start gap-3.5">
+            <div className="p-5 rounded-2xl bg-slate-50/80 dark:bg-[#0B1929] border border-slate-100 dark:border-[#183247] flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#17C455] flex items-center justify-center shrink-0">
                 <Calculator className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-slate-900">Harga Transparan</h4>
-                <p className="text-xs text-slate-500 mt-1">Estimasi jelas dengan kalkulator harga.</p>
+                <h4 className="font-bold text-sm text-slate-900 dark:text-[#F1F5F9]">Harga Transparan</h4>
+                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-1">Estimasi jelas dengan kalkulator harga.</p>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100 flex items-start gap-3.5">
+            <div className="p-5 rounded-2xl bg-slate-50/80 dark:bg-[#0B1929] border border-slate-100 dark:border-[#183247] flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-sm text-slate-900">Garansi Revisi</h4>
-                <p className="text-xs text-slate-500 mt-1">Revisi hingga sesuai kebutuhan.</p>
+                <h4 className="font-bold text-sm text-slate-900 dark:text-[#F1F5F9]">Garansi Revisi</h4>
+                <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-1">Revisi hingga sesuai kebutuhan.</p>
               </div>
             </div>
           </div>
@@ -1347,20 +1343,20 @@ export default function App() {
       {/* ========================================================= */}
       {/* 5. TENTANG KAMI & 7 NILAI PERUSAHAAN (#about) */}
       {/* ========================================================= */}
-      <section id="about" className="py-20 bg-slate-50/80 border-t border-slate-100 scroll-mt-20">
+      <section id="about" className="py-20 bg-slate-50/80 dark:bg-[#020B18] border-t border-slate-100 dark:border-[#183247] scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-14">
-            <span className="text-xs font-bold text-[#07C995] uppercase tracking-wider bg-emerald-50 px-3.5 py-1 rounded-full border border-emerald-200/60">
-              TENTANG KAMI & BUDAYA KERJA
+            <span className="text-xs font-bold text-[#07C995] uppercase tracking-wider bg-emerald-50 dark:bg-[#06111F] px-3.5 py-1 rounded-full border border-emerald-200/60 dark:border-[#183247]">
+              TENTANG KAMI
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3">
-              7 Nilai Utama Perusahaan
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-[#F1F5F9] mt-3 tracking-tight">
+              {cmsData.settings?.brand_name || 'Rizofara Technology'}
             </h2>
-            <p className="text-slate-600 text-sm sm:text-base mt-2 font-medium">
-              Tagline: <strong className="text-slate-900 italic">“Digital roots endless possibilities”</strong>
+            <p className="text-base sm:text-lg font-bold text-[#0093E3] dark:text-[#00C4D7] mt-1.5 italic">
+              "{cmsData.settings?.tagline || 'Digital roots endless possibilities'}"
             </p>
-            <p className="text-slate-500 text-xs sm:text-sm mt-1 max-w-xl mx-auto">
-              Fondasi integritas, etos pantang menyerah, dan dedikasi teknologi yang mendasari setiap baris kode yang kami kembangkan untuk mahasiswa dan mitra bisnis.
+            <p className="text-slate-500 dark:text-[#94A3B8] text-xs sm:text-sm mt-2 max-w-xl mx-auto leading-relaxed">
+              7 Nilai inti yang menjadi fondasi integritas, etos pantang menyerah, dan dedikasi teknologi yang mendasari setiap baris kode yang kami kembangkan untuk mahasiswa dan mitra bisnis.
             </p>
           </div>
 
@@ -1371,25 +1367,25 @@ export default function App() {
               return (
                 <div
                   key={val.id || idx}
-                  className="bg-white rounded-2xl border border-slate-100 p-6 shadow-xs hover:shadow-md hover:border-[#0093E3]/40 transition group flex flex-col justify-between"
+                  className="bg-white dark:bg-[#0B1929] rounded-2xl border border-slate-100 dark:border-[#183247] p-6 shadow-xs hover:shadow-md hover:border-[#0093E3]/40 dark:hover:border-[#00C4D7]/50 transition group flex flex-col justify-between"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <div className="w-10 h-10 rounded-xl bg-slate-50 group-hover:bg-sky-50 text-[#0093E3] flex items-center justify-center transition">
+                      <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-[#06111F] group-hover:bg-sky-50 dark:group-hover:bg-[#183247] text-[#0093E3] dark:text-[#00C4D7] flex items-center justify-center transition">
                         <IconComp className="w-5 h-5" />
                       </div>
-                      <span className="font-mono text-xs font-extrabold text-slate-300 group-hover:text-[#07C995] transition">
+                      <span className="font-mono text-xs font-extrabold text-slate-300 dark:text-slate-600 group-hover:text-[#07C995] transition">
                         0{val.id || idx + 1}
                       </span>
                     </div>
-                    <h3 className="font-extrabold text-base text-slate-900 mb-2 group-hover:text-[#0093E3] transition">
+                    <h3 className="font-extrabold text-base text-slate-900 dark:text-[#F1F5F9] mb-2 group-hover:text-[#0093E3] dark:group-hover:text-[#00C4D7] transition">
                       {val.name || val.title}
                     </h3>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+                    <p className="text-xs text-slate-600 dark:text-[#94A3B8] leading-relaxed">
                       {val.desc || 'Komitmen dedikasi penuh untuk memberikan hasil terbaik dan beretika.'}
                     </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-slate-50 flex items-center gap-1.5 text-[11px] font-semibold text-[#07C995]">
+                  <div className="mt-4 pt-3 border-t border-slate-50 dark:border-[#183247] flex items-center gap-1.5 text-[11px] font-semibold text-[#07C995]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#17C455]" />
                     <span>Budaya Resmi Rizofara</span>
                   </div>
@@ -1403,18 +1399,18 @@ export default function App() {
       {/* ========================================================= */}
       {/* 6. ALUR KERJA (DARI KONSULTASI HINGGA PROJECT SELESAI) */}
       {/* ========================================================= */}
-      <section id="workflow" className="py-20 bg-white border-t border-slate-100">
+      <section id="workflow" className="py-20 bg-white dark:bg-[#020B18] border-t border-slate-100 dark:border-[#183247]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-14">
             <div>
               <span className="text-xs font-bold text-[#07C995] uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60">
                 ALUR KERJA
               </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-[#F1F5F9] mt-2">
                 Dari Konsultasi hingga Project Selesai
               </h2>
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 max-w-xs">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-[#94A3B8] max-w-xs">
               Proses mudah, transparan, dan terarah untuk hasil terbaik.
             </p>
           </div>
@@ -1456,7 +1452,7 @@ export default function App() {
             ].map((st, i) => (
               <div
                 key={st.step}
-                className="bg-slate-50/70 rounded-2xl border border-slate-100 p-6 flex flex-col justify-between hover:bg-white hover:shadow-md hover:border-slate-200 transition"
+                className="bg-slate-50/70 dark:bg-[#0B1929] rounded-2xl border border-slate-100 dark:border-[#183247] p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0B1929] hover:shadow-md hover:border-slate-200 dark:hover:border-[#00C4D7]/50 transition"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
@@ -1467,8 +1463,8 @@ export default function App() {
                       <st.icon className="w-4 h-4" />
                     </div>
                   </div>
-                  <h3 className="font-extrabold text-base text-slate-900 mb-2">{st.title}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">{st.desc}</p>
+                  <h3 className="font-extrabold text-base text-slate-900 dark:text-[#F1F5F9] mb-2">{st.title}</h3>
+                  <p className="text-xs text-slate-500 dark:text-[#94A3B8] leading-relaxed">{st.desc}</p>
                 </div>
               </div>
             ))}
@@ -1479,26 +1475,26 @@ export default function App() {
       {/* ========================================================= */}
       {/* 7. KALKULATOR ESTIMASI BIAYA PROYEK */}
       {/* ========================================================= */}
-      <section id="calculator" className="py-20 bg-slate-50/60 border-t border-slate-100">
+      <section id="calculator" className="py-20 bg-slate-50/60 dark:bg-[#020B18] border-t border-slate-100 dark:border-[#183247]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs font-bold text-[#0093E3] uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60">
               KALKULATOR ESTIMASI
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-[#F1F5F9] mt-2">
               Hitung Estimasi Biaya Proyek
             </h2>
-            <p className="text-slate-500 text-sm mt-2">
+            <p className="text-slate-500 dark:text-[#94A3B8] text-sm mt-2">
               Sesuaikan kebutuhan Anda dan dapatkan estimasi harga secara instan.
             </p>
           </div>
 
           <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Input Controls Card */}
-            <div className="lg:col-span-7 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+            <div className="lg:col-span-7 bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
               {/* 1. Pilih Jenis Layanan */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#F1F5F9] uppercase tracking-wider mb-2.5">
                   1. Pilih Jenis Layanan
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -1513,7 +1509,7 @@ export default function App() {
                       className={`py-2.5 px-3 text-center rounded-xl border text-xs font-bold transition cursor-pointer ${
                         calcService === s.slug
                           ? 'bg-[#0093E3] border-[#0093E3] text-white shadow-xs'
-                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                          : 'bg-slate-50 dark:bg-[#06111F] border-slate-200 dark:border-[#183247] text-slate-700 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#183247]'
                       }`}
                     >
                       {s.short_label}
@@ -1524,7 +1520,7 @@ export default function App() {
 
               {/* 2. Platform / Kategori */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#F1F5F9] uppercase tracking-wider mb-2.5">
                   2. Platform Sistem
                 </label>
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
@@ -1542,8 +1538,8 @@ export default function App() {
                         onClick={() => setCalcPlatform(p.code)}
                         className={`py-2 px-2 text-center rounded-xl border text-xs font-medium transition cursor-pointer ${
                           calcPlatform === p.code
-                            ? 'bg-slate-900 border-slate-900 text-white'
-                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                            ? 'bg-slate-900 dark:bg-[#00C4D7] border-slate-900 dark:border-[#00C4D7] text-white dark:text-[#020B18]'
+                            : 'bg-slate-50 dark:bg-[#06111F] border-slate-200 dark:border-[#183247] text-slate-600 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#183247]'
                         }`}
                       >
                         {p.label}
@@ -1554,7 +1550,7 @@ export default function App() {
 
               {/* 3. Tingkat Kompleksitas */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#F1F5F9] uppercase tracking-wider mb-2.5">
                   3. Tingkat Kompleksitas
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -1573,7 +1569,7 @@ export default function App() {
                         className={`py-2 px-2 text-center rounded-xl border text-xs font-medium transition cursor-pointer ${
                           calcComplexity === c.code
                             ? 'bg-[#07C995] border-[#07C995] text-white'
-                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                            : 'bg-slate-50 dark:bg-[#06111F] border-slate-200 dark:border-[#183247] text-slate-600 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#183247]'
                         }`}
                       >
                         {c.label}
@@ -1584,7 +1580,7 @@ export default function App() {
 
               {/* 4. Fitur Tambahan (Add-ons) */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-[#F1F5F9] uppercase tracking-wider mb-2.5">
                   4. Fitur Tambahan (Opsional)
                 </label>
                 <div className="space-y-2.5">
@@ -1598,7 +1594,7 @@ export default function App() {
                     .map((addon) => (
                       <label
                         key={addon.code}
-                        className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100/70 transition"
+                        className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] cursor-pointer hover:bg-slate-100/70 dark:hover:bg-[#183247] transition"
                       >
                         <div className="flex items-center gap-3">
                           <input
@@ -1608,11 +1604,11 @@ export default function App() {
                             className="w-4 h-4 rounded text-[#0093E3] border-slate-300 focus:ring-0"
                           />
                           <div>
-                            <span className="text-xs font-semibold text-slate-800">
+                            <span className="text-xs font-semibold text-slate-800 dark:text-[#F1F5F9]">
                               {addon.label}
                             </span>
                             {addon.description && (
-                              <p className="text-[11px] text-slate-500">{addon.description}</p>
+                              <p className="text-[11px] text-slate-500 dark:text-[#94A3B8]">{addon.description}</p>
                             )}
                           </div>
                         </div>
@@ -1632,7 +1628,7 @@ export default function App() {
                   <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                     5. Estimasi Waktu Pengerjaan
                   </label>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200">
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
                     {calcDays} Hari Pengerjaan ({estimateResult?.urgency_tier || 'Standar'})
                   </span>
                 </div>
@@ -1642,7 +1638,7 @@ export default function App() {
                   max={currentServiceObj?.max_days || 60}
                   value={calcDays}
                   onChange={(e) => setCalcDays(e.target.value)}
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0093E3]"
+                  className="w-full h-2 bg-slate-200 dark:bg-[#183247] rounded-lg appearance-none cursor-pointer accent-[#0093E3] dark:accent-[#00C4D7]"
                 />
                 <div className="flex justify-between text-[11px] text-slate-400 mt-1 font-medium">
                   <span>Min {currentServiceObj?.min_days || 1} Hari</span>
@@ -1653,7 +1649,7 @@ export default function App() {
             </div>
 
             {/* Estimation Summary Box */}
-            <div className="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-5">
+            <div className="lg:col-span-5 bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-3xl p-6 sm:p-8 shadow-sm space-y-5">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Rincian Estimasi
@@ -1688,7 +1684,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-600 space-y-1">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-100 dark:border-[#183247] text-xs text-slate-600 dark:text-[#94A3B8] space-y-1">
                 <div className="flex justify-between items-center">
                   <span>Rekomendasi DP (40%):</span>
                   <span className="font-extrabold text-[#07C995] font-mono">
@@ -1716,7 +1712,7 @@ export default function App() {
                       `Kalkulator ${currentServiceObj?.name} (Estimasi Rp ${estimateResult?.estimated_min_price?.toLocaleString('id-ID')})`
                     )
                   }
-                  className="w-full py-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
+                  className="w-full py-3 rounded-xl bg-white dark:bg-[#06111F] hover:bg-slate-50 dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-slate-800 dark:text-[#F1F5F9] font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
                 >
                   <MessageSquare className="w-4 h-4 text-emerald-600" />
                   <span>Konsultasi via WhatsApp</span>
@@ -1730,16 +1726,16 @@ export default function App() {
       {/* ========================================================= */}
       {/* 8. CEK STATUS & PROGRES BAB PENGERJAAN (#tracking) */}
       {/* ========================================================= */}
-      <section id="tracking" className="py-20 bg-white border-t border-slate-100">
+      <section id="tracking" className="py-20 bg-white dark:bg-[#020B18] border-t border-slate-100 dark:border-[#183247]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <span className="text-xs font-bold text-[#0093E3] uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60">
               CEK PROGRES
             </span>
-            <h2 className="text-3xl font-extrabold text-slate-900 mt-2">
+            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-[#F1F5F9] mt-2">
               Cek Status & Progres Bab Pengerjaan
             </h2>
-            <p className="text-slate-500 text-xs sm:text-sm mt-2 max-w-xl mx-auto">
+            <p className="text-slate-500 dark:text-[#94A3B8] text-xs sm:text-sm mt-2 max-w-xl mx-auto">
               Masukkan kode order untuk melihat detail progres, catatan revisi, dan estimasi waktu selesai.
             </p>
           </div>
@@ -1756,7 +1752,7 @@ export default function App() {
                 value={trackQuery}
                 onChange={(e) => setTrackQuery(e.target.value)}
                 placeholder="Contoh: RZ-2610-SKR1"
-                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0093E3] transition shadow-xs"
+                className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-xl text-xs sm:text-sm text-slate-800 dark:text-[#F1F5F9] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-[#0093E3] transition shadow-xs"
               />
             </div>
             <input
@@ -1765,7 +1761,7 @@ export default function App() {
               value={trackWaLast4}
               onChange={(e) => setTrackWaLast4(e.target.value.replace(/\D/g, ''))}
               placeholder="4 Digit WA"
-              className="w-full sm:w-32 px-3 py-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0093E3] transition text-center font-mono shadow-xs"
+              className="w-full sm:w-32 px-3 py-3 bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-xl text-xs sm:text-sm text-slate-800 dark:text-[#F1F5F9] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-[#0093E3] transition text-center font-mono shadow-xs"
             />
             <button
               type="submit"
@@ -1805,7 +1801,7 @@ export default function App() {
                     setTrackLoading(false);
                   }
                 }}
-                className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-[#0093E3] font-mono font-semibold transition cursor-pointer"
+                className="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-[#0B1929] hover:bg-slate-100 dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-[#0093E3] dark:text-[#00C4D7] font-mono font-semibold transition cursor-pointer"
               >
                 {sample.code}
               </button>
@@ -1826,7 +1822,7 @@ export default function App() {
               {trackResults.map((order, idx) => (
                 <div
                   key={idx}
-                  className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-md"
+                  className="bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-3xl p-6 sm:p-8 shadow-md"
                 >
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-slate-100">
                     <div>
@@ -1838,7 +1834,7 @@ export default function App() {
                           {order.service_type}
                         </span>
                       </div>
-                      <h3 className="font-extrabold text-lg text-slate-900 mt-2">{order.title}</h3>
+                      <h3 className="font-extrabold text-lg text-slate-900 dark:text-[#F1F5F9] mt-2">{order.title}</h3>
                       <p className="text-xs text-slate-500">
                         Pemesan: <strong className="text-slate-800">{order.client_name}</strong> • Deadline:{' '}
                         {order.deadline}
@@ -1854,13 +1850,13 @@ export default function App() {
                   </div>
 
                   {/* Highlight Box: Sedang Mengerjakan Bab Berapa */}
-                  <div className="mt-5 p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex items-start gap-3">
+                  <div className="mt-5 p-4 rounded-2xl bg-emerald-50/80 dark:bg-[#06111F] border border-emerald-200 dark:border-[#183247] flex items-start gap-3">
                     <BookOpen className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                     <div className="flex-1">
                       <div className="text-[11px] uppercase font-extrabold tracking-wider text-emerald-800">
                         Sedang Mengerjakan Bab / Tahapan Berapa Saat Ini:
                       </div>
-                      <div className="text-sm font-bold text-emerald-950 mt-1 leading-relaxed">
+                      <div className="text-sm font-bold text-emerald-950 dark:text-[#07C995] mt-1 leading-relaxed">
                         {order.current_stage ||
                           'Proyek sedang dalam tahap pengerjaan aktif oleh tim teknis.'}
                       </div>
@@ -1922,8 +1918,8 @@ export default function App() {
                             key={i}
                             className={`p-3 rounded-xl border flex items-center gap-2.5 text-xs ${
                               m.is_completed
-                                ? 'bg-emerald-50/60 border-emerald-200 text-emerald-900'
-                                : 'bg-slate-50 border-slate-100 text-slate-600'
+                                ? 'bg-emerald-50/60 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/50 text-emerald-900 dark:text-[#07C995]'
+                                : 'bg-slate-50 dark:bg-[#06111F] border-slate-100 dark:border-[#183247] text-slate-600 dark:text-[#94A3B8]'
                             }`}
                           >
                             <CheckCircle2
@@ -1981,14 +1977,14 @@ export default function App() {
       {/* ========================================================= */}
       {/* 9. PORTOFOLIO & STUDI KASUS (#portfolio) */}
       {/* ========================================================= */}
-      <section id="portfolio" className="py-20 bg-slate-50/70 border-t border-slate-100">
+      <section id="portfolio" className="py-20 bg-slate-50/70 dark:bg-[#020B18] border-t border-slate-100 dark:border-[#183247]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-10">
             <div>
               <span className="text-xs font-bold text-[#0093E3] uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60">
                 PORTOFOLIO & STUDI KASUS
               </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-[#F1F5F9] mt-2">
                 Hasil Implementasi Sistem
               </h2>
               <p className="text-slate-500 text-xs sm:text-sm mt-1">
@@ -2003,8 +1999,8 @@ export default function App() {
                   onClick={() => setPortfolioCategory(cat)}
                   className={`px-3 py-1.5 rounded-xl border transition cursor-pointer ${
                     portfolioCategory === cat
-                      ? 'bg-slate-900 border-slate-900 text-white'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
+                      ? 'bg-slate-900 dark:bg-[#00C4D7] border-slate-900 dark:border-[#00C4D7] text-white dark:text-[#020B18]'
+                      : 'bg-white dark:bg-[#0B1929] border-slate-200 dark:border-[#183247] text-slate-600 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#183247]'
                   }`}
                 >
                   {cat}
@@ -2014,19 +2010,41 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {(showcaseData.portfolio_items || [])
-              .filter(
+            {(() => {
+              const filteredPortfolios = (showcaseData.portfolio_items || []).filter(
                 (item) =>
                   portfolioCategory === 'Semua' ||
                   item.category?.toLowerCase().includes(portfolioCategory.toLowerCase())
-              )
-              .map((item, idx) => (
+              );
+
+              if (filteredPortfolios.length === 0) {
+                return (
+                  <div className="col-span-full py-16 px-6 text-center bg-white rounded-3xl border border-slate-200/80 shadow-xs flex flex-col items-center justify-center">
+                    <div className="w-14 h-14 rounded-2xl bg-sky-50 text-[#0093E3] flex items-center justify-center mb-3.5">
+                      <Laptop className="w-7 h-7" />
+                    </div>
+                    <h3 className="text-base font-extrabold text-slate-900">Belum Ada Portofolio untuk Kategori Ini</h3>
+                    <p className="text-xs text-slate-500 max-w-md mt-1 leading-relaxed">
+                      Portofolio untuk kategori <strong>"{portfolioCategory}"</strong> sedang dalam tahap kurasi dan pengujian atau Anda dapat melihat seluruh portofolio kami.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setPortfolioCategory('Semua')}
+                      className="mt-4 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition cursor-pointer"
+                    >
+                      Tampilkan Semua Portofolio
+                    </button>
+                  </div>
+                );
+              }
+
+              return filteredPortfolios.map((item, idx) => (
                 <div
                   key={item.id || idx}
-                  className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 transition flex flex-col justify-between"
+                  className="bg-white dark:bg-[#0B1929] rounded-2xl border border-slate-100 dark:border-[#183247] overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-[#00C4D7]/50 transition flex flex-col justify-between"
                 >
                   {/* Mock Screenshot Banner */}
-                  <div className="h-36 bg-gradient-to-br from-slate-100 via-sky-50 to-emerald-50 p-4 flex flex-col justify-between border-b border-slate-100">
+                  <div className="h-36 bg-gradient-to-br from-slate-100 dark:from-[#06111F] via-sky-50 dark:via-[#0B1929] to-emerald-50 dark:to-[#06111F] p-4 flex flex-col justify-between border-b border-slate-100 dark:border-[#183247]">
                     <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white/90 text-slate-700 w-max shadow-xs">
                       {item.category}
                     </span>
@@ -2037,10 +2055,10 @@ export default function App() {
 
                   <div className="p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      <h3 className="font-extrabold text-sm text-slate-900 mb-2 leading-snug">
+                      <h3 className="font-extrabold text-sm text-slate-900 dark:text-[#F1F5F9] mb-2 leading-snug">
                         {item.title}
                       </h3>
-                      <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                      <p className="text-xs text-slate-500 dark:text-[#94A3B8] leading-relaxed mb-4">
                         {item.summary}
                       </p>
                     </div>
@@ -2050,7 +2068,7 @@ export default function App() {
                         {(item.tech_tags || []).slice(0, 3).map((tag, tIdx) => (
                           <span
                             key={tIdx}
-                            className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-mono"
+                            className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-[#06111F] text-slate-600 dark:text-[#94A3B8] font-mono"
                           >
                             {tag}
                           </span>
@@ -2060,7 +2078,8 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-              ))}
+              ));
+            })()}
           </div>
         </div>
       </section>
@@ -2068,14 +2087,14 @@ export default function App() {
       {/* ========================================================= */}
       {/* 10. TESTIMONI KLIEN (#testimonials) */}
       {/* ========================================================= */}
-      <section id="testimonials" className="py-20 bg-white border-t border-slate-100">
+      <section id="testimonials" className="py-20 bg-white dark:bg-[#020B18] border-t border-slate-100 dark:border-[#183247]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12">
             <div>
               <span className="text-xs font-bold text-[#07C995] uppercase tracking-wider bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60">
                 TESTIMONI KLIEN
               </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2">
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-[#F1F5F9] mt-2">
                 Apa kata mereka tentang kami?
               </h2>
             </div>
@@ -2091,7 +2110,7 @@ export default function App() {
             {(showcaseData.testimonials || []).map((testi, idx) => (
               <div
                 key={testi.id || idx}
-                className="bg-slate-50/70 rounded-2xl border border-slate-100 p-6 flex flex-col justify-between hover:bg-white hover:shadow-md hover:border-slate-200 transition"
+                className="bg-slate-50/70 dark:bg-[#0B1929] rounded-2xl border border-slate-100 dark:border-[#183247] p-6 flex flex-col justify-between hover:bg-white dark:hover:bg-[#0B1929] hover:shadow-md hover:border-slate-200 dark:hover:border-[#00C4D7]/50 transition"
               >
                 <div>
                   <div className="flex items-center gap-1 text-amber-400 mb-3">
@@ -2099,7 +2118,7 @@ export default function App() {
                       <Star key={sIdx} className="w-4 h-4 fill-amber-400" />
                     ))}
                   </div>
-                  <p className="text-xs text-slate-600 leading-relaxed mb-6 italic">
+                  <p className="text-xs text-slate-600 dark:text-[#94A3B8] leading-relaxed mb-6 italic">
                     "{testi.comment}"
                   </p>
                 </div>
@@ -2113,8 +2132,8 @@ export default function App() {
                     {testi.avatar_initials || 'KL'}
                   </div>
                   <div>
-                    <h4 className="font-bold text-xs text-slate-900">{testi.client_name}</h4>
-                    <p className="text-[11px] text-slate-500">{testi.client_role}</p>
+                    <h4 className="font-bold text-xs text-slate-900 dark:text-[#F1F5F9]">{testi.client_name}</h4>
+                    <p className="text-[11px] text-slate-500 dark:text-[#94A3B8]">{testi.client_role}</p>
                   </div>
                 </div>
               </div>
@@ -2126,14 +2145,14 @@ export default function App() {
       {/* ========================================================= */}
       {/* 11. FAQ ACCORDION (#faq) */}
       {/* ========================================================= */}
-      <section id="faq" className="py-20 bg-slate-50/60 border-t border-slate-100">
+      <section id="faq" className="py-20 bg-slate-50/60 dark:bg-[#020B18] border-t border-slate-100 dark:border-[#183247]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="text-xs font-bold text-[#0093E3] uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60">
               FAQ
             </span>
-            <h2 className="text-3xl font-extrabold text-slate-900 mt-2">Pertanyaan Umum</h2>
-            <p className="text-slate-500 text-xs sm:text-sm mt-2">
+            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-[#F1F5F9] mt-2">Pertanyaan Umum</h2>
+            <p className="text-slate-500 dark:text-[#94A3B8] text-xs sm:text-sm mt-2">
               Jawaban untuk pertanyaan yang paling sering ditanyakan seputar pengerjaan.
             </p>
           </div>
@@ -2145,10 +2164,10 @@ export default function App() {
                 <div
                   key={faq.id || idx}
                   onClick={() => setOpenFaqId(isExpanded ? null : (faq.id || idx))}
-                  className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs cursor-pointer hover:border-[#0093E3]/40 transition"
+                  className="p-5 rounded-2xl bg-white dark:bg-[#0B1929] border border-slate-200/80 dark:border-[#183247] shadow-xs cursor-pointer hover:border-[#0093E3]/40 dark:hover:border-[#00C4D7]/50 transition"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <h4 className="font-bold text-xs sm:text-sm text-slate-900 leading-snug">
+                    <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-[#F1F5F9] leading-snug">
                       {faq.question}
                     </h4>
                     <ChevronDown
@@ -2157,7 +2176,7 @@ export default function App() {
                       }`}
                     />
                   </div>
-                  <p className="text-xs text-slate-500 mt-2.5 leading-relaxed">{faq.answer}</p>
+                  <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-2.5 leading-relaxed">{faq.answer}</p>
                 </div>
               );
             })}
@@ -2168,12 +2187,12 @@ export default function App() {
       {/* ========================================================= */}
       {/* 12. FOOTER RESMI (LIGHT MODE) */}
       {/* ========================================================= */}
-      <footer className="mt-auto border-t border-slate-100 bg-white py-12">
+      <footer className="mt-auto border-t border-slate-100 dark:border-[#183247] bg-white dark:bg-[#06111F] py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-slate-500">
           <div className="flex items-center gap-3">
             <RizofaraBrandLogo className="w-8 h-8 shrink-0" />
             <div>
-              <span className="font-extrabold text-sm text-slate-900 block">
+              <span className="font-extrabold text-sm text-slate-900 dark:text-[#F1F5F9] block">
                 {cmsData.settings?.brand_name || 'Rizofara Technology'}
               </span>
               <span className="text-slate-500 text-[11px]">
@@ -2183,7 +2202,7 @@ export default function App() {
           </div>
 
           {/* Footer Nav Links */}
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-slate-600">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-medium text-slate-600 dark:text-[#94A3B8]">
             <a href="#home" className="hover:text-[#0093E3] transition">
               Beranda
             </a>
@@ -2204,6 +2223,36 @@ export default function App() {
             </a>
           </div>
 
+          {/* Media Sosial Resmi */}
+          <div className="flex items-center gap-2.5">
+            <a
+              href="https://www.tiktok.com/@rizofaratechnology"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#0B1929] hover:bg-slate-100 dark:hover:bg-[#183247] text-slate-700 dark:text-[#F1F5F9] hover:text-black border border-slate-200/80 dark:border-[#183247] transition text-xs font-semibold"
+              title="TikTok Rizofara Technology"
+            >
+              <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.81a8.23 8.23 0 0 0 4.76 1.5V6.87a4.83 4.83 0 0 1-1-.18z"/>
+              </svg>
+              <span>TikTok</span>
+            </a>
+            <a
+              href="https://www.instagram.com/rizofaratechnology/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#0B1929] hover:bg-slate-100 dark:hover:bg-[#183247] text-slate-700 dark:text-[#F1F5F9] hover:text-pink-600 border border-slate-200/80 dark:border-[#183247] transition text-xs font-semibold"
+              title="Instagram Rizofara Technology"
+            >
+              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+              <span>Instagram</span>
+            </a>
+          </div>
+
           <div>
             <span>
               © {new Date().getFullYear()} {cmsData.settings?.brand_name || 'Rizofara Technology'}. All
@@ -2218,11 +2267,11 @@ export default function App() {
       {/* ========================================================= */}
       {isOrderModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+          <div className="bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Header Sticky dengan Tombol X Permanen di Atas */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 dark:border-[#183247] flex items-center justify-between shrink-0">
               <div>
-                <h3 className="font-extrabold text-base sm:text-lg text-slate-900">
+                <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-[#F1F5F9]">
                   {orderSuccessData ? 'Order Berhasil Dibuat' : 'Form Pengajuan Order'}
                 </h3>
                 <p className="text-xs text-slate-500">
@@ -2235,7 +2284,7 @@ export default function App() {
                   setIsOrderModalOpen(false);
                   setOrderSuccessData(null);
                 }}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                className="p-2 rounded-xl bg-slate-100 dark:bg-[#06111F] hover:bg-slate-200 dark:hover:bg-[#183247] text-slate-600 dark:text-[#F1F5F9] hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
                 aria-label="Tutup"
               >
                 <X className="w-5 h-5" />
@@ -2274,7 +2323,7 @@ export default function App() {
               ) : (
                 <form onSubmit={handleOrderSubmit} className="space-y-4 text-xs">
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1">
+                    <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                       Nama Lengkap / Panggilan *
                     </label>
                     <input
@@ -2285,12 +2334,12 @@ export default function App() {
                         setOrderForm({ ...orderForm, client_name: e.target.value })
                       }
                       placeholder="Contoh: Budi Santoso"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8] focus:outline-none focus:border-[#0093E3]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1">
+                    <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                       Nomor WhatsApp Aktif *
                     </label>
                     <input
@@ -2301,20 +2350,20 @@ export default function App() {
                         setOrderForm({ ...orderForm, client_whatsapp: e.target.value })
                       }
                       placeholder="Contoh: 085692390483"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8] focus:outline-none focus:border-[#0093E3]"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-slate-700 font-semibold mb-1">Layanan *</label>
+                      <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Layanan *</label>
                       <select
                         value={orderForm.service_type}
                         onChange={(e) => {
                           setOrderForm({ ...orderForm, service_type: e.target.value });
                           setCalcService(e.target.value);
                         }}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8] focus:outline-none focus:border-[#0093E3]"
                       >
                         {pricingConfig.services.map((s) => (
                           <option key={s.slug} value={s.slug}>
@@ -2324,7 +2373,7 @@ export default function App() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-slate-700 font-semibold mb-1">
+                      <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                         Target Deadline *
                       </label>
                       <input
@@ -2333,13 +2382,13 @@ export default function App() {
                         value={orderForm.deadline}
                         onChange={(e) => setOrderForm({ ...orderForm, deadline: e.target.value })}
                         placeholder="Contoh: 14 Hari"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8] focus:outline-none focus:border-[#0093E3]"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1">
+                    <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                       Judul / Topik Proyek *
                     </label>
                     <input
@@ -2348,12 +2397,12 @@ export default function App() {
                       value={orderForm.title}
                       onChange={(e) => setOrderForm({ ...orderForm, title: e.target.value })}
                       placeholder="Contoh: Sistem Klasifikasi Citra CNN & Web Dashboard"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8] focus:outline-none focus:border-[#0093E3]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1">
+                    <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                       Deskripsi & Kebutuhan Spesifik *
                     </label>
                     <textarea
@@ -2364,12 +2413,12 @@ export default function App() {
                         setOrderForm({ ...orderForm, description: e.target.value })
                       }
                       placeholder="Jelaskan fitur utama, algoritma/metode, dan bahasa pemrograman yang dibutuhkan..."
-                      className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-[#0093E3]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8] focus:outline-none focus:border-[#0093E3]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1">
+                    <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                       Unggah Panduan / Dokumen (Opsional)
                     </label>
                     <input
@@ -2400,11 +2449,11 @@ export default function App() {
       {/* ========================================================= */}
       {revisionCode && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+          <div className="bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Header Sticky dengan Tombol X Permanen di Atas */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 dark:border-[#183247] flex items-center justify-between shrink-0">
               <div>
-                <h3 className="font-extrabold text-base sm:text-lg text-slate-900">Ajukan Catatan Revisi</h3>
+                <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-[#F1F5F9]">Ajukan Catatan Revisi</h3>
                 <p className="text-xs text-slate-500">
                   Kode Order: <span className="text-[#0093E3] font-mono font-bold">{revisionCode}</span>
                 </p>
@@ -2412,7 +2461,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setRevisionCode('')}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                className="p-2 rounded-xl bg-slate-100 dark:bg-[#06111F] hover:bg-slate-200 dark:hover:bg-[#183247] text-slate-600 dark:text-[#F1F5F9] hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
                 aria-label="Tutup"
               >
                 <X className="w-5 h-5" />
@@ -2428,7 +2477,7 @@ export default function App() {
               ) : (
                 <form onSubmit={handleRevisionSubmit} className="space-y-4 text-xs">
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1">
+                    <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                       Poin-poin Perbaikan:
                     </label>
                     <textarea
@@ -2437,7 +2486,7 @@ export default function App() {
                       value={revisionNotes}
                       onChange={(e) => setRevisionNotes(e.target.value)}
                       placeholder="Tuliskan rincian perbaikan bab atau fungsi program di sini..."
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-none focus:border-amber-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8] focus:outline-none focus:border-amber-500"
                     />
                   </div>
                   <button
@@ -2459,9 +2508,9 @@ export default function App() {
       {/* ========================================================= */}
       {clientTestiModal && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+          <div className="bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Header Sticky dengan Tombol X Permanen di Atas */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 dark:border-[#183247] flex items-center justify-between shrink-0">
               <div>
                 <div className="flex items-center gap-1.5 text-[#07C995] text-[11px] font-bold">
                   <ShieldCheck className="w-3.5 h-3.5" />
@@ -2474,7 +2523,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setClientTestiModal(null)}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                className="p-2 rounded-xl bg-slate-100 dark:bg-[#06111F] hover:bg-slate-200 dark:hover:bg-[#183247] text-slate-600 dark:text-[#F1F5F9] hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
                 aria-label="Tutup"
               >
                 <X className="w-5 h-5" />
@@ -2510,7 +2559,7 @@ export default function App() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-slate-700 font-semibold mb-1">Kode Order *</label>
+                      <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Kode Order *</label>
                       <input
                         type="text"
                         required
@@ -2522,11 +2571,11 @@ export default function App() {
                             order_code: e.target.value.toUpperCase(),
                           })
                         }
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-[#0093E3] font-mono"
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-[#0093E3] dark:text-[#00C4D7] font-mono"
                       />
                     </div>
                     <div>
-                      <label className="block text-slate-700 font-semibold mb-1">
+                      <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                         4 Digit Terakhir WA *
                       </label>
                       <input
@@ -2541,14 +2590,14 @@ export default function App() {
                             wa_last4: e.target.value.replace(/\D/g, ''),
                           })
                         }
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-mono"
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] font-mono"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-slate-700 font-semibold mb-1">
+                      <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                         Nama Tampilan *
                       </label>
                       <input
@@ -2559,11 +2608,11 @@ export default function App() {
                         onChange={(e) =>
                           setClientTestiModal({ ...clientTestiModal, client_name: e.target.value })
                         }
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8]"
                       />
                     </div>
                     <div>
-                      <label className="block text-slate-700 font-semibold mb-1">
+                      <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                         Status / Instansi *
                       </label>
                       <input
@@ -2574,14 +2623,14 @@ export default function App() {
                         onChange={(e) =>
                           setClientTestiModal({ ...clientTestiModal, client_role: e.target.value })
                         }
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8]"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-slate-700 font-semibold mb-1">
+                      <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                         Rating Kepuasan *
                       </label>
                       <select
@@ -2592,7 +2641,7 @@ export default function App() {
                             rating: Number(e.target.value),
                           })
                         }
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-semibold"
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] font-semibold"
                       >
                         <option value={5}>5 / 5 - Sangat Puas</option>
                         <option value={4}>4 / 5 - Puas</option>
@@ -2600,7 +2649,7 @@ export default function App() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-slate-700 font-semibold mb-1">
+                      <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                         Label Highlight Singkat
                       </label>
                       <input
@@ -2610,13 +2659,13 @@ export default function App() {
                         onChange={(e) =>
                           setClientTestiModal({ ...clientTestiModal, tag: e.target.value })
                         }
-                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                        className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8]"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-slate-700 font-semibold mb-1">
+                    <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                       Komentar & Pengalaman Anda *
                     </label>
                     <textarea
@@ -2628,7 +2677,7 @@ export default function App() {
                       onChange={(e) =>
                         setClientTestiModal({ ...clientTestiModal, comment: e.target.value })
                       }
-                      className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900"
+                      className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8]"
                     />
                   </div>
 

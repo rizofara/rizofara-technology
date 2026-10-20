@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import ConfirmModal from './ConfirmModal';
 import {
   Settings,
   HelpCircle,
@@ -35,6 +36,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
   const [backups, setBackups] = useState([]);
   const [backupLoading, setBackupLoading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
 
   // Modal States
   const [faqModal, setFaqModal] = useState(null);
@@ -152,16 +154,25 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
     }
   };
 
-  const handleDeleteFaq = async (id) => {
-    if (!window.confirm('Hapus item FAQ ini?')) return;
-    try {
-      await axios.delete(`${API_BASE}/cms/faqs/${id}`, authHeaders);
-      showToast('success', 'FAQ dihapus.');
-      fetchCmsAdminData();
-      if (onCmsUpdated) onCmsUpdated();
-    } catch (err) {
-      showToast('error', 'Gagal menghapus FAQ.');
-    }
+  const handleDeleteFaq = (id) => {
+    setDeleteConfirm({
+      isOpen: true,
+      title: 'Hapus Item FAQ',
+      message: 'Apakah Anda yakin ingin menghapus pertanyaan FAQ ini dari beranda?',
+      onConfirm: async () => {
+        setDeleteConfirm((prev) => ({ ...prev, loading: true }));
+        try {
+          await axios.delete(`${API_BASE}/cms/faqs/${id}`, authHeaders);
+          showToast('success', 'FAQ berhasil dihapus.');
+          fetchCmsAdminData();
+          if (onCmsUpdated) onCmsUpdated();
+        } catch (err) {
+          showToast('error', 'Gagal menghapus FAQ.');
+        } finally {
+          setDeleteConfirm({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
+        }
+      },
+    });
   };
 
   // =====================================================
@@ -201,24 +212,33 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
     }
   };
 
-  const handleDeleteTech = async (id) => {
-    if (!window.confirm('Hapus item Tech Stack ini?')) return;
-    try {
-      await axios.delete(`${API_BASE}/cms/tech-stacks/${id}`, authHeaders);
-      showToast('success', 'Tech Stack dihapus.');
-      fetchCmsAdminData();
-      if (onCmsUpdated) onCmsUpdated();
-    } catch (err) {
-      showToast('error', 'Gagal menghapus Tech Stack.');
-    }
+  const handleDeleteTech = (id) => {
+    setDeleteConfirm({
+      isOpen: true,
+      title: 'Hapus Item Tech Stack',
+      message: 'Apakah Anda yakin ingin menghapus teknologi ini dari daftar tech stack?',
+      onConfirm: async () => {
+        setDeleteConfirm((prev) => ({ ...prev, loading: true }));
+        try {
+          await axios.delete(`${API_BASE}/cms/tech-stacks/${id}`, authHeaders);
+          showToast('success', 'Tech Stack berhasil dihapus.');
+          fetchCmsAdminData();
+          if (onCmsUpdated) onCmsUpdated();
+        } catch (err) {
+          showToast('error', 'Gagal menghapus Tech Stack.');
+        } finally {
+          setDeleteConfirm({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
+        }
+      },
+    });
   };
 
   return (
     <div className="space-y-6">
       {/* Header & Sub-Tab */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl p-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-2xl p-5">
         <div>
-          <h3 className="text-lg font-extrabold text-slate-900">
+          <h3 className="text-lg font-extrabold text-slate-900 dark:text-[#F1F5F9]">
             Pengaturan Identitas Bisnis, FAQ & Tech Stack
           </h3>
           <p className="text-xs text-slate-500 mt-1">
@@ -231,8 +251,8 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
             onClick={() => setSubTab('settings')}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
               subTab === 'settings'
-                ? 'bg-teal-500 text-slate-950 shadow-lg shadow-teal-500/20'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                ? 'bg-gradient-to-r from-[#07C995] to-[#00C4D7] text-slate-950 font-extrabold shadow-md shadow-teal-500/20'
+                : 'bg-slate-100 dark:bg-[#06111F] text-slate-700 dark:text-[#94A3B8] border border-slate-200 dark:border-[#183247] hover:bg-slate-200 dark:hover:bg-[#183247] dark:hover:text-[#F1F5F9]'
             }`}
           >
             <Settings className="w-4 h-4" />
@@ -243,8 +263,8 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
             onClick={() => setSubTab('faqs')}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
               subTab === 'faqs'
-                ? 'bg-teal-500 text-slate-950 shadow-lg shadow-teal-500/20'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                ? 'bg-gradient-to-r from-[#07C995] to-[#00C4D7] text-slate-950 font-extrabold shadow-md shadow-teal-500/20'
+                : 'bg-slate-100 dark:bg-[#06111F] text-slate-700 dark:text-[#94A3B8] border border-slate-200 dark:border-[#183247] hover:bg-slate-200 dark:hover:bg-[#183247] dark:hover:text-[#F1F5F9]'
             }`}
           >
             <HelpCircle className="w-4 h-4" />
@@ -255,8 +275,8 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
             onClick={() => setSubTab('techs')}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition ${
               subTab === 'techs'
-                ? 'bg-teal-500 text-slate-950 shadow-lg shadow-teal-500/20'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                ? 'bg-gradient-to-r from-[#07C995] to-[#00C4D7] text-slate-950 font-extrabold shadow-md shadow-teal-500/20'
+                : 'bg-slate-100 dark:bg-[#06111F] text-slate-700 dark:text-[#94A3B8] border border-slate-200 dark:border-[#183247] hover:bg-slate-200 dark:hover:bg-[#183247] dark:hover:text-[#F1F5F9]'
             }`}
           >
             <Code2 className="w-4 h-4" />
@@ -269,7 +289,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
           SUB-TAB 1: PROFIL BISNIS & HERO SETTINGS (M2.A)
           ===================================================== */}
       {subTab === 'settings' && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        <div className="bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-2xl p-6">
           {adminRole !== 'superadmin' && (
             <div className="mb-5 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 shrink-0" />
@@ -282,7 +302,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
           <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                   Nama Brand Utama *
                 </label>
                 <input
@@ -292,11 +312,11 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                   onChange={(e) =>
                     setSettingsForm({ ...settingsForm, brand_name: e.target.value })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                   Tagline / Slogan Header *
                 </label>
                 <input
@@ -306,11 +326,11 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                   onChange={(e) =>
                     setSettingsForm({ ...settingsForm, tagline: e.target.value })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                   Nomor WhatsApp Utama (Otomatis 628xx) *
                 </label>
                 <input
@@ -326,7 +346,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
             </div>
 
             <div>
-              <label className="block text-slate-700 font-semibold mb-1">
+              <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                 Lencana Atas Hero (Hero Badge)
               </label>
               <input
@@ -335,13 +355,13 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                 onChange={(e) =>
                   setSettingsForm({ ...settingsForm, hero_badge: e.target.value })
                 }
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                   Judul Hero (Teks Putih)
                 </label>
                 <input
@@ -350,11 +370,11 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                   onChange={(e) =>
                     setSettingsForm({ ...settingsForm, hero_title: e.target.value })
                   }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                   Judul Hero Highlight (Teks Gradien)
                 </label>
                 <input
@@ -369,7 +389,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
             </div>
 
             <div>
-              <label className="block text-slate-700 font-semibold mb-1">
+              <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                 Paragraf Sub-Judul Hero
               </label>
               <textarea
@@ -378,12 +398,12 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                 onChange={(e) =>
                   setSettingsForm({ ...settingsForm, hero_subtitle: e.target.value })
                 }
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
               />
             </div>
 
             <div>
-              <label className="block text-slate-700 font-semibold mb-1">
+              <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                 Info Metode Pembayaran / Rekening Resmi
               </label>
               <input
@@ -392,7 +412,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                 onChange={(e) =>
                   setSettingsForm({ ...settingsForm, payment_bank_info: e.target.value })
                 }
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
               />
             </div>
 
@@ -413,7 +433,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
             <div className="mt-8 pt-6 border-t border-slate-200">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
-                  <h4 className="font-bold text-slate-900 text-sm">
+                  <h4 className="font-bold text-slate-900 dark:text-[#F1F5F9] text-sm">
                     Cadangan Database (Hot-Backup SQLite)
                   </h4>
                   <p className="text-xs text-slate-500">
@@ -465,10 +485,10 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
           SUB-TAB 2: CRUD FAQ (Modul M11)
           ===================================================== */}
       {subTab === 'faqs' && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        <div className="bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-2xl p-6">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h4 className="font-bold text-slate-900 text-sm">Daftar Pertanyaan Umum (FAQ)</h4>
+              <h4 className="font-bold text-slate-900 dark:text-[#F1F5F9] text-sm">Daftar Pertanyaan Umum (FAQ)</h4>
               <p className="text-xs text-slate-500">
                 Kelola pertanyaan & jawaban yang tampil di bagian bawah landing page.
               </p>
@@ -493,7 +513,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                     <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-teal-500/10 text-teal-400 border border-emerald-200">
                       {f.category}
                     </span>
-                    <span className="font-bold text-xs text-slate-900">{f.question}</span>
+                    <span className="font-bold text-xs text-slate-900 dark:text-[#F1F5F9]">{f.question}</span>
                   </div>
                   <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">{f.answer}</p>
                 </div>
@@ -521,10 +541,10 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
           SUB-TAB 3: CRUD TECH STACK (Modul M11)
           ===================================================== */}
       {subTab === 'techs' && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        <div className="bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-2xl p-6">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h4 className="font-bold text-slate-900 text-sm">Badge Bahasa Pemrograman & Tools</h4>
+              <h4 className="font-bold text-slate-900 dark:text-[#F1F5F9] text-sm">Badge Bahasa Pemrograman & Tools</h4>
               <p className="text-xs text-slate-500">
                 Daftar keahlian teknologi yang tampil di pita bawah Hero.
               </p>
@@ -580,9 +600,9 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Header Sticky dengan Tombol X Permanen di Atas */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 dark:border-[#183247] flex items-center justify-between shrink-0">
               <div>
-                <h4 className="font-extrabold text-base sm:text-lg text-slate-900">
+                <h4 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-[#F1F5F9]">
                   {faqModal.isEdit ? 'Edit Pertanyaan FAQ' : 'Tambah Pertanyaan FAQ'}
                 </h4>
                 <p className="text-xs text-slate-500">
@@ -592,7 +612,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
               <button
                 type="button"
                 onClick={() => setFaqModal(null)}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 dark:text-[#F1F5F9] transition cursor-pointer shrink-0 ml-3 shadow-xs"
                 aria-label="Tutup modal"
               >
                 <X className="w-5 h-5" />
@@ -608,7 +628,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                   required
                   value={faqModal.question}
                   onChange={(e) => setFaqModal({ ...faqModal, question: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
               <div>
@@ -618,7 +638,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                   required
                   value={faqModal.answer}
                   onChange={(e) => setFaqModal({ ...faqModal, answer: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -627,7 +647,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                   <select
                     value={faqModal.category}
                     onChange={(e) => setFaqModal({ ...faqModal, category: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   >
                     <option value="umum">Umum</option>
                     <option value="pembayaran">Pembayaran</option>
@@ -643,7 +663,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                     onChange={(e) =>
                       setFaqModal({ ...faqModal, display_order: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
@@ -673,9 +693,9 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Header Sticky dengan Tombol X Permanen di Atas */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 dark:border-[#183247] flex items-center justify-between shrink-0">
               <div>
-                <h4 className="font-extrabold text-base sm:text-lg text-slate-900">
+                <h4 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-[#F1F5F9]">
                   {techModal.isEdit ? 'Edit Tech Stack' : 'Tambah Tech Stack'}
                 </h4>
                 <p className="text-xs text-slate-500">
@@ -685,7 +705,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
               <button
                 type="button"
                 onClick={() => setTechModal(null)}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 dark:text-[#F1F5F9] transition cursor-pointer shrink-0 ml-3 shadow-xs"
                 aria-label="Tutup modal"
               >
                 <X className="w-5 h-5" />
@@ -703,7 +723,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                     placeholder="PY"
                     value={techModal.emoji}
                     onChange={(e) => setTechModal({ ...techModal, emoji: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500 text-center font-mono uppercase"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500 text-center font-mono uppercase"
                   />
                 </div>
                 <div className="col-span-2">
@@ -713,7 +733,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                     required
                     value={techModal.name}
                     onChange={(e) => setTechModal({ ...techModal, name: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
@@ -723,7 +743,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                   <select
                     value={techModal.color}
                     onChange={(e) => setTechModal({ ...techModal, color: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   >
                     <option value="text-teal-400">Teal</option>
                     <option value="text-sky-400">Sky Blue</option>
@@ -741,7 +761,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
                     onChange={(e) =>
                       setTechModal({ ...techModal, display_order: Number(e.target.value) })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
@@ -775,6 +795,18 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
         </div>
       </div>
     )}
+
+      {/* Custom Modal Konfirmasi Hapus */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        title={deleteConfirm.title}
+        message={deleteConfirm.message}
+        loading={deleteConfirm.loading}
+        onConfirm={deleteConfirm.onConfirm}
+        onClose={() =>
+          setDeleteConfirm({ isOpen: false, title: '', message: '', onConfirm: null, loading: false })
+        }
+      />
   </div>
   );
 }

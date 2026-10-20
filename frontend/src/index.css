@@ -4,8 +4,221 @@
 
 @layer base {
   body {
-    @apply bg-white text-slate-900 min-h-screen overflow-x-hidden antialiased;
+    @apply bg-white text-slate-900 min-h-screen overflow-x-hidden antialiased transition-colors duration-200;
   }
+  .dark body {
+    background-color: #020B18;
+    color: #F1F5F9;
+  }
+}
+
+/* Palette Khusus Dark Mode Rizofara Technology */
+.dark {
+  --bg-dark-base: #020B18;
+  --bg-dark-nav: #06111F;
+  --bg-dark-card: #0B1929;
+  --border-dark: #183247;
+  --text-primary: #F1F5F9;
+  --text-muted: #94A3B8;
+  --color-active: #00C4D7;
+  --color-success: #07C995;
+  --color-rating: #FACC15;
+}
+
+/* ==========================================================================
+   PENYESUAIAN GLOBAL DARK MODE (MENCEGAH TEKS & HOVER HILANG / TIDAK TERBACA)
+   ========================================================================== */
+
+/* 1. Latar Belakang Kartu & Kontainer */
+.dark .bg-white {
+  background-color: #0B1929;
+  border-color: #183247;
+}
+
+.dark .bg-slate-50,
+.dark .bg-slate-50\/80,
+.dark .bg-slate-50\/70,
+.dark .bg-slate-50\/60,
+.dark .bg-slate-100 {
+  background-color: #06111F;
+  border-color: #183247;
+}
+
+/* 2. Warna Teks Utama & Deskripsi */
+.dark .text-slate-900,
+.dark .text-slate-800,
+.dark .text-slate-700 {
+  color: #F1F5F9;
+}
+
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: #94A3B8;
+}
+
+/* 3. Border Kartu & Garis Pembatas */
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-200\/80,
+.dark .border-slate-200\/90,
+.dark .border-slate-300 {
+  border-color: #183247;
+}
+
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #183247;
+}
+
+/* 4. Mencegah Hover Berwarna Putih / Terang yang Membuat Teks Menghilang */
+.dark .hover\:bg-white:hover,
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-slate-200:hover {
+  background-color: #183247 !important;
+  color: #F1F5F9 !important;
+}
+
+/* 5. Mencegah Hover Teks Menjadi Hitam Gelap di Atas Latar Gelap */
+.dark .hover\:text-black:hover,
+.dark .hover\:text-slate-900:hover,
+.dark .hover\:text-slate-800:hover {
+  color: #00C4D7 !important;
+}
+
+/* 6. Form Controls: Input, Select, Textarea, Option */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.dark select,
+.dark textarea {
+  background-color: #06111F !important;
+  border-color: #183247 !important;
+  color: #F1F5F9 !important;
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #00C4D7 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 1px #00C4D7 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748B !important;
+}
+
+/* Dropdown <option> Native Browser */
+.dark select option {
+  background-color: #0B1929 !important;
+  color: #F1F5F9 !important;
+}
+
+.dark select option:hover,
+.dark select option:checked {
+  background-color: #183247 !important;
+  color: #00C4D7 !important;
+}
+
+/* Checkbox & Radio Button */
+.dark input[type="checkbox"],
+.dark input[type="radio"] {
+  background-color: #06111F;
+  border-color: #183247;
+  accent-color: #07C995;
+}
+
+/* File Upload Button */
+.dark input[type="file"]::file-selector-button {
+  background-color: #183247;
+  color: #F1F5F9;
+  border: 1px solid #183247;
+  border-radius: 0.75rem;
+}
+.dark input[type="file"]::file-selector-button:hover {
+  background-color: #0B1929;
+  color: #00C4D7;
+}
+
+/* 7. Tabel di Dark Mode */
+.dark thead {
+  background-color: #06111F !important;
+  color: #94A3B8 !important;
+  border-color: #183247 !important;
+}
+
+.dark tbody tr:hover {
+  background-color: rgba(24, 50, 71, 0.45) !important;
+}
+
+.dark tbody td {
+  border-color: #183247 !important;
+}
+
+/* 8. Badge & Pill Status */
+.dark .bg-emerald-50,
+.dark .bg-emerald-50\/70,
+.dark .bg-emerald-50\/80 {
+  background-color: rgba(7, 201, 149, 0.12) !important;
+  border-color: rgba(7, 201, 149, 0.25) !important;
+  color: #07C995 !important;
+}
+
+.dark .bg-sky-50,
+.dark .bg-sky-50\/70,
+.dark .bg-sky-50\/80 {
+  background-color: rgba(0, 196, 215, 0.12) !important;
+  border-color: rgba(0, 196, 215, 0.25) !important;
+  color: #00C4D7 !important;
+}
+
+.dark .bg-amber-50,
+.dark .bg-amber-50\/70,
+.dark .bg-amber-50\/80 {
+  background-color: rgba(250, 204, 21, 0.12) !important;
+  border-color: rgba(250, 204, 21, 0.25) !important;
+  color: #FACC15 !important;
+}
+
+.dark .bg-rose-50,
+.dark .bg-rose-50\/70,
+.dark .bg-rose-50\/80 {
+  background-color: rgba(244, 63, 94, 0.12) !important;
+  border-color: rgba(244, 63, 94, 0.25) !important;
+  color: #FB7185 !important;
+}
+
+.dark .bg-indigo-50,
+.dark .bg-indigo-50\/70,
+.dark .bg-indigo-50\/80 {
+  background-color: rgba(99, 102, 241, 0.12) !important;
+  border-color: rgba(99, 102, 241, 0.25) !important;
+  color: #818CF8 !important;
+}
+
+.dark .text-emerald-700,
+.dark .text-emerald-800,
+.dark .text-emerald-900,
+.dark .text-emerald-950 {
+  color: #07C995 !important;
+}
+
+.dark .text-sky-700,
+.dark .text-sky-800,
+.dark .text-sky-900 {
+  color: #00C4D7 !important;
+}
+
+.dark .text-amber-700,
+.dark .text-amber-800,
+.dark .text-amber-900 {
+  color: #FACC15 !important;
+}
+
+.dark .text-rose-700,
+.dark .text-rose-800 {
+  color: #FB7185 !important;
 }
 
 /* Brand gradient text utility */
@@ -15,9 +228,23 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* Custom scrollbar for clean light mode */
+/* Tombol CTA: Gradient Teal -> Cyan */
+.btn-cta-gradient {
+  background: linear-gradient(135deg, #07C995 0%, #00C4D7 100%);
+  color: #020B18;
+  font-weight: 800;
+  transition: all 0.2s ease-in-out;
+}
+.btn-cta-gradient:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px -5px rgba(7, 201, 149, 0.35);
+}
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: #f8fafc;
@@ -30,3 +257,12 @@
   background: #94a3b8;
 }
 
+.dark ::-webkit-scrollbar-track {
+  background: #020B18;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #183247;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #00C4D7;
+}

@@ -7,9 +7,14 @@ from app.models.showcase import Testimonial, PortfolioItem
 from app.models.cms import SiteSetting, FaqItem, TechStackItem
 from app.models.order import Order, OrderMilestone, OrderTimelineLog, OrderPayment, Revision
 from app.core.security import hash_password
+from app.models.role import Role, DEFAULT_ROLES, ALL_PERMISSIONS
 
 
 def ensure_sqlite_schema_columns(db: Session) -> None:
+    # Hanya jalankan jika dialect adalah sqlite (bukan PostgreSQL Supabase)
+    if db.bind.dialect.name != "sqlite":
+        return
+
     """
     Memastikan tabel `orders` dan `revisions` pada file SQLite lama (`app.db`)
     memiliki seluruh kolom terbaru (Fase 3-6) melalui ALTER TABLE otomatis jika belum ada.
@@ -47,6 +52,30 @@ def ensure_sqlite_schema_columns(db: Session) -> None:
 
     db.commit()
 
+
+
+def seed_initial_roles(db: Session) -> None:
+    """
+    Memastikan role bawaan sistem (superadmin, admin, freelance) selalu tersedia di tabel `roles`.
+    Role yang sudah ada tidak ditimpa agar perubahan permission oleh Superadmin tetap tersimpan.
+    """
+    for name, cfg in DEFAULT_ROLES.items():
+        exists = db.query(Role).filter(Role.name == name).first()
+        if exists:
+            if name == "superadmin":
+                exists.permissions = list(ALL_PERMISSIONS)
+            continue
+        db.add(
+            Role(
+                name=name,
+                display_name=cfg["display_name"],
+                description=cfg["description"],
+                permissions=list(cfg["permissions"]),
+                is_system=cfg["is_system"],
+                is_active=True,
+            )
+        )
+    db.commit()
 
 
 def seed_initial_admins(db: Session) -> None:
@@ -501,7 +530,7 @@ def seed_initial_cms(db: Session) -> None:
             ),
             SiteSetting(
                 key="company_values",
-                value='[{"id": 1, "name": "Growth Mindset", "desc": "Terus belajar, berkembang menghadapi kemajuan teknologi terbaru, dan selalu terbuka pada solusi kreatif."}, {"id": 2, "name": "Inovasi", "desc": "Mengembangkan arsitektur perangkat lunak dan implementasi AI yang relevan, mutakhir, dan berdampak nyata."}, {"id": 3, "name": "Wajib Bgt Pantang Menyerah", "desc": "Tangguh menuntaskan setiap tantangan koding, perbaikan bug rumit, hingga bimbingan sidang selesai beres."}, {"id": 4, "name": "Integritas", "desc": "Kejujuran penuh dalam kesepakatan scope, kerahasiaan data terjamin aman, dan orisinalitas kode terjaga."}, {"id": 5, "name": "Collaborative", "desc": "Komunikasi solutif, mendengar masukan klien dan dosen penguji, serta bermitra erat selama pengerjaan."}, {"id": 6, "name": "Good Services", "desc": "Pelayanan ramah, responsif, bergaransi revisi, serta pendampingan pemahaman logika sistem secara tuntas."}, {"id": 7, "name": "Transparan", "desc": "Alur kerja terbuka per Bab, estimasi biaya jelas tanpa biaya tersembunyi, dan progres dapat dipantau real-time."}]',
+                value='[{"id": 1, "name": "Growth Mindset", "desc": "Terus belajar, berkembang menghadapi kemajuan teknologi terbaru, dan selalu terbuka pada solusi kreatif."}, {"id": 2, "name": "Innovation", "desc": "Mengembangkan arsitektur perangkat lunak dan implementasi AI yang relevan, mutakhir, dan berdampak nyata."}, {"id": 3, "name": "Never Give Up", "desc": "Tangguh menuntaskan setiap tantangan koding, perbaikan bug rumit, hingga bimbingan sidang selesai beres."}, {"id": 4, "name": "Integrity", "desc": "Kejujuran penuh dalam kesepakatan scope, kerahasiaan data terjamin aman, dan orisinalitas kode terjaga."}, {"id": 5, "name": "Collaborative", "desc": "Komunikasi solutif, mendengar masukan klien dan dosen penguji, serta bermitra erat selama pengerjaan."}, {"id": 6, "name": "Good services", "desc": "Pelayanan ramah, responsif, bergaransi revisi, serta pendampingan pemahaman logika sistem secara tuntas."}, {"id": 7, "name": "Transparent", "desc": "Alur kerja terbuka per Bab, estimasi biaya jelas tanpa biaya tersembunyi, dan progres dapat dipantau real-time."}]',
                 group="about",
                 description="7 Nilai Budaya Perusahaan Rizofara",
             ),
@@ -851,6 +880,7 @@ def run_startup_seed() -> None:
     db = SessionLocal()
     try:
         ensure_sqlite_schema_columns(db)
+        seed_initial_roles(db)
         seed_initial_admins(db)
         seed_initial_pricing(db)
         seed_initial_showcase(db)

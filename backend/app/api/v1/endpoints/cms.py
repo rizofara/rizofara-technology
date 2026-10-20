@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.api.v1.deps import get_current_admin, require_superadmin
+from app.api.v1.deps import get_current_admin, require_superadmin, require_permission
 from app.api.v1.endpoints.orders import compute_order_financials
 from app.models.admin_user import AdminUser
 from app.models.order import Order, Revision
@@ -78,7 +78,7 @@ def get_public_cms_bundle(db: Session = Depends(get_db)):
 @router.get("/dashboard-summary", response_model=DashboardSummaryResponse)
 def get_admin_dashboard_summary(
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("orders.view_all")),
 ):
     """
     Menghitung metrik ringkasan operasional & keuangan untuk Dashboard Admin (Modul M12):
@@ -148,7 +148,7 @@ def get_admin_dashboard_summary(
 @router.get("/settings", response_model=List[SiteSettingItem])
 def list_site_settings(
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("cms.manage")),
 ):
     seed_initial_cms(db)
     return db.query(SiteSetting).order_by(SiteSetting.id.asc()).all()
@@ -195,7 +195,7 @@ def update_site_settings_batch(
 @router.get("/faqs", response_model=List[FaqItemResponse])
 def list_all_faqs_admin(
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("cms.manage")),
 ):
     seed_initial_cms(db)
     return db.query(FaqItem).order_by(FaqItem.display_order.asc(), FaqItem.id.asc()).all()
@@ -205,7 +205,7 @@ def list_all_faqs_admin(
 def create_faq_admin(
     payload: FaqItemCreate,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("cms.manage")),
 ):
     item = FaqItem(
         question=payload.question.strip(),
@@ -225,7 +225,7 @@ def update_faq_admin(
     faq_id: int,
     payload: FaqItemUpdate,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("cms.manage")),
 ):
     item = db.query(FaqItem).filter(FaqItem.id == faq_id).first()
     if not item:
@@ -241,7 +241,7 @@ def update_faq_admin(
 def delete_faq_admin(
     faq_id: int,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("cms.manage")),
 ):
     item = db.query(FaqItem).filter(FaqItem.id == faq_id).first()
     if not item:
@@ -257,7 +257,7 @@ def delete_faq_admin(
 @router.get("/tech-stacks", response_model=List[TechStackItemResponse])
 def list_all_tech_stacks_admin(
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("cms.manage")),
 ):
     seed_initial_cms(db)
     return (
@@ -271,7 +271,7 @@ def list_all_tech_stacks_admin(
 def create_tech_stack_admin(
     payload: TechStackItemCreate,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("cms.manage")),
 ):
     item = TechStackItem(
         name=payload.name.strip(),
@@ -292,7 +292,7 @@ def update_tech_stack_admin(
     tech_id: int,
     payload: TechStackItemUpdate,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("cms.manage")),
 ):
     item = db.query(TechStackItem).filter(TechStackItem.id == tech_id).first()
     if not item:
@@ -308,7 +308,7 @@ def update_tech_stack_admin(
 def delete_tech_stack_admin(
     tech_id: int,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("cms.manage")),
 ):
     item = db.query(TechStackItem).filter(TechStackItem.id == tech_id).first()
     if not item:

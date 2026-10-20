@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -20,6 +20,8 @@ class AdminProfileResponse(BaseModel):
     is_active: bool
     last_login_at: Optional[datetime] = None
     created_at: datetime
+    permissions: List[str] = []
+    role_display_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -53,7 +55,7 @@ class AdminUserCreate(BaseModel):
     name: str = Field(..., min_length=2, max_length=100)
     email: str = Field(..., min_length=5, max_length=150)
     password: str = Field(..., min_length=8, description="Password minimal 8 karakter")
-    role: str = Field("admin", pattern="^(superadmin|admin)$")
+    role: str = Field("admin", min_length=2, max_length=50)
     title: Optional[str] = None
     bio: Optional[str] = None
     whatsapp: Optional[str] = None
@@ -63,7 +65,7 @@ class AdminUserUpdate(BaseModel):
     """Schema untuk Superadmin saat mengubah akun admin lain."""
     name: Optional[str] = Field(None, min_length=2, max_length=100)
     email: Optional[str] = Field(None, min_length=5, max_length=150)
-    role: Optional[str] = Field(None, pattern="^(superadmin|admin)$")
+    role: Optional[str] = Field(None, min_length=2, max_length=50)
     title: Optional[str] = None
     bio: Optional[str] = None
     whatsapp: Optional[str] = None

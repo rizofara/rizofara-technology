@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import ConfirmModal from './ConfirmModal';
 import {
   Plus,
   Edit3,
@@ -24,6 +25,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
   const [testimonials, setTestimonials] = useState([]);
   const [portfolioItems, setPortfolioItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
 
   // Modal Form States
   const [testimonialModal, setTestimonialModal] = useState(null);
@@ -123,16 +125,25 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
     }
   };
 
-  const handleDeleteTestimonial = async (id) => {
-    if (!window.confirm('Hapus testimoni ini secara permanen?')) return;
-    try {
-      await axios.delete(`${API_BASE}/showcase/testimonials/${id}`, authHeaders);
-      showToast('Testimoni dihapus.');
-      fetchShowcaseData();
-      if (onShowcaseUpdated) onShowcaseUpdated();
-    } catch (err) {
-      showToast(err.response?.data?.detail || 'Gagal menghapus testimoni', 'error');
-    }
+  const handleDeleteTestimonial = (id) => {
+    setDeleteConfirm({
+      isOpen: true,
+      title: 'Hapus Testimoni Klien',
+      message: 'Apakah Anda yakin ingin menghapus ulasan testimoni ini secara permanen dari halaman utama?',
+      onConfirm: async () => {
+        setDeleteConfirm((prev) => ({ ...prev, loading: true }));
+        try {
+          await axios.delete(`${API_BASE}/showcase/testimonials/${id}`, authHeaders);
+          showToast('Testimoni berhasil dihapus.');
+          fetchShowcaseData();
+          if (onShowcaseUpdated) onShowcaseUpdated();
+        } catch (err) {
+          showToast(err.response?.data?.detail || 'Gagal menghapus testimoni', 'error');
+        } finally {
+          setDeleteConfirm({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
+        }
+      },
+    });
   };
 
   // =====================================================
@@ -208,16 +219,25 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
     }
   };
 
-  const handleDeletePortfolio = async (id) => {
-    if (!window.confirm('Hapus item portofolio ini secara permanen?')) return;
-    try {
-      await axios.delete(`${API_BASE}/showcase/portfolio/${id}`, authHeaders);
-      showToast('Item portofolio dihapus.');
-      fetchShowcaseData();
-      if (onShowcaseUpdated) onShowcaseUpdated();
-    } catch (err) {
-      showToast(err.response?.data?.detail || 'Gagal menghapus portofolio', 'error');
-    }
+  const handleDeletePortfolio = (id) => {
+    setDeleteConfirm({
+      isOpen: true,
+      title: 'Hapus Item Portofolio',
+      message: 'Apakah Anda yakin ingin menghapus item portofolio ini secara permanen dari etalase showcase?',
+      onConfirm: async () => {
+        setDeleteConfirm((prev) => ({ ...prev, loading: true }));
+        try {
+          await axios.delete(`${API_BASE}/showcase/portfolio/${id}`, authHeaders);
+          showToast('Item portofolio berhasil dihapus.');
+          fetchShowcaseData();
+          if (onShowcaseUpdated) onShowcaseUpdated();
+        } catch (err) {
+          showToast(err.response?.data?.detail || 'Gagal menghapus portofolio', 'error');
+        } finally {
+          setDeleteConfirm({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
+        }
+      },
+    });
   };
 
   const pendingTestimonialsCount = testimonials.filter((t) => t.status === 'pending').length;
@@ -225,9 +245,9 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
   return (
     <div className="space-y-6">
       {/* Header & Sub-Tab Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl p-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-2xl p-5">
         <div>
-          <h3 className="text-lg font-extrabold text-slate-900">
+          <h3 className="text-lg font-extrabold text-slate-900 dark:text-[#F1F5F9]">
             Manajemen Testimoni & Portofolio
           </h3>
           <p className="text-xs text-slate-500 mt-1">
@@ -240,8 +260,8 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
             onClick={() => setSubTab('testimonials')}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition ${
               subTab === 'testimonials'
-                ? 'bg-teal-500 text-slate-950 shadow-lg shadow-teal-500/20'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                ? 'bg-gradient-to-r from-[#07C995] to-[#00C4D7] text-slate-950 font-extrabold shadow-md shadow-teal-500/20'
+                : 'bg-slate-100 dark:bg-[#06111F] text-slate-700 dark:text-[#94A3B8] border border-slate-200 dark:border-[#183247] hover:bg-slate-200 dark:hover:bg-[#183247] dark:hover:text-[#F1F5F9]'
             }`}
           >
             <MessageSquare className="w-4 h-4" />
@@ -257,8 +277,8 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
             onClick={() => setSubTab('portfolio')}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition ${
               subTab === 'portfolio'
-                ? 'bg-teal-500 text-slate-950 shadow-lg shadow-teal-500/20'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                ? 'bg-gradient-to-r from-[#07C995] to-[#00C4D7] text-slate-950 font-extrabold shadow-md shadow-teal-500/20'
+                : 'bg-slate-100 dark:bg-[#06111F] text-slate-700 dark:text-[#94A3B8] border border-slate-200 dark:border-[#183247] hover:bg-slate-200 dark:hover:bg-[#183247] dark:hover:text-[#F1F5F9]'
             }`}
           >
             <Briefcase className="w-4 h-4" />
@@ -271,10 +291,10 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
           SUB-TAB 1: TESTIMONI & MODERASI (M9)
           ===================================================== */}
       {subTab === 'testimonials' && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        <div className="bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-2xl p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
             <div>
-              <h4 className="font-bold text-slate-900 text-sm">Daftar Ulasan & Moderasi Klien</h4>
+              <h4 className="font-bold text-slate-900 dark:text-[#F1F5F9] text-sm">Daftar Ulasan & Moderasi Klien</h4>
               <p className="text-xs text-slate-500">
                 Ulasan yang dikirim klien dari halaman tracking akan berstatus <b>pending</b> sampai Anda menyetujuinya.
               </p>
@@ -337,7 +357,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
 
                     <div className="flex items-center justify-between text-xs border-t border-slate-200 pt-3">
                       <div>
-                        <div className="font-bold text-slate-900">{t.client_name}</div>
+                        <div className="font-bold text-slate-900 dark:text-[#F1F5F9]">{t.client_name}</div>
                         <div className="text-[11px] text-slate-500">
                           {t.client_role} • <span className="text-teal-400">{t.project_label}</span>
                         </div>
@@ -399,10 +419,10 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
           SUB-TAB 2: PORTOFOLIO & STUDI KASUS (M10)
           ===================================================== */}
       {subTab === 'portfolio' && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+        <div className="bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-2xl p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
             <div>
-              <h4 className="font-bold text-slate-900 text-sm">Katalog Portofolio & Studi Kasus</h4>
+              <h4 className="font-bold text-slate-900 dark:text-[#F1F5F9] text-sm">Katalog Portofolio & Studi Kasus</h4>
               <p className="text-xs text-slate-500">
                 Sesuai komitmen privasi di FAQ, portofolio hanya tampil di publik jika <b>Izin Klien (Client Consent)</b> dicentang.
               </p>
@@ -420,7 +440,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
             {portfolioItems.map((p) => (
               <div
                 key={p.id}
-                className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between gap-4"
+                className="p-5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] flex flex-col justify-between gap-4"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
@@ -438,7 +458,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                     </span>
                   </div>
 
-                  <h5 className="font-bold text-sm text-slate-900 mt-2">{p.title}</h5>
+                  <h5 className="font-bold text-sm text-slate-900 dark:text-[#F1F5F9] mt-2">{p.title}</h5>
                   <p className="text-[11px] font-mono text-slate-500 mt-0.5">/{p.slug}</p>
                   <p className="text-xs text-slate-500 mt-2 leading-relaxed">{p.summary}</p>
 
@@ -490,9 +510,9 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Header Sticky dengan Tombol X Permanen di Atas */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 dark:border-[#183247] flex items-center justify-between shrink-0">
               <div>
-                <h4 className="font-extrabold text-base sm:text-lg text-slate-900">
+                <h4 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-[#F1F5F9]">
                   {testimonialModal.isEdit ? 'Edit Testimoni' : 'Tambah Testimoni Baru'}
                 </h4>
                 <p className="text-xs text-slate-500">
@@ -502,7 +522,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
               <button
                 type="button"
                 onClick={() => setTestimonialModal(null)}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 dark:text-[#F1F5F9] transition cursor-pointer shrink-0 ml-3 shadow-xs"
                 aria-label="Tutup modal"
               >
                 <X className="w-5 h-5" />
@@ -521,7 +541,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                     onChange={(e) =>
                       setTestimonialModal({ ...testimonialModal, client_name: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
@@ -533,7 +553,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                     onChange={(e) =>
                       setTestimonialModal({ ...testimonialModal, client_role: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
@@ -548,7 +568,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                       setTestimonialModal({ ...testimonialModal, project_label: e.target.value })
                     }
                     placeholder="Contoh: Skripsi AI CNN"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
@@ -560,7 +580,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                       setTestimonialModal({ ...testimonialModal, tag: e.target.value })
                     }
                     placeholder="Lulus Sidang Nilai A"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
@@ -574,7 +594,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                   onChange={(e) =>
                     setTestimonialModal({ ...testimonialModal, comment: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
 
@@ -589,7 +609,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                         rating: Number(e.target.value),
                       })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   >
                     {[5, 4, 3, 2, 1].map((r) => (
                       <option key={r} value={r}>
@@ -605,7 +625,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                     onChange={(e) =>
                       setTestimonialModal({ ...testimonialModal, status: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   >
                     <option value="approved">Approved (Tampil)</option>
                     <option value="pending">Pending</option>
@@ -623,7 +643,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                         display_order: Number(e.target.value),
                       })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
@@ -657,9 +677,9 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Header Sticky dengan Tombol X Permanen di Atas */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 dark:border-[#183247] flex items-center justify-between shrink-0">
               <div>
-                <h4 className="font-extrabold text-base sm:text-lg text-slate-900">
+                <h4 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-[#F1F5F9]">
                   {portfolioModal.isEdit ? 'Edit Item Portofolio' : 'Tambah Item Portofolio'}
                 </h4>
                 <p className="text-xs text-slate-500">
@@ -669,7 +689,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
               <button
                 type="button"
                 onClick={() => setPortfolioModal(null)}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 dark:text-[#F1F5F9] transition cursor-pointer shrink-0 ml-3 shadow-xs"
                 aria-label="Tutup modal"
               >
                 <X className="w-5 h-5" />
@@ -687,7 +707,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                   onChange={(e) =>
                     setPortfolioModal({ ...portfolioModal, title: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
 
@@ -702,7 +722,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                       setPortfolioModal({ ...portfolioModal, category: e.target.value })
                     }
                     placeholder="Skripsi AI & Machine Learning"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
@@ -714,7 +734,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                       setPortfolioModal({ ...portfolioModal, highlight_metric: e.target.value })
                     }
                     placeholder="Contoh: Akurasi 94.2%"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
@@ -728,7 +748,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                   onChange={(e) =>
                     setPortfolioModal({ ...portfolioModal, summary: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
 
@@ -744,7 +764,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                     setPortfolioModal({ ...portfolioModal, tech_tags_input: e.target.value })
                   }
                   placeholder="Python, PyTorch, FastAPI, React"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
 
@@ -756,7 +776,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                     onChange={(e) =>
                       setPortfolioModal({ ...portfolioModal, badge_color: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   >
                     <option value="teal">Teal</option>
                     <option value="indigo">Indigo</option>
@@ -776,7 +796,7 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
                         display_order: Number(e.target.value),
                       })
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
@@ -830,6 +850,18 @@ export default function AdminShowcaseManager({ token, showToast, onShowcaseUpdat
         </div>
       </div>
     )}
+
+      {/* Custom Modal Konfirmasi Hapus */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        title={deleteConfirm.title}
+        message={deleteConfirm.message}
+        loading={deleteConfirm.loading}
+        onConfirm={deleteConfirm.onConfirm}
+        onClose={() =>
+          setDeleteConfirm({ isOpen: false, title: '', message: '', onConfirm: null, loading: false })
+        }
+      />
   </div>
   );
 }

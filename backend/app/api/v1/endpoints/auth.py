@@ -21,7 +21,25 @@ from app.schemas.admin import (
     AdminUserCreate,
     AdminUserUpdate,
 )
-from app.api.v1.deps import get_current_admin, require_superadmin
+from app.api.v1.deps import get_current_admin, require_superadmin, require_permission, get_admin_permissions
+from app.models.role import Role
+
+
+def build_profile(admin: AdminUser, db: Session) -> AdminProfileResponse:
+    """Serialisasi profil admin beserta daftar permission & nama tampilan role."""
+    resp = AdminProfileResponse.model_validate(admin)
+    resp.permissions = get_admin_permissions(admin, db)
+    role = db.query(Role).filter(Role.name == admin.role).first()
+    resp.role_display_name = role.display_name if role else admin.role
+    return resp
+
+
+def ensure_role_exists(db: Session, role_name: str) -> None:
+    role = db.query(Role).filter(Role.name == role_name).first()
+    if not role:
+        raise HTTPException(status_code=400, detail=f"Role '{role_name}' tidak ditemukan.")
+    if not role.is_active:
+        raise HTTPException(status_code=400, detail=f"Role '{role.display_name}' sedang nonaktif.")
 from app.services.storage import save_public_media_file
 
 router = APIRouter()
@@ -63,14 +81,17 @@ def login_admin(data: LoginRequest, db: Session = Depends(get_db)):
         access_token=token,
         token_type="bearer",
         expires_in_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
-        admin=AdminProfileResponse.model_validate(admin),
+        admin=build_profile(admin, db),
     )
 
 
 @router.get("/me", response_model=AdminProfileResponse)
-def get_my_profile(current_admin: AdminUser = Depends(get_current_admin)):
-    """Mengambil data profil Admin yang sedang login."""
-    return current_admin
+def get_my_profile(
+    current_admin: AdminUser = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Mengambil data profil Admin yang sedang login (termasuk daftar permission role)."""
+    return build_profile(current_admin, db)
 
 
 @router.patch("/me", response_model=AdminProfileResponse)
@@ -112,7 +133,7 @@ def update_my_profile(
 
     db.commit()
     db.refresh(current_admin)
-    return current_admin
+    return build_profile(current_admin, db)
 
 
 @router.post("/me/avatar", response_model=AdminProfileResponse)
@@ -128,7 +149,7 @@ async def upload_my_avatar(
     current_admin.avatar_url = public_url
     db.commit()
     db.refresh(current_admin)
-    return current_admin
+    return build_profile(current_admin, db)
 
 
 @router.post("/change-password")
@@ -168,13 +189,14 @@ def list_admin_users(
     Melihat daftar seluruh akun admin/co-founder (dapat diakses semua admin untuk keperluan
     assignment order).
     """
-    return db.query(AdminUser).order_by(AdminUser.id.asc()).all()
+    users = db.query(AdminUser).order_by(AdminUser.id.asc()).all()
+    return [build_profile(u, db) for u in users]
 
 
 @router.post("/users", response_model=AdminProfileResponse, status_code=201)
 def create_admin_user(
     data: AdminUserCreate,
-    superadmin: AdminUser = Depends(require_superadmin),
+    superadmin: AdminUser = Depends(require_permission("users.manage")),
     db: Session = Depends(get_db),
 ):
     """Khusus Superadmin: Menambahkan akun admin baru ke dalam tim."""
@@ -189,6 +211,10 @@ def create_admin_user(
             status_code=400, detail="Email sudah terdaftar sebagai admin."
         )
 
+    ensure_role_exists(db, data.role)
+    if data.role == "superadmin" and superadmin.role != "superadmin":
+        raise HTTPException(status_code=403, detail="Hanya Superadmin yang dapat membuat akun Superadmin.")
+
     new_admin = AdminUser(
         name=data.name.strip(),
         email=clean_email,
@@ -202,14 +228,14 @@ def create_admin_user(
     db.add(new_admin)
     db.commit()
     db.refresh(new_admin)
-    return new_admin
+    return build_profile(new_admin, db)
 
 
 @router.patch("/users/{user_id}", response_model=AdminProfileResponse)
 def update_admin_user(
     user_id: int,
     data: AdminUserUpdate,
-    superadmin: AdminUser = Depends(require_superadmin),
+    superadmin: AdminUser = Depends(require_permission("users.manage")),
     db: Session = Depends(get_db),
 ):
     """Khusus Superadmin: Mengubah data, role, status aktif, atau mereset password admin lain."""
@@ -246,7 +272,10 @@ def update_admin_user(
 
     if data.name is not None:
         target.name = data.name.strip()
-    if data.role is not None:
+    if data.role is not None and data.role != target.role:
+        ensure_role_exists(db, data.role)
+        if (data.role == "superadmin" or target.role == "superadmin") and superadmin.role != "superadmin":
+            raise HTTPException(status_code=403, detail="Hanya Superadmin yang dapat mengubah role Superadmin.")
         target.role = data.role
     if data.title is not None:
         target.title = data.title
@@ -261,13 +290,13 @@ def update_admin_user(
 
     db.commit()
     db.refresh(target)
-    return target
+    return build_profile(target, db)
 
 
 @router.delete("/users/{user_id}")
 def delete_admin_user(
     user_id: int,
-    superadmin: AdminUser = Depends(require_superadmin),
+    superadmin: AdminUser = Depends(require_permission("users.manage")),
     db: Session = Depends(get_db),
 ):
     """Khusus Superadmin: Menghapus akun admin lain."""

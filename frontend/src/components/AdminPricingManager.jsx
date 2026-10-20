@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import ConfirmModal from './ConfirmModal';
 import {
   Plus,
   Edit3,
@@ -30,6 +31,15 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
   const [factorModal, setFactorModal] = useState(null);
   // Modal State untuk Add-on
   const [addonModal, setAddonModal] = useState(null);
+
+  // State Konfirmasi Hapus Kustom
+  const [deleteConfirm, setDeleteConfirm] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    loading: false,
+  });
 
   const authHeaders = {
     headers: { Authorization: `Bearer ${token}` },
@@ -159,15 +169,24 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
     }
   };
 
-  const handleDeleteService = async (s) => {
-    if (!window.confirm(`Hapus layanan "${s.name}"?`)) return;
-    try {
-      await axios.delete(`${API_BASE}/services/${s.id}`, authHeaders);
-      showToast('success', `Layanan "${s.name}" berhasil dihapus.`);
-      fetchAllPricingData();
-    } catch (err) {
-      showToast('error', err.response?.data?.detail || 'Gagal menghapus layanan.');
-    }
+  const handleDeleteService = (s) => {
+    setDeleteConfirm({
+      isOpen: true,
+      title: 'Hapus Layanan',
+      message: `Apakah Anda yakin ingin menghapus layanan "${s.name}"? Data harga kalkulator terkait layanan ini akan terhapus.`,
+      onConfirm: async () => {
+        setDeleteConfirm((prev) => ({ ...prev, loading: true }));
+        try {
+          await axios.delete(`${API_BASE}/services/${s.id}`, authHeaders);
+          showToast('success', `Layanan "${s.name}" berhasil dihapus.`);
+          fetchAllPricingData();
+        } catch (err) {
+          showToast('error', err.response?.data?.detail || 'Gagal menghapus layanan.');
+        } finally {
+          setDeleteConfirm({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
+        }
+      },
+    });
   };
 
   // ===================================================================
@@ -236,15 +255,24 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
     }
   };
 
-  const handleDeleteFactor = async (f) => {
-    if (!window.confirm(`Hapus faktor pengali "${f.label}"?`)) return;
-    try {
-      await axios.delete(`${API_BASE}/services/factors/${f.id}`, authHeaders);
-      showToast('success', `Faktor "${f.label}" berhasil dihapus.`);
-      fetchAllPricingData();
-    } catch (err) {
-      showToast('error', err.response?.data?.detail || 'Gagal menghapus faktor.');
-    }
+  const handleDeleteFactor = (f) => {
+    setDeleteConfirm({
+      isOpen: true,
+      title: 'Hapus Faktor Pengali',
+      message: `Apakah Anda yakin ingin menghapus faktor pengali "${f.label}"?`,
+      onConfirm: async () => {
+        setDeleteConfirm((prev) => ({ ...prev, loading: true }));
+        try {
+          await axios.delete(`${API_BASE}/services/factors/${f.id}`, authHeaders);
+          showToast('success', `Faktor "${f.label}" berhasil dihapus.`);
+          fetchAllPricingData();
+        } catch (err) {
+          showToast('error', err.response?.data?.detail || 'Gagal menghapus faktor.');
+        } finally {
+          setDeleteConfirm({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
+        }
+      },
+    });
   };
 
   // ===================================================================
@@ -319,15 +347,24 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
     }
   };
 
-  const handleDeleteAddon = async (a) => {
-    if (!window.confirm(`Hapus add-on "${a.label}"?`)) return;
-    try {
-      await axios.delete(`${API_BASE}/services/addons/${a.id}`, authHeaders);
-      showToast('success', `Add-on "${a.label}" berhasil dihapus.`);
-      fetchAllPricingData();
-    } catch (err) {
-      showToast('error', err.response?.data?.detail || 'Gagal menghapus add-on.');
-    }
+  const handleDeleteAddon = (a) => {
+    setDeleteConfirm({
+      isOpen: true,
+      title: 'Hapus Fitur Add-on',
+      message: `Apakah Anda yakin ingin menghapus fitur add-on "${a.label}"?`,
+      onConfirm: async () => {
+        setDeleteConfirm((prev) => ({ ...prev, loading: true }));
+        try {
+          await axios.delete(`${API_BASE}/services/addons/${a.id}`, authHeaders);
+          showToast('success', `Add-on "${a.label}" berhasil dihapus.`);
+          fetchAllPricingData();
+        } catch (err) {
+          showToast('error', err.response?.data?.detail || 'Gagal menghapus add-on.');
+        } finally {
+          setDeleteConfirm({ isOpen: false, title: '', message: '', onConfirm: null, loading: false });
+        }
+      },
+    });
   };
 
   const toggleApplicableSlug = (currentList, slug, setter, modalState) => {
@@ -341,9 +378,9 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
   return (
     <div className="space-y-6">
       {/* Sub-navigation */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white border border-slate-200 p-4 rounded-2xl">
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] p-4 rounded-2xl">
         <div>
-          <h2 className="text-lg font-extrabold text-slate-900">
+          <h2 className="text-lg font-extrabold text-slate-900 dark:text-[#F1F5F9]">
             Manajemen Layanan, Harga & Kalkulator Dinamis
           </h2>
           <p className="text-xs text-slate-500">
@@ -437,7 +474,7 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                               {s.is_active ? 'Aktif' : 'Nonaktif'}
                             </span>
                           </div>
-                          <h3 className="font-extrabold text-base text-slate-900 mt-2">
+                          <h3 className="font-extrabold text-base text-slate-900 dark:text-[#F1F5F9] mt-2">
                             {s.name}{' '}
                             <span className="text-xs font-normal text-slate-500">
                               ({s.short_label})
@@ -518,11 +555,11 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                 return (
                   <div
                     key={type}
-                    className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4"
+                    className="bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-2xl p-5 space-y-4"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-extrabold text-sm text-slate-900 uppercase tracking-wider">
+                        <h3 className="font-extrabold text-sm text-slate-900 dark:text-[#F1F5F9] uppercase tracking-wider">
                           {type === 'complexity'
                             ? 'Faktor Tingkat Kompleksitas'
                             : 'Faktor Platform Teknologi'}
@@ -548,7 +585,7 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                         >
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-xs text-slate-900">{f.label}</span>
+                              <span className="font-bold text-xs text-slate-900 dark:text-[#F1F5F9]">{f.label}</span>
                               <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-emerald-700">
                                 {f.code}
                               </span>
@@ -634,7 +671,7 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                               </span>
                             )}
                           </div>
-                          <h3 className="font-extrabold text-sm text-slate-900 mt-2">{a.label}</h3>
+                          <h3 className="font-extrabold text-sm text-slate-900 dark:text-[#F1F5F9] mt-2">{a.label}</h3>
                         </div>
 
                         <div className="flex items-center gap-1.5">
@@ -685,11 +722,11 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
       {/* MODAL FORM LAYANAN */}
       {serviceModal && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+          <div className="bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-3xl max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Header Sticky dengan Tombol X Permanen di Atas */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 dark:border-[#183247] flex items-center justify-between shrink-0">
               <div>
-                <h3 className="font-extrabold text-base sm:text-lg text-slate-900">
+                <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-[#F1F5F9]">
                   {serviceModal.isEdit ? 'Edit Layanan & Harga' : 'Tambah Layanan Baru'}
                 </h3>
                 <p className="text-xs text-slate-500">
@@ -699,7 +736,7 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
               <button
                 type="button"
                 onClick={() => setServiceModal(null)}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 dark:text-[#F1F5F9] transition cursor-pointer shrink-0 ml-3 shadow-xs"
                 aria-label="Tutup modal"
               >
                 <X className="w-5 h-5" />
@@ -710,18 +747,18 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
               <form onSubmit={handleSaveService} className="space-y-3.5 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">Slug Unik *</label>
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Slug Unik *</label>
                   <input
                     type="text"
                     required
                     value={serviceModal.slug}
                     onChange={(e) => setServiceModal({ ...serviceModal, slug: e.target.value })}
                     placeholder="mobile_app"
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">Label Pendek *</label>
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Label Pendek *</label>
                   <input
                     type="text"
                     required
@@ -730,17 +767,17 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                       setServiceModal({ ...serviceModal, short_label: e.target.value })
                     }
                     placeholder="Aplikasi Mobile"
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">Kategori *</label>
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Kategori *</label>
                   <select
                     value={serviceModal.category}
                     onChange={(e) =>
                       setServiceModal({ ...serviceModal, category: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   >
                     <option value="akademik">Akademik</option>
                     <option value="bisnis">Bisnis / Umum</option>
@@ -749,7 +786,7 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                   Nama Lengkap Layanan *
                 </label>
                 <input
@@ -758,13 +795,13 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                   value={serviceModal.name}
                   onChange={(e) => setServiceModal({ ...serviceModal, name: e.target.value })}
                   placeholder="Jasa Pembuatan Aplikasi Mobile Android & iOS"
-                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                     Harga Dasar Min (Rp) *
                   </label>
                   <input
@@ -774,11 +811,11 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                     onChange={(e) =>
                       setServiceModal({ ...serviceModal, base_price_min: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                     Harga Dasar Max (Rp) *
                   </label>
                   <input
@@ -788,14 +825,14 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                     onChange={(e) =>
                       setServiceModal({ ...serviceModal, base_price_max: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">Min Hari *</label>
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Min Hari *</label>
                   <input
                     type="number"
                     required
@@ -803,11 +840,11 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                     onChange={(e) =>
                       setServiceModal({ ...serviceModal, min_days: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                     Standar Hari (Normal) *
                   </label>
                   <input
@@ -817,11 +854,11 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                     onChange={(e) =>
                       setServiceModal({ ...serviceModal, standard_days: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">Max Hari *</label>
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Max Hari *</label>
                   <input
                     type="number"
                     required
@@ -829,13 +866,13 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                     onChange={(e) =>
                       setServiceModal({ ...serviceModal, max_days: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">Deskripsi *</label>
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Deskripsi *</label>
                 <textarea
                   rows={2}
                   required
@@ -843,12 +880,12 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                   onChange={(e) =>
                     setServiceModal({ ...serviceModal, description: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                   Daftar Fitur Katalog (1 baris = 1 poin fitur)
                 </label>
                 <textarea
@@ -857,7 +894,7 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                   onChange={(e) =>
                     setServiceModal({ ...serviceModal, featuresText: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
 
@@ -879,9 +916,9 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Header Sticky dengan Tombol X Permanen di Atas */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 dark:border-[#183247] flex items-center justify-between shrink-0">
               <div>
-                <h3 className="font-extrabold text-base sm:text-lg text-slate-900">
+                <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-[#F1F5F9]">
                   {factorModal.isEdit ? 'Edit Faktor Pengali' : 'Tambah Faktor Pengali'}
                 </h3>
                 <p className="text-xs text-slate-500">
@@ -891,7 +928,7 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
               <button
                 type="button"
                 onClick={() => setFactorModal(null)}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 dark:text-[#F1F5F9] transition cursor-pointer shrink-0 ml-3 shadow-xs"
                 aria-label="Tutup modal"
               >
                 <X className="w-5 h-5" />
@@ -902,45 +939,45 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
               <form onSubmit={handleSaveFactor} className="space-y-3.5 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">Tipe Faktor</label>
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Tipe Faktor</label>
                   <select
                     value={factorModal.factor_type}
                     onChange={(e) =>
                       setFactorModal({ ...factorModal, factor_type: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   >
                     <option value="complexity">Kompleksitas</option>
                     <option value="platform">Platform</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">Kode Unik *</label>
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Kode Unik *</label>
                   <input
                     type="text"
                     required
                     value={factorModal.code}
                     onChange={(e) => setFactorModal({ ...factorModal, code: e.target.value })}
                     placeholder="blockchain"
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">Label Tampilan *</label>
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Label Tampilan *</label>
                   <input
                     type="text"
                     required
                     value={factorModal.label}
                     onChange={(e) => setFactorModal({ ...factorModal, label: e.target.value })}
                     placeholder="Web3 / Blockchain"
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                     Pengali (Multiplier) *
                   </label>
                   <input
@@ -951,25 +988,25 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                     onChange={(e) =>
                       setFactorModal({ ...factorModal, multiplier: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">Deskripsi Singkat</label>
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Deskripsi Singkat</label>
                 <input
                   type="text"
                   value={factorModal.description}
                   onChange={(e) =>
                     setFactorModal({ ...factorModal, description: e.target.value })
                   }
-                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                   Berlaku untuk Layanan (Kosongkan = Semua Layanan)
                 </label>
                 <div className="flex flex-wrap gap-2 mt-1">
@@ -1036,9 +1073,9 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Header Sticky dengan Tombol X Permanen di Atas */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div className="sticky top-0 z-30 bg-white/95 dark:bg-[#06111F]/95 backdrop-blur-sm px-6 py-4 border-b border-slate-100 dark:border-[#183247] flex items-center justify-between shrink-0">
               <div>
-                <h3 className="font-extrabold text-base sm:text-lg text-slate-900">
+                <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-[#F1F5F9]">
                   {addonModal.isEdit ? 'Edit Add-on Kalkulator' : 'Tambah Add-on Kalkulator'}
                 </h3>
                 <p className="text-xs text-slate-500">
@@ -1048,7 +1085,7 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
               <button
                 type="button"
                 onClick={() => setAddonModal(null)}
-                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition cursor-pointer shrink-0 ml-3 shadow-xs"
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 dark:text-[#F1F5F9] transition cursor-pointer shrink-0 ml-3 shadow-xs"
                 aria-label="Tutup modal"
               >
                 <X className="w-5 h-5" />
@@ -1059,24 +1096,24 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
               <form onSubmit={handleSaveAddon} className="space-y-3.5 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">Kode Add-on *</label>
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Kode Add-on *</label>
                   <input
                     type="text"
                     required
                     value={addonModal.code}
                     onChange={(e) => setAddonModal({ ...addonModal, code: e.target.value })}
                     placeholder="ppt_sidang"
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">Tipe Biaya *</label>
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">Tipe Biaya *</label>
                   <select
                     value={addonModal.price_type}
                     onChange={(e) =>
                       setAddonModal({ ...addonModal, price_type: e.target.value })
                     }
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   >
                     <option value="fixed">Nominal Tetap (Rupiah)</option>
                     <option value="percent">Persentase Subtotal (%)</option>
@@ -1085,7 +1122,7 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                   Nama / Label Checkbox di Kalkulator *
                 </label>
                 <input
@@ -1094,13 +1131,13 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                   value={addonModal.label}
                   onChange={(e) => setAddonModal({ ...addonModal, label: e.target.value })}
                   placeholder="Slide PPT Sidang & Simulasi Tanya-Jawab"
-                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                     {addonModal.price_type === 'percent' ? 'Persen Min (%)' : 'Biaya Min (Rp)'} *
                   </label>
                   <input
@@ -1108,11 +1145,11 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                     required
                     value={addonModal.price_min}
                     onChange={(e) => setAddonModal({ ...addonModal, price_min: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-700 font-semibold mb-1">
+                  <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                     {addonModal.price_type === 'percent' ? 'Persen Max (%)' : 'Biaya Max (Rp)'} *
                   </label>
                   <input
@@ -1120,13 +1157,13 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                     required
                     value={addonModal.price_max}
                     onChange={(e) => setAddonModal({ ...addonModal, price_max: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                   Teks Benefit ("Yang Sudah Termasuk" saat dipilih) *
                 </label>
                 <input
@@ -1137,12 +1174,12 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
                     setAddonModal({ ...addonModal, benefit_text: e.target.value })
                   }
                   placeholder="Pembuatan Slide PPT Sidang + 1x Sesi Simulasi"
-                  className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] dark:text-[#F1F5F9] placeholder:text-slate-400 focus:outline-none focus:border-teal-500"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">
+                <label className="block text-slate-700 dark:text-[#F1F5F9] font-semibold mb-1">
                   Berlaku untuk Layanan (Kosongkan = Semua Layanan)
                 </label>
                 <div className="flex flex-wrap gap-2 mt-1">
@@ -1203,6 +1240,18 @@ export default function AdminPricingManager({ token, showToast, onConfigUpdated 
         </div>
       </div>
     )}
+
+      {/* Custom Modal Konfirmasi Hapus */}
+      <ConfirmModal
+        isOpen={deleteConfirm.isOpen}
+        title={deleteConfirm.title}
+        message={deleteConfirm.message}
+        loading={deleteConfirm.loading}
+        onConfirm={deleteConfirm.onConfirm}
+        onClose={() =>
+          setDeleteConfirm({ isOpen: false, title: '', message: '', onConfirm: null, loading: false })
+        }
+      />
   </div>
   );
 }

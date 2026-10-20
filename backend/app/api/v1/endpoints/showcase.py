@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.api.v1.deps import get_current_admin
+from app.api.v1.deps import get_current_admin, require_permission
 from app.models.admin_user import AdminUser
 from app.models.order import Order
 from app.models.showcase import Testimonial, PortfolioItem
@@ -167,7 +167,7 @@ def submit_client_testimonial(
 def list_all_testimonials_admin(
     status: Optional[str] = Query(None, description="Filter status: pending, approved, rejected"),
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("showcase.manage")),
 ):
     seed_initial_showcase(db)
     query = db.query(Testimonial)
@@ -180,7 +180,7 @@ def list_all_testimonials_admin(
 def create_testimonial_admin(
     payload: TestimonialCreateAdmin,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("showcase.manage")),
 ):
     initials = payload.avatar_initials or _make_initials(payload.client_name)
     new_item = Testimonial(
@@ -210,7 +210,7 @@ def update_testimonial_admin(
     testimonial_id: int,
     payload: TestimonialUpdate,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("showcase.manage")),
 ):
     item = db.query(Testimonial).filter(Testimonial.id == testimonial_id).first()
     if not item:
@@ -232,7 +232,7 @@ def update_testimonial_admin(
 def delete_testimonial_admin(
     testimonial_id: int,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("showcase.manage")),
 ):
     item = db.query(Testimonial).filter(Testimonial.id == testimonial_id).first()
     if not item:
@@ -248,7 +248,7 @@ def delete_testimonial_admin(
 @router.get("/portfolio", response_model=List[PortfolioItemResponse])
 def list_all_portfolio_admin(
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("showcase.manage")),
 ):
     seed_initial_showcase(db)
     return (
@@ -262,7 +262,7 @@ def list_all_portfolio_admin(
 def create_portfolio_admin(
     payload: PortfolioItemCreate,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("showcase.manage")),
 ):
     if payload.is_published and not payload.client_consent:
         raise HTTPException(
@@ -301,7 +301,7 @@ def update_portfolio_admin(
     item_id: int,
     payload: PortfolioItemUpdate,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("showcase.manage")),
 ):
     item = db.query(PortfolioItem).filter(PortfolioItem.id == item_id).first()
     if not item:
@@ -334,7 +334,7 @@ def update_portfolio_admin(
 def delete_portfolio_admin(
     item_id: int,
     db: Session = Depends(get_db),
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("showcase.manage")),
 ):
     item = db.query(PortfolioItem).filter(PortfolioItem.id == item_id).first()
     if not item:

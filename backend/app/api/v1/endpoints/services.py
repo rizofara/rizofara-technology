@@ -19,7 +19,7 @@ from app.schemas.pricing import (
     PricingAddonResponse,
     PublicPricingConfigResponse,
 )
-from app.api.v1.deps import get_current_admin
+from app.api.v1.deps import get_current_admin, require_permission
 from app.seed import seed_initial_pricing
 
 router = APIRouter()
@@ -104,7 +104,7 @@ def get_public_pricing_config(db: Session = Depends(get_db)):
 
 @router.get("/admin/all", response_model=List[ServiceCatalogResponse])
 def list_all_services_admin(
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """Admin: Mengambil seluruh layanan (termasuk yang nonaktif)."""
@@ -121,7 +121,7 @@ def list_all_services_admin(
 @router.post("/", response_model=ServiceCatalogResponse, status_code=status.HTTP_201_CREATED)
 def create_service(
     data: ServiceCatalogCreate,
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """Admin: Menambahkan layanan baru ke katalog & kalkulator."""
@@ -176,7 +176,7 @@ def create_service(
 def update_service(
     service_id: int,
     data: ServiceCatalogUpdate,
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """Admin: Mengubah detail, harga dasar, durasi, atau status aktif layanan."""
@@ -250,7 +250,7 @@ def update_service(
 @router.delete("/{service_id}")
 def delete_service(
     service_id: int,
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """
@@ -287,7 +287,7 @@ def delete_service(
 
 @router.get("/factors/all", response_model=List[PricingFactorResponse])
 def list_all_factors_admin(
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """Admin: Mengambil seluruh faktor pengali (complexity & platform)."""
@@ -308,7 +308,7 @@ def list_all_factors_admin(
 @router.post("/factors", response_model=PricingFactorResponse, status_code=status.HTTP_201_CREATED)
 def create_pricing_factor(
     data: PricingFactorCreate,
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """Admin: Menambahkan faktor pengali baru (kompleksitas atau platform)."""
@@ -353,7 +353,7 @@ def create_pricing_factor(
 def update_pricing_factor(
     factor_id: int,
     data: PricingFactorUpdate,
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """Admin: Mengubah multiplier, label, atau status aktif faktor pengali."""
@@ -395,7 +395,7 @@ def update_pricing_factor(
 @router.delete("/factors/{factor_id}")
 def delete_pricing_factor(
     factor_id: int,
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """Admin: Menghapus faktor pengali (wajib menyisakan minimal 1 faktor aktif per tipe)."""
@@ -429,7 +429,7 @@ def delete_pricing_factor(
 
 @router.get("/addons/all", response_model=List[PricingAddonResponse])
 def list_all_addons_admin(
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """Admin: Mengambil seluruh daftar add-on kalkulator."""
@@ -446,7 +446,7 @@ def list_all_addons_admin(
 @router.post("/addons", response_model=PricingAddonResponse, status_code=status.HTTP_201_CREATED)
 def create_pricing_addon(
     data: PricingAddonCreate,
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """Admin: Menambahkan add-on baru ke kalkulator harga."""
@@ -491,7 +491,7 @@ def create_pricing_addon(
 def update_pricing_addon(
     addon_id: int,
     data: PricingAddonUpdate,
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """Admin: Mengubah detail, harga, atau status aktif add-on."""
@@ -551,7 +551,7 @@ def update_pricing_addon(
 @router.delete("/addons/{addon_id}")
 def delete_pricing_addon(
     addon_id: int,
-    current_admin: AdminUser = Depends(get_current_admin),
+    current_admin: AdminUser = Depends(require_permission("pricing.manage")),
     db: Session = Depends(get_db),
 ):
     """Admin: Menghapus add-on dari kalkulator."""
