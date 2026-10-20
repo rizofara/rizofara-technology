@@ -1,6 +1,12 @@
 {
   "buildCommand": "npm --prefix frontend install && npm --prefix frontend run build",
   "outputDirectory": "frontend/dist",
+  "functions": {
+    "api/index.py": {
+      "runtime": "vercel-python@3.0.7",
+      "memory": 256
+    }
+  },
   "routes": [
     {
       "src": "/api/(.*)",
