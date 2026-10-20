@@ -42,9 +42,11 @@ import {
 import axios from 'axios';
 import AdminPortal from './components/AdminPortal';
 
-const API_BASE = window.location.origin.includes('5173')
-  ? 'http://127.0.0.1:8000/api/v1'
-  : '/api/v1';
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  (window.location.origin.includes('5173')
+    ? 'http://127.0.0.1:8000/api/v1'
+    : '/api/v1');
 
 // Helper untuk memastikan kode teknologi hanya menampilkan karakter ASCII/Monospace tanpa emoji
 const getCleanTechTag = (rawCode, fallbackName = '') => {

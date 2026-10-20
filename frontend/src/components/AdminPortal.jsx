@@ -42,9 +42,11 @@ import AdminCmsManager from './AdminCmsManager';
 import AdminRoleManager from './AdminRoleManager';
 import ConfirmModal from './ConfirmModal';
 
-const API_BASE = window.location.origin.includes('5173')
-  ? 'http://127.0.0.1:8000/api/v1'
-  : '/api/v1';
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  (window.location.origin.includes('5173')
+    ? 'http://127.0.0.1:8000/api/v1'
+    : '/api/v1');
 
 export default function AdminPortal({
   onBackToPublic,
