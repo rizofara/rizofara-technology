@@ -2,10 +2,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
 
-# Format URL database (konversi otomatis postgres:// ke postgresql:// untuk kompatibilitas Supabase / Cloud)
+# Format URL database (konversi otomatis postgres:// atau postgresql:// ke postgresql+psycopg2:// untuk kompatibilitas Supabase / Cloud)
 db_url = settings.DATABASE_URL
 if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+    db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+"):
+    db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 # Engine configuration (mendukung SQLite thread checking & PostgreSQL Supabase pooling)
 connect_args = {"check_same_thread": False} if db_url.startswith("sqlite") else {}
