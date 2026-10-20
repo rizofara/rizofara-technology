@@ -8,7 +8,7 @@ from app.main import app
 from app.core.security_middleware import rate_limiter
 from app.db.base import Base
 from app.db.session import get_db
-from app.seed import seed_initial_admins, seed_initial_pricing
+from app.seed import seed_initial_roles, seed_initial_admins, seed_initial_pricing
 
 # Satu engine SQLite in-memory bersama untuk seluruh file test
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///:memory:"
@@ -36,15 +36,15 @@ app.dependency_overrides[get_db] = override_get_db
 def reset_test_db():
     """
     Fixture global (conftest.py) yang berjalan otomatis sebelum setiap fungsi test:
-    mereset rate limiter, membuat ulang semua tabel di RAM, mengisi seed admin & pricing,
+    mereset rate limiter, membuat ulang semua tabel di RAM, mengisi seed role, admin & pricing,
     lalu menghapusnya setelah test selesai.
     """
     rate_limiter.reset()
     Base.metadata.create_all(bind=test_engine)
     db = TestingSessionLocal()
+    seed_initial_roles(db)
     seed_initial_admins(db)
     seed_initial_pricing(db)
     db.close()
     yield
     Base.metadata.drop_all(bind=test_engine)
-

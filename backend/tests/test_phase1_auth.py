@@ -1,8 +1,8 @@
 from fastapi.testclient import TestClient
 from app.main import app
+import uuid
 
 client = TestClient(app)
-
 
 
 def test_admin_endpoints_reject_unauthenticated_requests():
@@ -85,6 +85,19 @@ def test_login_and_crud_admin_profile():
         json={"email": "admin@rizofara.com", "password": "PasswordBaru123!"},
     )
     assert relogin.status_code == 200
+    new_token_headers = {"Authorization": f"Bearer {relogin.json()['access_token']}"}
+
+    # 8. Kembalikan password Superadmin ke default Admin123! agar tes berikutnya selalu idempotent
+    restore_pw = client.post(
+        "/api/v1/auth/change-password",
+        headers=new_token_headers,
+        json={
+            "current_password": "PasswordBaru123!",
+            "new_password": "Admin123!",
+            "confirm_password": "Admin123!",
+        },
+    )
+    assert restore_pw.status_code == 200
 
 
 def test_rbac_superadmin_vs_admin():
@@ -94,6 +107,7 @@ def test_rbac_superadmin_vs_admin():
         "/api/v1/auth/login",
         json={"email": "ops@rizofara.com", "password": "Admin123!"},
     )
+    assert ops_login.status_code == 200
     ops_headers = {"Authorization": f"Bearer {ops_login.json()['access_token']}"}
 
     # Admin biasa mencoba menambah user baru -> WAJIB ditolak 403 Forbidden
@@ -102,7 +116,7 @@ def test_rbac_superadmin_vs_admin():
         headers=ops_headers,
         json={
             "name": "Admin Baru",
-            "email": "baru@rizofara.com",
+            "email": f"baru_{uuid.uuid4().hex[:6]}@rizofara.com",
             "password": "Password123!",
             "role": "admin",
         },
@@ -114,16 +128,18 @@ def test_rbac_superadmin_vs_admin():
         "/api/v1/auth/login",
         json={"email": "admin@rizofara.com", "password": "Admin123!"},
     )
+    assert sa_login.status_code == 200
     sa_id = sa_login.json()["admin"]["id"]
     sa_headers = {"Authorization": f"Bearer {sa_login.json()['access_token']}"}
 
-    # Superadmin menambah user baru -> Berhasil 201 Created
+    # Superadmin menambah user baru dengan unique email -> Berhasil 201 Created
+    unique_email = f"dev_{uuid.uuid4().hex[:6]}@rizofara.com"
     create_res = client.post(
         "/api/v1/auth/users",
         headers=sa_headers,
         json={
             "name": "Developer Junior",
-            "email": "dev@rizofara.com",
+            "email": unique_email,
             "password": "Password123!",
             "role": "admin",
             "title": "Junior Backend Developer",
