@@ -229,9 +229,13 @@ export default function AdminPortal({
         whatsapp: admin.whatsapp || '',
       });
     } catch (err) {
-      setLoginError(
-        err.response?.data?.detail || 'Gagal login. Periksa kembali email & password Anda.'
-      );
+      if (!err.response) {
+        setLoginError('Tidak dapat terhubung ke server backend (port 8000). Pastikan server backend sudah dijalankan.');
+      } else {
+        setLoginError(
+          err.response?.data?.detail || 'Gagal login. Periksa kembali email & password Anda.'
+        );
+      }
     } finally {
       setLoginLoading(false);
     }
