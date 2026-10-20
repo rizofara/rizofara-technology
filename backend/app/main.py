@@ -13,9 +13,12 @@ from app.models.showcase import PortfolioItem
 from app.api.v1.api import api_router
 from app.seed import run_startup_seed
 
-# Otomatis buat tabel database jika belum ada & seed data awal
-Base.metadata.create_all(bind=engine)
-run_startup_seed()
+# Otomatis buat tabel database jika belum ada & seed data awal (aman untuk Serverless Vercel)
+try:
+    Base.metadata.create_all(bind=engine)
+    run_startup_seed()
+except Exception as e:
+    print(f"Notice: Startup DB creation/seeder skipped on serverless: {e}")
 
 
 app = FastAPI(
@@ -41,7 +44,8 @@ app.add_middleware(
 
 # Mount HANYA folder media publik (portofolio, avatar, logo) - Perbaikan S-03
 # Berkas tugas/skripsi klien disimpan di storage/private dan TIDAK diekspos di URL publik.
-app.mount("/media", StaticFiles(directory=settings.PUBLIC_MEDIA_DIR), name="media")
+if Path(settings.PUBLIC_MEDIA_DIR).exists():
+    app.mount("/media", StaticFiles(directory=settings.PUBLIC_MEDIA_DIR), name="media")
 
 # Include API Router
 app.include_router(api_router, prefix=settings.API_V1_STR)
