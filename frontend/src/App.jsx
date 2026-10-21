@@ -96,6 +96,20 @@ export default function App() {
     window.location.pathname.startsWith('/admin') ? 'admin' : 'home'
   );
 
+  // Pintu Rahasia Admin: Tekan Ctrl + Shift + A untuk membuka Portal Admin
+  useEffect(() => {
+    const handleAdminShortcut = (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        window.history.pushState({}, '', '/admin');
+        setActiveTab('admin');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    };
+    window.addEventListener('keydown', handleAdminShortcut);
+    return () => window.removeEventListener('keydown', handleAdminShortcut);
+  }, []);
+
   // Otomatis scroll ke paling atas saat berpindah tab (Home <-> Admin)
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -916,20 +930,6 @@ export default function App() {
             </button>
 
             <button
-              type="button"
-              onClick={() => {
-                window.history.pushState({}, '', '/admin');
-                setActiveTab('admin');
-                window.scrollTo({ top: 0, behavior: 'instant' });
-                setMobileMenuOpen(false);
-              }}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#0B1929] dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-slate-700 dark:text-[#F1F5F9] text-xs font-semibold transition cursor-pointer"
-              title="Portal Login Admin"
-            >
-              <Lock className="w-3.5 h-3.5 text-teal-500" />
-              <span>Admin</span>
-            </button>
-            <button
               onClick={() => openWhatsAppDirect('Konsultasi Skripsi/Web')}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#07C995] to-[#00C4D7] hover:opacity-95 text-slate-950 text-xs sm:text-sm font-extrabold shadow-md shadow-teal-500/20 transition cursor-pointer"
             >
@@ -975,30 +975,17 @@ export default function App() {
               ))}
             </div>
 
-            <div className="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2">
+            <div className="pt-2 border-t border-slate-100 dark:border-[#183247]">
               <button
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   setIsOrderModalOpen(true);
                 }}
-                className="py-2.5 px-3 rounded-xl bg-[#0093E3] hover:bg-[#005CDF] text-white font-bold text-xs flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-3 rounded-xl bg-[#0093E3] hover:bg-[#005CDF] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm"
               >
                 <FileText className="w-3.5 h-3.5" />
                 Buat Order
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  window.history.pushState({}, '', '/admin');
-                  setActiveTab('admin');
-                  window.scrollTo({ top: 0, behavior: 'instant' });
-                }}
-                className="py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-[#0B1929] text-slate-700 dark:text-[#F1F5F9] border border-slate-200 dark:border-[#183247] font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Lock className="w-3.5 h-3.5 text-teal-400" />
-                Portal Admin
               </button>
             </div>
           </div>
@@ -2257,8 +2244,21 @@ export default function App() {
 
           <div>
             <span>
-              © {new Date().getFullYear()} {cmsData.settings?.brand_name || 'Rizofara Technology'}. All
-              rights reserved.
+              © {new Date().getFullYear()}{' '}
+              <a
+                href="/admin"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState({}, '', '/admin');
+                  setActiveTab('admin');
+                  window.scrollTo({ top: 0, behavior: 'instant' });
+                }}
+                className="hover:underline cursor-default focus:outline-none"
+                title=""
+              >
+                {cmsData.settings?.brand_name || 'Rizofara Technology'}
+              </a>
+              . All rights reserved.
             </span>
           </div>
         </div>
