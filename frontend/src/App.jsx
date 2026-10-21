@@ -38,6 +38,9 @@ import {
   ChevronDown,
   Sun,
   Moon,
+  Smartphone,
+  Check,
+  Calendar,
 } from 'lucide-react';
 import axios from 'axios';
 import AdminPortal from './components/AdminPortal';
@@ -603,16 +606,16 @@ export default function App() {
       const daysNum = parseInt(calcDays) || 14;
       const ratio = daysNum / (svc.standard_days || 14);
       let urgMult = 1.0;
-      let urgTier = 'Santai';
+      let urgTier = 'Fleksibel (Ekonomis)';
       if (ratio < 0.35) {
         urgMult = 1.35;
-        urgTier = 'Kilat';
+        urgTier = 'Express (Prioritas)';
       } else if (ratio < 0.65) {
         urgMult = 1.2;
-        urgTier = 'Cepat';
+        urgTier = 'Fast-Track (Cepat)';
       } else if (ratio < 1.0) {
         urgMult = 1.1;
-        urgTier = 'Standar';
+        urgTier = 'Standar (Optimal)';
       }
 
       const totalMult = compObj.multiplier * platObj.multiplier * urgMult;
@@ -930,11 +933,13 @@ export default function App() {
             </button>
 
             <button
-              onClick={() => openWhatsAppDirect('Konsultasi Skripsi/Web')}
+              type="button"
+              onClick={() => setIsOrderModalOpen(true)}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#07C995] to-[#00C4D7] hover:opacity-95 text-slate-950 text-xs sm:text-sm font-extrabold shadow-md shadow-teal-500/20 transition cursor-pointer"
+              title="Buat Pengajuan Order Proyek"
             >
-              <MessageSquare className="w-4 h-4 shrink-0" />
-              <span>Konsultasi Sekarang</span>
+              <FileText className="w-4 h-4 shrink-0" />
+              <span>Order Sekarang</span>
             </button>
             {/* Mobile Hamburger Button */}
             <button
@@ -1462,57 +1467,99 @@ export default function App() {
       </section>
 
       {/* ========================================================= */}
-      {/* 7. KALKULATOR ESTIMASI BIAYA PROYEK */}
+      {/* 7. KALKULATOR ESTIMASI BIAYA & SPESIFIKASI PROYEK (ENTERPRISE GRADE) */}
       {/* ========================================================= */}
-      <section id="calculator" className="py-20 bg-slate-50/60 dark:bg-[#020B18] border-t border-slate-100 dark:border-[#183247]">
+      <section id="calculator" className="py-24 bg-slate-50/70 dark:bg-[#020B18] border-t border-slate-200/80 dark:border-[#183247] relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-bold text-[#0093E3] uppercase tracking-wider bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60">
-              KALKULATOR ESTIMASI
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-[#F1F5F9] mt-2">
-              Hitung Estimasi Biaya Proyek
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/5 dark:bg-emerald-500/10 border border-slate-200 dark:border-emerald-500/20 text-slate-800 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider mb-3">
+              <Calculator className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <span>Interactive Project Estimator</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-[#F1F5F9] tracking-tight">
+              Kalkulator Estimasi Biaya & Arsitektur
             </h2>
-            <p className="text-slate-500 dark:text-[#94A3B8] text-sm mt-2">
-              Sesuaikan kebutuhan Anda dan dapatkan estimasi harga secara instan.
+            <p className="text-slate-600 dark:text-[#94A3B8] text-sm sm:text-base mt-3 max-w-2xl mx-auto leading-relaxed">
+              Konfigurasikan spesifikasi teknis kebutuhan Anda secara transparan. Dapatkan rincian investasi akurat dan rekomendasi timeline secara instan.
             </p>
           </div>
 
-          <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Input Controls Card */}
-            <div className="lg:col-span-7 bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-              {/* 1. Pilih Jenis Layanan */}
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Input Controls Card (7 cols) */}
+            <div className="lg:col-span-7 bg-white dark:bg-[#0B1929] border border-slate-200/90 dark:border-[#183247] rounded-3xl p-6 sm:p-8 space-y-8 shadow-sm">
+              {/* 01. Kategori Layanan Utama */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#F1F5F9] uppercase tracking-wider mb-2.5">
-                  1. Pilih Jenis Layanan
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {pricingConfig.services.map((s) => (
-                    <button
-                      key={s.slug}
-                      type="button"
-                      onClick={() => {
-                        setCalcService(s.slug);
-                        setCalcDays(s.standard_days || 14);
-                      }}
-                      className={`py-2.5 px-3 text-center rounded-xl border text-xs font-bold transition cursor-pointer ${
-                        calcService === s.slug
-                          ? 'bg-[#0093E3] border-[#0093E3] text-white shadow-xs'
-                          : 'bg-slate-50 dark:bg-[#06111F] border-slate-200 dark:border-[#183247] text-slate-700 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#183247]'
-                      }`}
-                    >
-                      {s.short_label}
-                    </button>
-                  ))}
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-xs font-bold text-slate-900 dark:text-[#F1F5F9] uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-md bg-teal-500 text-slate-950 flex items-center justify-center text-[10px] font-black">01</span>
+                    Pilih Kategori Layanan
+                  </label>
+                  <span className="text-[11px] font-medium text-slate-400">Pilih 1 kategori utama</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {pricingConfig.services.map((s) => {
+                    const isSelected = calcService === s.slug;
+                    const getServiceIcon = () => {
+                      if (s.slug === 'skripsi') return <GraduationCap className="w-5 h-5" />;
+                      if (s.slug === 'website') return <Globe className="w-5 h-5" />;
+                      if (s.slug === 'chatbot') return <Bot className="w-5 h-5" />;
+                      return <Code2 className="w-5 h-5" />;
+                    };
+                    return (
+                      <button
+                        key={s.slug}
+                        type="button"
+                        onClick={() => {
+                          setCalcService(s.slug);
+                          setCalcDays(s.standard_days || 14);
+                        }}
+                        className={`relative p-4 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? 'bg-gradient-to-br from-teal-50/80 via-white to-sky-50/50 dark:from-[#0B1E33] dark:to-[#08223B] border-teal-500 dark:border-teal-400 shadow-md shadow-teal-500/10 ring-2 ring-teal-500/20'
+                            : 'bg-slate-50/60 dark:bg-[#06111F] border-slate-200 dark:border-[#183247] hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-100/60'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div className={`p-2.5 rounded-xl ${
+                            isSelected
+                              ? 'bg-teal-500 text-slate-950 shadow-sm'
+                              : 'bg-white dark:bg-[#0B1929] text-slate-600 dark:text-[#94A3B8] border border-slate-200/80 dark:border-[#183247]'
+                          }`}>
+                            {getServiceIcon()}
+                          </div>
+                          {isSelected && (
+                            <span className="w-5 h-5 rounded-full bg-teal-500 text-slate-950 flex items-center justify-center">
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-extrabold text-sm text-slate-900 dark:text-[#F1F5F9]">
+                            {s.short_label}
+                          </div>
+                          <div className="text-[11px] text-slate-500 dark:text-[#94A3B8] mt-0.5 line-clamp-1">
+                            {s.name}
+                          </div>
+                          <div className="mt-2 text-[11px] font-bold text-teal-600 dark:text-teal-400 font-mono">
+                            Mulai Rp {(s.base_price_min || 0).toLocaleString('id-ID')}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* 2. Platform / Kategori */}
+              {/* 02. Arsitektur Platform */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#F1F5F9] uppercase tracking-wider mb-2.5">
-                  2. Platform Sistem
-                </label>
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-xs font-bold text-slate-900 dark:text-[#F1F5F9] uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-md bg-teal-500 text-slate-950 flex items-center justify-center text-[10px] font-black">02</span>
+                    Arsitektur Platform Sistem
+                  </label>
+                  <span className="text-[11px] font-medium text-slate-400">Stack target</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                   {(pricingConfig.platform_factors || [])
                     .filter(
                       (p) =>
@@ -1520,29 +1567,46 @@ export default function App() {
                         p.applicable_services.length === 0 ||
                         p.applicable_services.includes(calcService)
                     )
-                    .map((p) => (
-                      <button
-                        key={p.code}
-                        type="button"
-                        onClick={() => setCalcPlatform(p.code)}
-                        className={`py-2 px-2 text-center rounded-xl border text-xs font-medium transition cursor-pointer ${
-                          calcPlatform === p.code
-                            ? 'bg-slate-900 dark:bg-[#00C4D7] border-slate-900 dark:border-[#00C4D7] text-white dark:text-[#020B18]'
-                            : 'bg-slate-50 dark:bg-[#06111F] border-slate-200 dark:border-[#183247] text-slate-600 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#183247]'
-                        }`}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
+                    .map((p) => {
+                      const isSelected = calcPlatform === p.code;
+                      const getPlatformIcon = () => {
+                        if (p.code === 'web') return <Globe className="w-3.5 h-3.5" />;
+                        if (p.code === 'mobile') return <Smartphone className="w-3.5 h-3.5" />;
+                        if (p.code === 'ai_ml') return <Sparkles className="w-3.5 h-3.5" />;
+                        if (p.code === 'iot') return <Zap className="w-3.5 h-3.5" />;
+                        return <Laptop className="w-3.5 h-3.5" />;
+                      };
+                      return (
+                        <button
+                          key={p.code}
+                          type="button"
+                          onClick={() => setCalcPlatform(p.code)}
+                          className={`py-3 px-2 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 ${
+                            isSelected
+                              ? 'bg-slate-900 text-white dark:bg-teal-400 dark:text-slate-950 border-slate-900 dark:border-teal-400 font-bold shadow-md shadow-slate-900/10'
+                              : 'bg-slate-50/70 dark:bg-[#06111F] border-slate-200 dark:border-[#183247] text-slate-700 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#183247]'
+                          }`}
+                        >
+                          <span className={`${isSelected ? 'text-teal-400 dark:text-slate-950' : 'text-slate-500 dark:text-[#94A3B8]'}`}>
+                            {getPlatformIcon()}
+                          </span>
+                          <span className="text-xs font-semibold leading-tight">{p.label}</span>
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
 
-              {/* 3. Tingkat Kompleksitas */}
+              {/* 03. Tingkat Kompleksitas */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#F1F5F9] uppercase tracking-wider mb-2.5">
-                  3. Tingkat Kompleksitas
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-xs font-bold text-slate-900 dark:text-[#F1F5F9] uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-md bg-teal-500 text-slate-950 flex items-center justify-center text-[10px] font-black">03</span>
+                    Tingkat Kompleksitas Algoritma & Fitur
+                  </label>
+                  <span className="text-[11px] font-medium text-slate-400">Skala kesulitan sistem</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                   {(pricingConfig.complexity_factors || [])
                     .filter(
                       (c) =>
@@ -1550,28 +1614,49 @@ export default function App() {
                         c.applicable_services.length === 0 ||
                         c.applicable_services.includes(calcService)
                     )
-                    .map((c) => (
-                      <button
-                        key={c.code}
-                        type="button"
-                        onClick={() => setCalcComplexity(c.code)}
-                        className={`py-2 px-2 text-center rounded-xl border text-xs font-medium transition cursor-pointer ${
-                          calcComplexity === c.code
-                            ? 'bg-[#07C995] border-[#07C995] text-white'
-                            : 'bg-slate-50 dark:bg-[#06111F] border-slate-200 dark:border-[#183247] text-slate-600 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#183247]'
-                        }`}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
+                    .map((c) => {
+                      const isSelected = calcComplexity === c.code;
+                      const getComplexityHint = () => {
+                        if (c.code === 'basic') return 'CRUD & Form Standar';
+                        if (c.code === 'intermediate') return 'Multi-Role & Logika Bisnis';
+                        if (c.code === 'advanced') return 'Integrasi API & Algoritma';
+                        return 'Custom Riset / Machine Learning';
+                      };
+                      return (
+                        <button
+                          key={c.code}
+                          type="button"
+                          onClick={() => setCalcComplexity(c.code)}
+                          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-slate-900 text-white dark:bg-teal-400 dark:text-slate-950 border-slate-900 dark:border-teal-400 shadow-md ring-2 ring-slate-900/10 dark:ring-teal-400/20'
+                              : 'bg-slate-50/70 dark:bg-[#06111F] border-slate-200 dark:border-[#183247] text-slate-700 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#183247]'
+                          }`}
+                        >
+                          <div className="font-bold text-xs flex items-center justify-between">
+                            <span>{c.label}</span>
+                            {isSelected && <Check className="w-3.5 h-3.5 stroke-[3] text-teal-400 dark:text-slate-950" />}
+                          </div>
+                          <div className={`text-[10px] mt-1 line-clamp-1 ${
+                            isSelected ? 'text-slate-300 dark:text-slate-800' : 'text-slate-400'
+                          }`}>
+                            {getComplexityHint()}
+                          </div>
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
 
-              {/* 4. Fitur Tambahan (Add-ons) */}
+              {/* 04. Fitur Tambahan & Add-ons */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-[#F1F5F9] uppercase tracking-wider mb-2.5">
-                  4. Fitur Tambahan (Opsional)
-                </label>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-xs font-bold text-slate-900 dark:text-[#F1F5F9] uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-md bg-teal-500 text-slate-950 flex items-center justify-center text-[10px] font-black">04</span>
+                    Paket Dokumentasi & Add-ons (Opsional)
+                  </label>
+                  <span className="text-[11px] font-medium text-slate-400">Centang sesuai kebutuhan</span>
+                </div>
                 <div className="space-y-2.5">
                   {(pricingConfig.addons || [])
                     .filter(
@@ -1580,132 +1665,242 @@ export default function App() {
                         addon.applicable_services.length === 0 ||
                         addon.applicable_services.includes(calcService)
                     )
-                    .map((addon) => (
-                      <label
-                        key={addon.code}
-                        className="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] cursor-pointer hover:bg-slate-100/70 dark:hover:bg-[#183247] transition"
-                      >
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={selectedAddons.includes(addon.code)}
-                            onChange={() => toggleAddonCode(addon.code)}
-                            className="w-4 h-4 rounded text-[#0093E3] border-slate-300 focus:ring-0"
-                          />
-                          <div>
-                            <span className="text-xs font-semibold text-slate-800 dark:text-[#F1F5F9]">
-                              {addon.label}
-                            </span>
-                            {addon.description && (
-                              <p className="text-[11px] text-slate-500 dark:text-[#94A3B8]">{addon.description}</p>
-                            )}
+                    .map((addon) => {
+                      const isChecked = selectedAddons.includes(addon.code);
+                      return (
+                        <label
+                          key={addon.code}
+                          className={`flex items-center justify-between gap-3 p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                            isChecked
+                              ? 'bg-teal-50/50 dark:bg-teal-950/20 border-teal-500/50 dark:border-teal-500/40 shadow-xs'
+                              : 'bg-slate-50/70 dark:bg-[#06111F] border-slate-200 dark:border-[#183247] hover:bg-slate-100/70 dark:hover:bg-[#183247]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => toggleAddonCode(addon.code)}
+                              className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-slate-300 cursor-pointer"
+                            />
+                            <div>
+                              <span className="text-xs font-bold text-slate-800 dark:text-[#F1F5F9] block">
+                                {addon.label}
+                              </span>
+                              {addon.description && (
+                                <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] mt-0.5">{addon.description}</p>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <span className="text-[11px] font-bold text-[#0093E3] shrink-0 font-mono">
-                          {addon.price_type === 'percent'
-                            ? `+${addon.price_min}%`
-                            : `+Rp ${(addon.price_min).toLocaleString('id-ID')}`}
-                        </span>
-                      </label>
-                    ))}
+                          <span className="text-xs font-extrabold text-teal-700 dark:text-teal-400 shrink-0 font-mono bg-teal-100/60 dark:bg-teal-900/40 px-2.5 py-1 rounded-lg border border-teal-200/60 dark:border-teal-700/50">
+                            {addon.price_type === 'percent'
+                              ? `+${addon.price_min}%`
+                              : `+Rp ${(addon.price_min).toLocaleString('id-ID')}`}
+                          </span>
+                        </label>
+                      );
+                    })}
                 </div>
               </div>
 
-              {/* 5. Estimasi Waktu Pengerjaan */}
+              {/* 05. Target Delivery & Timeline */}
               <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    5. Estimasi Waktu Pengerjaan
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-xs font-bold text-slate-900 dark:text-[#F1F5F9] uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-md bg-teal-500 text-slate-950 flex items-center justify-center text-[10px] font-black">05</span>
+                    Target Delivery & Waktu Pengerjaan
                   </label>
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60">
-                    {calcDays} Hari Pengerjaan ({estimateResult?.urgency_tier || 'Standar'})
+                  <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
+                    calcDays <= (currentServiceObj?.standard_days ? currentServiceObj.standard_days * 0.35 : 5)
+                      ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800/60'
+                      : calcDays <= (currentServiceObj?.standard_days ? currentServiceObj.standard_days * 0.65 : 9)
+                      ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/60'
+                      : calcDays <= (currentServiceObj?.standard_days || 14)
+                      ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/60'
+                      : 'bg-slate-100 dark:bg-[#183247] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-[#183247]'
+                  }`}>
+                    {calcDays} Hari Kerja ({
+                      calcDays <= (currentServiceObj?.standard_days ? currentServiceObj.standard_days * 0.35 : 5)
+                        ? '⚡ Express / Prioritas'
+                        : calcDays <= (currentServiceObj?.standard_days ? currentServiceObj.standard_days * 0.65 : 9)
+                        ? '🚀 Fast-Track'
+                        : calcDays <= (currentServiceObj?.standard_days || 14)
+                        ? '✨ Standar Rekomendasi'
+                        : '⏱ Fleksibel (Paling Hemat)'
+                    })
                   </span>
                 </div>
-                <input
-                  type="range"
-                  min={currentServiceObj?.min_days || 1}
-                  max={currentServiceObj?.max_days || 60}
-                  value={calcDays}
-                  onChange={(e) => setCalcDays(e.target.value)}
-                  className="w-full h-2 bg-slate-200 dark:bg-[#183247] rounded-lg appearance-none cursor-pointer accent-[#0093E3] dark:accent-[#00C4D7]"
-                />
-                <div className="flex justify-between text-[11px] text-slate-400 mt-1 font-medium">
-                  <span>Min {currentServiceObj?.min_days || 1} Hari</span>
-                  <span>Standar {currentServiceObj?.standard_days || 14} Hari</span>
-                  <span>Max {currentServiceObj?.max_days || 60} Hari</span>
+                <div className="bg-slate-50/80 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] rounded-2xl p-4 space-y-3">
+                  <input
+                    type="range"
+                    min={currentServiceObj?.min_days || 1}
+                    max={currentServiceObj?.max_days || 60}
+                    value={calcDays}
+                    onChange={(e) => setCalcDays(Number(e.target.value))}
+                    className="w-full h-2.5 bg-slate-200 dark:bg-[#183247] rounded-lg appearance-none cursor-pointer accent-teal-500"
+                  />
+                  <div className="flex justify-between text-[11px] text-slate-500 dark:text-[#94A3B8] font-medium">
+                    <span>Min {currentServiceObj?.min_days || 1} Hari</span>
+                    <span>Standar {currentServiceObj?.standard_days || 14} Hari</span>
+                    <span>Max {currentServiceObj?.max_days || 60} Hari</span>
+                  </div>
+                  {/* Preset Buttons */}
+                  <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-200/60 dark:border-[#183247]">
+                    <button
+                      type="button"
+                      onClick={() => setCalcDays(currentServiceObj?.min_days || 3)}
+                      className="py-1.5 px-2 rounded-lg bg-white dark:bg-[#0B1929] hover:bg-slate-100 dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-[11px] font-semibold text-slate-700 dark:text-[#F1F5F9] transition"
+                    >
+                      ⚡ Express ({currentServiceObj?.min_days || 3}h)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCalcDays(currentServiceObj?.standard_days || 14)}
+                      className="py-1.5 px-2 rounded-lg bg-white dark:bg-[#0B1929] hover:bg-slate-100 dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-[11px] font-semibold text-slate-700 dark:text-[#F1F5F9] transition"
+                    >
+                      ✨ Rekomendasi ({currentServiceObj?.standard_days || 14}h)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCalcDays(Math.min(currentServiceObj?.max_days || 30, (currentServiceObj?.standard_days || 14) + 7))}
+                      className="py-1.5 px-2 rounded-lg bg-white dark:bg-[#0B1929] hover:bg-slate-100 dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-[11px] font-semibold text-slate-700 dark:text-[#F1F5F9] transition"
+                    >
+                      ⏱ Fleksibel
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Estimation Summary Box */}
-            <div className="lg:col-span-5 bg-white dark:bg-[#0B1929] border border-slate-200 dark:border-[#183247] rounded-3xl p-6 sm:p-8 shadow-sm space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  Rincian Estimasi
-                </span>
-                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-sky-50 text-[#0093E3]">
-                  Simulasi Akurat
-                </span>
-              </div>
-
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between text-slate-600">
-                  <span>Jenis Layanan:</span>
-                  <span className="font-semibold text-slate-900">{currentServiceObj?.name}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Platform / Stack:</span>
-                  <span className="font-semibold text-slate-900 uppercase">{calcPlatform}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Target Waktu:</span>
-                  <span className="font-semibold text-slate-900">{calcDays} Hari</span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100">
-                <div className="text-xs text-slate-500">Total Estimasi Investasi:</div>
-                <div className="mt-1 text-2xl sm:text-3xl font-extrabold text-[#0093E3] tracking-tight">
-                  Rp {estimateResult ? (estimateResult.estimated_min_price).toLocaleString('id-ID') : '...'}
-                </div>
-                <div className="text-xs text-slate-400 font-mono mt-0.5">
-                  Rentang s.d. Rp {estimateResult ? (estimateResult.estimated_max_price).toLocaleString('id-ID') : '...'}
-                </div>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-100 dark:border-[#183247] text-xs text-slate-600 dark:text-[#94A3B8] space-y-1">
-                <div className="flex justify-between items-center">
-                  <span>Rekomendasi DP (40%):</span>
-                  <span className="font-extrabold text-[#07C995] font-mono">
-                    Rp {estimateResult ? (estimateResult.recommended_dp).toLocaleString('id-ID') : '...'}
+            {/* Rincian Estimasi (Enterprise Sticky Sidebar, 5 cols) */}
+            <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
+              <div className="bg-white dark:bg-[#0B1929] border border-slate-200/90 dark:border-[#183247] rounded-3xl p-6 sm:p-7 shadow-xl shadow-slate-200/50 dark:shadow-none space-y-5">
+                {/* Header */}
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-[#183247]">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-[#F1F5F9] uppercase tracking-wider">
+                      Rincian Estimasi Proyek
+                    </h3>
+                    <p className="text-[11px] text-slate-500 dark:text-[#94A3B8]">Spesifikasi & Rencana Biaya</p>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Live Calculator</span>
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400">
-                  Harga dapat berubah sesuai kebutuhan spesifik. Konsultasikan untuk hasil yang lebih akurat.
-                </p>
-              </div>
 
-              <div className="space-y-2.5 pt-2">
-                <button
-                  type="button"
-                  onClick={openOrderModalFromCalc}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#07C995] to-[#17C455] hover:opacity-95 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition cursor-pointer"
-                >
-                  <span>Ajukan Order Sekarang</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    openWhatsAppDirect(
-                      `Kalkulator ${currentServiceObj?.name} (Estimasi Rp ${estimateResult?.estimated_min_price?.toLocaleString('id-ID')})`
-                    )
-                  }
-                  className="w-full py-3 rounded-xl bg-white dark:bg-[#06111F] hover:bg-slate-50 dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-slate-800 dark:text-[#F1F5F9] font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
-                >
-                  <MessageSquare className="w-4 h-4 text-emerald-600" />
-                  <span>Konsultasi via WhatsApp</span>
-                </button>
+                {/* Spec Breakdown */}
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100/70 dark:border-[#183247]/50">
+                    <span className="text-slate-500 dark:text-[#94A3B8]">Layanan Utama:</span>
+                    <span className="font-bold text-slate-900 dark:text-[#F1F5F9]">{currentServiceObj?.name}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100/70 dark:border-[#183247]/50">
+                    <span className="text-slate-500 dark:text-[#94A3B8]">Platform & Stack:</span>
+                    <span className="font-bold text-slate-900 dark:text-[#F1F5F9] uppercase">{calcPlatform}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100/70 dark:border-[#183247]/50">
+                    <span className="text-slate-500 dark:text-[#94A3B8]">Kompleksitas:</span>
+                    <span className="font-bold text-slate-900 dark:text-[#F1F5F9] capitalize">{calcComplexity}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-slate-100/70 dark:border-[#183247]/50">
+                    <span className="text-slate-500 dark:text-[#94A3B8]">Target Delivery:</span>
+                    <span className="font-bold text-slate-900 dark:text-[#F1F5F9]">{calcDays} Hari Kerja</span>
+                  </div>
+                  {selectedAddons.length > 0 && (
+                    <div className="pt-1">
+                      <span className="text-slate-500 dark:text-[#94A3B8] block mb-1.5">Add-ons Terpilih:</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {(pricingConfig.addons || [])
+                          .filter((a) => selectedAddons.includes(a.code))
+                          .map((a) => (
+                            <span
+                              key={a.code}
+                              className="px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300 border border-teal-200/60 dark:border-teal-800 text-[10px] font-semibold"
+                            >
+                              + {a.label}
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Highlighted Total Investment */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 dark:from-[#06111F] dark:to-[#0B1E33] border border-slate-800 text-white space-y-1">
+                  <div className="text-[11px] font-bold text-teal-400 uppercase tracking-wider">
+                    Total Estimasi Investasi
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-2xl sm:text-3xl font-black tracking-tight text-white font-mono">
+                      Rp {estimateResult ? (estimateResult.estimated_min_price).toLocaleString('id-ID') : '...'}
+                    </div>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                      IDR
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-400">
+                    Rentang wajar: Rp {estimateResult ? (estimateResult.estimated_max_price).toLocaleString('id-ID') : '...'}
+                  </div>
+                </div>
+
+                {/* DP Commitment Box */}
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-xs space-y-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 dark:text-[#94A3B8] font-medium">Komitmen DP Awal (40%):</span>
+                    <span className="font-extrabold text-teal-600 dark:text-teal-400 font-mono text-sm">
+                      Rp {estimateResult ? (estimateResult.recommended_dp).toLocaleString('id-ID') : '...'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-[#94A3B8] leading-relaxed">
+                    Sisa 60% pelunasan setelah program selesai dikerjakan, diuji coba, dan siap didemokan bersama Anda.
+                  </p>
+                </div>
+
+                {/* Enterprise Guarantees */}
+                <div className="pt-2 border-t border-slate-100 dark:border-[#183247] space-y-2 text-[11px] text-slate-600 dark:text-[#94A3B8]">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-teal-500 shrink-0" />
+                    <span>Full Source Code 100% Hak Milik</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-3.5 h-3.5 text-teal-500 shrink-0" />
+                    <span>Garansi Revisi & Bimbingan Pengujian</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Video className="w-3.5 h-3.5 text-teal-500 shrink-0" />
+                    <span>Panduan Setup Database & Video Tutorial</span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={openOrderModalFromCalc}
+                    className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#07C995] to-[#00C4D7] hover:opacity-95 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-teal-500/20 transition cursor-pointer"
+                  >
+                    <span>Ajukan Order dari Simulasi Ini</span>
+                    <ArrowRight className="w-4 h-4 stroke-[3]" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openWhatsAppDirect(
+                        `Halo Tim Rizofara, saya ingin konsultasi dari simulasi kalkulator:
+- Layanan: ${currentServiceObj?.name}
+- Platform: ${calcPlatform.toUpperCase()}
+- Kompleksitas: ${calcComplexity}
+- Target Waktu: ${calcDays} Hari
+- Estimasi Biaya: Rp ${estimateResult?.estimated_min_price?.toLocaleString('id-ID')}`
+                      )
+                    }
+                    className="w-full py-3 px-4 rounded-xl bg-white dark:bg-[#06111F] hover:bg-slate-50 dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-slate-800 dark:text-[#F1F5F9] font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
+                  >
+                    <MessageSquare className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <span>Konsultasi Spesifikasi via WhatsApp</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
