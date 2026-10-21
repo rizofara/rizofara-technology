@@ -24,7 +24,7 @@ export default function AdminCmsManager({ token, adminRole, showToast, onCmsUpda
   const [settingsForm, setSettingsForm] = useState({
     brand_name: 'Rizofara Technology',
     tagline: 'Digital Roots for a Brighter Tomorrow',
-    whatsapp_number: '6285692390483',
+    whatsapp_number: '6285141396021',
     hero_badge: 'Asistensi Kode Bersih • Bebas Plagiasi • Wireframe Balsamiq & Video Panduan',
     hero_title: 'Solusi Skripsi IT, Pembuatan',
     hero_highlight: 'Website & Chatbot AI',

@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     MAX_IMAGE_UPLOAD_SIZE: int = 3 * 1024 * 1024  # 3 MB untuk gambar portofolio/profil
 
     # WhatsApp Admin / Business Contact
-    WHATSAPP_ADMIN_NUMBER: str = "6285692390483"  # Nomor WhatsApp Bisnis
+    WHATSAPP_ADMIN_NUMBER: str = "6285141396021"  # Nomor WhatsApp Bisnis
 
     # Telegram Alert (Opsional)
     TELEGRAM_BOT_TOKEN: str = ""

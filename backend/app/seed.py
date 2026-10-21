@@ -96,7 +96,7 @@ def seed_initial_admins(db: Session) -> None:
             role="superadmin",
             title="Co-Founder - Lead Tech & AI",
             bio="Fokus pada arsitektur backend FastAPI, database, skripsi AI/Machine Learning, Python, dan Chatbot.",
-            whatsapp="6285692390483",
+            whatsapp="6285141396021",
             is_active=True,
         ),
         AdminUser(
@@ -106,7 +106,7 @@ def seed_initial_admins(db: Session) -> None:
             role="admin",
             title="Co-Founder - Frontend & Client Ops",
             bio="Fokus pada UI/UX desain Tailwind, komunikasi dan closing klien via WhatsApp, pengerjaan Web (React, Laravel), & QA.",
-            whatsapp="6285692390483",
+            whatsapp="6285141396021",
             is_active=True,
         ),
     ]
@@ -494,7 +494,7 @@ def seed_initial_cms(db: Session) -> None:
             ),
             SiteSetting(
                 key="whatsapp_number",
-                value="6285692390483",
+                value="6285141396021",
                 group="contact",
                 description="Nomor WhatsApp utama (format 628xxx)",
             ),

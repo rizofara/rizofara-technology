@@ -1472,7 +1472,7 @@ export default function AdminPortal({
                       type="text"
                       value={profileForm.whatsapp}
                       onChange={(e) => setProfileForm({ ...profileForm, whatsapp: e.target.value })}
-                      placeholder="6285692390483"
+                      placeholder="6285141396021"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8] focus:outline-none focus:border-teal-500"
                     />
                   </div>

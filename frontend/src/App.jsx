@@ -390,7 +390,7 @@ export default function App() {
     settings: {
       brand_name: 'Rizofara Technology',
       tagline: 'Digital roots endless possibilities',
-      whatsapp_number: '6285692390483',
+      whatsapp_number: '6285141396021',
       hero_badge: 'Solusi Digital untuk Mahasiswa & Bisnis',
       hero_title: 'Solusi Skripsi IT, Pembuatan',
       hero_highlight: 'Website & Chatbot AI',
@@ -801,7 +801,10 @@ export default function App() {
   };
 
   const openWhatsAppDirect = (topic = 'Konsultasi Layanan') => {
-    const waNum = cmsData.settings?.whatsapp_number || '6285692390483';
+    let waNum = (cmsData.settings?.whatsapp_number || '6285141396021').replace(/\D/g, '');
+    if (waNum.startsWith('0')) {
+      waNum = '62' + waNum.slice(1);
+    }
     const brand = cmsData.settings?.brand_name || 'Rizofara Technology';
     const text = encodeURIComponent(
       `Halo Tim ${brand},\nSaya tertarik konsultasi terkait: ${topic}.\nMohon informasi ketersediaan jadwal dan estimasinya ya kak. Terima kasih!`
@@ -1873,32 +1876,15 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="space-y-2.5 pt-2">
+                {/* Action Button (Tunggal & Fokus Langsung Order) */}
+                <div className="pt-2">
                   <button
                     type="button"
                     onClick={openOrderModalFromCalc}
-                    className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#07C995] to-[#00C4D7] hover:opacity-95 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-teal-500/20 transition cursor-pointer"
+                    className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-[#07C995] to-[#00C4D7] hover:opacity-95 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 transition cursor-pointer"
                   >
                     <span>Ajukan Order dari Simulasi Ini</span>
                     <ArrowRight className="w-4 h-4 stroke-[3]" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      openWhatsAppDirect(
-                        `Halo Tim Rizofara, saya ingin konsultasi dari simulasi kalkulator:
-- Layanan: ${currentServiceObj?.name}
-- Platform: ${calcPlatform.toUpperCase()}
-- Kompleksitas: ${calcComplexity}
-- Target Waktu: ${calcDays} Hari
-- Estimasi Biaya: Rp ${estimateResult?.estimated_min_price?.toLocaleString('id-ID')}`
-                      )
-                    }
-                    className="w-full py-3 px-4 rounded-xl bg-white dark:bg-[#06111F] hover:bg-slate-50 dark:hover:bg-[#183247] border border-slate-200 dark:border-[#183247] text-slate-800 dark:text-[#F1F5F9] font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
-                  >
-                    <MessageSquare className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                    <span>Konsultasi Spesifikasi via WhatsApp</span>
                   </button>
                 </div>
               </div>
@@ -2546,7 +2532,7 @@ export default function App() {
                       onChange={(e) =>
                         setOrderForm({ ...orderForm, client_whatsapp: e.target.value })
                       }
-                      placeholder="Contoh: 085692390483"
+                      placeholder="Contoh: 085141396021"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-[#06111F] border border-slate-200 dark:border-[#183247] text-slate-900 dark:text-[#F1F5F9] placeholder:text-slate-400 dark:placeholder:text-[#94A3B8] focus:outline-none focus:border-[#0093E3]"
                     />
                   </div>
